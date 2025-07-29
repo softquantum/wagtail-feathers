@@ -95,6 +95,19 @@ INSTALLED_APPS = [
 ]
 ```
 
+**Theming**
+```
+# create a folder named "themes" at the 'BASE_DIR' of your project
+...
+@cached_property
+def themes_dir(self) -> Path:
+    """Get the themes directory from Django settings."""
+    return getattr(settings, "BASE_DIR", Path.cwd()) / "themes"
+...
+```
+Add all the themes you want, see the demo/themes folder for an example.  Adapt the json file accordingly.
+
+
 **With Simple Translation:**
 ```python
 INSTALLED_APPS = [
