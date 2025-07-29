@@ -111,8 +111,8 @@ class SeoMixin(models.Model):
     
     # Translation support
     if WAGTAIL_LOCALIZE_AVAILABLE:
-        translatable_fields = [
-            # Note: seo_title and search_description are already translatable in Wagtail
+        override_translatable_fields = [
+            TranslatableField("canonical_url"),
         ]
     
     class Meta:

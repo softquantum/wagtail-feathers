@@ -11,12 +11,6 @@ from django.utils.html import strip_tags
 from django.utils.translation import gettext_lazy as _
 from wagtail.admin.panels import FieldPanel
 
-try:
-    from wagtail_localize.fields import TranslatableField
-    WAGTAIL_LOCALIZE_AVAILABLE = True
-except ImportError:
-    WAGTAIL_LOCALIZE_AVAILABLE = False
-
 
 class ReadingTimeMixin(models.Model):
     """
@@ -42,14 +36,7 @@ class ReadingTimeMixin(models.Model):
     reading_time_panels = [
         FieldPanel('reading_time_minutes'),
     ]
-    
-    # Translation support
-    if WAGTAIL_LOCALIZE_AVAILABLE:
-        translatable_fields = [
-            # reading_time_minutes is not translatable as it's calculated
-            # words_per_minute is now in site settings
-        ]
-    
+
     class Meta:
         abstract = True
     
