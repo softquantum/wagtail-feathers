@@ -1,0 +1,35 @@
+{% load wagtailcore_tags i18n svg_tags %}
+
+{% offices_for_locale as offices %}
+<section id="contact" class="py-20 bg-base-100">
+   <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-3 gap-8 mb-16">
+         {% for office in offices %}
+            <div class="relative overflow-hidden rounded-sm shadow-lg transform transition-all duration-400 hover:scale-105">
+               <div class="{% cycle 'bg-gradient-to-br from-primary/10 to-secondary/30' 'bg-gradient-to-r from-accent/20 to-primary/30' %} p-8 h-full min-h-[400px] relative flex flex-col">
+                  <div class="text-center mb-8">
+                     <h3 class="text-3xl font-bold tracking-wider mb-2 text-base-content">{{ office.city }}</h3>
+                     <div class="w-16 h-1 bg-primary mx-auto rounded-full"></div>
+                     <div class="space-y-6 flex-grow">
+                        <div class="flex items-center space-x-4">
+                           <div class="p-3 rounded-lg flex-shrink-0">{% svg_icon name="heroicons-phone-solid" classname="w-7 h-7" %}</div>
+                           <div>
+                              <div class="font-semibold text-md">{{ office.phone }}</div>
+                           </div>
+                        </div>
+                        <div class="flex items-start space-x-4">
+                           <div class="p-3 rounded-lg flex-shrink-0">{% svg_icon name="heroicons-map-pin-solid" classname="w-7 h-7" %}</div>
+                           <div class="text-left">{{ office.address|richtext }}</div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="absolute bottom-6 left-8 right-8">
+                     <div class="text-sm font-medium opacity-70 text-center">{{ office.name }}</div>
+                  </div>
+                  <div class="absolute bg-primary -top-4 -right-4 w-24 h-24 opacity-10 rounded-full pointer-events-none"></div>
+                  <div class="absolute bg-secondary -bottom-6 -left-6 w-32 h-32 opacity-5 rounded-full pointer-events-none"></div>
+               </div>
+        </div>
+         {% endfor %}
+      </div>
+   </section>

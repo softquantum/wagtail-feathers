@@ -1,0 +1,101 @@
+{% load wagtailcore_tags navigation_tags svg_tags %}
+{% wagtail_site as current_site %}
+{% get_site_root as site_root %}
+
+<header x-data="{ 
+  isOpen: false, 
+  scrollY: 0, 
+  isScrolled: false,
+  loaded: false,
+  isHomepage: {% if page.content_type.model == 'homepage' %}true{% else %}false{% endif %},
+  
+  get transitionClass() {
+    return this.loaded ? 'transition-all duration-500 ease-out' : '';
+  },
+  
+  get barColor() {
+    return this.isScrolled ? 'bg-gray-700' : 'bg-white';
+  },
+
+  init() {
+    this.scrollY = window.scrollY;
+    this.isScrolled = this.scrollY > 20;
+    
+    setTimeout(() => {
+      this.loaded = true;
+    }, 50);
+    
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          this.scrollY = window.scrollY;
+          this.isScrolled = this.scrollY > 20;
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+  }
+}" class="fixed top-0 left-0 right-0 z-50" :class="{ 'shadow-lg': isScrolled, [transitionClass]: true }">
+   <!-- Dynamic background with smooth transitions -->
+   <div class="absolute inset-0 bg-base-100"
+        :class="transitionClass"
+        :style="{ opacity: Math.min(0.95, Math.max(0, scrollY / 100)) }"></div>
+   <div class="absolute inset-0 backdrop-blur"
+        :class="transitionClass"
+        :style="{ backdropFilter: `blur(${Math.min(12, scrollY / 10)}px)` }"></div>
+   
+   <div class="relative flex justify-between items-center container mx-auto px-3" 
+        :class="[isScrolled ? 'py-3' : 'py-6', transitionClass]">
+      <div class="flex items-center gap-6">
+         <a href="{% pageurl site_root %}" class="flex items-center text-2xl tracking-wider font-light mr-6 relative z-10" :class="transitionClass" aria-label="Go to the site Homepage">
+            <div :class="[isScrolled ? 'w-16 h-16' : 'w-20 h-20', isHomepage && !isScrolled ? 'brightness-0 invert' : '', transitionClass]">
+                {% svg_icon filename="branding/logo.svg" classname="w-full h-full mr-1" %}
+            </div>
+         </a>
+          <nav aria-label="Top Menu" class="hidden md:block relative z-10">
+             <ul class="flex items-center gap-x-4">
+
+                {% top_menu_items parent=site_root calling_page=self %}
+
+             </ul>
+          </nav>
+      </div>
+      <nav aria-label="Top-center Menu" class="md:hidden flex items-center gap-x-4 relative z-10">
+         {% include "components/_locale_selector.html" %}
+         {% include "components/_theme_switcher.html" %}
+      </nav>
+      <div class="flex items-center md:hidden p-2 hover:bg-base-300 text-base-content rounded-full z-50">
+         <button @click="isOpen = !isOpen"
+                 type="button"
+                 class="hamburger-menu-button text-base-content"
+                 :aria-expanded="isOpen"
+                 aria-label="Toggle mobile menu">
+            <span :class="{'top-bar-transformed': isOpen}" class="bar bg-base-content"></span>
+            <span :class="{'middle-bar-hidden': isOpen}" class="bar bg-base-content"></span>
+            <span :class="{'bottom-bar-transformed': isOpen}" class="bar bg-base-content"></span>
+         </button>
+      </div>
+      <nav aria-label="Top-right Menu" class="hidden md:flex gap-x-4 relative z-10">
+         {% include "components/_locale_selector.html" %}
+         {% include "components/_theme_switcher.html" %}
+      </nav>
+   </div>
+   <section x-show="isOpen"
+            x-transition:enter="transition ease-out duration-500"
+            x-transition:enter-start="opacity-0 translate-x-full"
+            x-transition:enter-end="opacity-100 translate-x-0"
+            x-transition:leave="transition ease-in duration-300"
+            x-transition:leave-start="opacity-100 translate-x-0"
+            x-transition:leave-end="opacity-0 translate-x-full"
+            class="md:hidden h-screen w-full fixed top-0 left-0 z-40 px-10 md:px-20">
+      <div class="absolute inset-0 bg-accent/75 backdrop-blur-md"></div>
+      <nav aria-label="Top Menu" class="relative py-32 z-50">
+         <ul class="flex flex-col pt-5 space-y-1">
+            {% mobile_menu_items parent=site_root calling_page=self %}
+         </ul>
+      </nav>
+   </section>
+</header>

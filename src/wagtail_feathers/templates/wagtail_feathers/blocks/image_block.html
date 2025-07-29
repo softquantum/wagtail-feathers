@@ -1,0 +1,22 @@
+
+{% load wagtailimages_tags %}
+
+{% if self.image %}
+<figure>
+    {% picture self.image format-{avif,webp,jpeg} fill-{400x220,800x450,1200x675} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" loading="lazy" class="aspect-video w-full object-cover" %}
+    
+    {% if self.image.caption or self.image.attribution %}
+    <figcaption class="mt-2 text-sm text-gray-600">
+        {% if self.image.caption %}
+            {{ self.image.caption }}
+        {% endif %}
+        {% if self.image.caption and self.image.attribution %}
+            <span class="mx-1">—</span>
+        {% endif %}
+        {% if self.image.attribution %}
+            <cite>{{ self.image.attribution }}</cite>
+        {% endif %}
+    </figcaption>
+    {% endif %}
+</figure>
+{% endif %}

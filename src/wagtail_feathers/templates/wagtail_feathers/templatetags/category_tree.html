@@ -1,0 +1,151 @@
+{% load category_tags %}
+
+<div class="category-tree">
+    {% if categories %}
+        <ul class="category-list">
+            {% for category in categories %}
+                <li class="category-item category-depth-{{ category.get_depth_display }}" data-category-id="{{ category.id }}">
+                    <div class="category-content">
+                        {% if category.icon %}
+                            <i class="{{ category.icon }} category-icon"></i>
+                        {% endif %}
+                        <span class="category-name">{{ category.name }}</span>
+                        {% if category.get_visible_children %}
+                            <span class="category-toggle" data-toggle="children">
+                                <i class="heroicons-chevron-down-outline"></i>
+                            </span>
+                        {% endif %}
+                    </div>
+                    
+                    {% get_category_children category as children %}
+                    {% if children %}
+                        <ul class="category-children">
+                            {% for child in children %}
+                                <li class="category-item category-depth-{{ child.get_depth_display }}" data-category-id="{{ child.id }}">
+                                    <div class="category-content">
+                                        {% if child.icon %}
+                                            <i class="{{ child.icon }} category-icon"></i>
+                                        {% endif %}
+                                        <span class="category-name">{{ child.name }}</span>
+                                        {% if child.get_visible_children %}
+                                            <span class="category-toggle" data-toggle="children">
+                                                <i class="heroicons-chevron-down-outline"></i>
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    {% get_category_children child as grandchildren %}
+                                    {% if grandchildren %}
+                                        <ul class="category-children">
+                                            {% for grandchild in grandchildren %}
+                                                <li class="category-item category-depth-{{ grandchild.get_depth_display }}" data-category-id="{{ grandchild.id }}">
+                                                    <div class="category-content">
+                                                        {% if grandchild.icon %}
+                                                            <i class="{{ grandchild.icon }} category-icon"></i>
+                                                        {% endif %}
+                                                        <span class="category-name">{{ grandchild.name }}</span>
+                                                    </div>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="no-categories">No categories available.</p>
+    {% endif %}
+</div>
+
+<style>
+.category-tree {
+    font-family: inherit;
+}
+
+.category-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.category-item {
+    margin: 0.25rem 0;
+}
+
+.category-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    transition: background-color 0.2s;
+}
+
+.category-content:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.category-icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+}
+
+.category-name {
+    flex-grow: 1;
+    font-weight: 500;
+}
+
+.category-toggle {
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 0.125rem;
+}
+
+.category-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.category-children {
+    list-style: none;
+    padding-left: 1.5rem;
+    margin: 0.25rem 0 0 0;
+}
+
+.category-depth-0 { }
+.category-depth-1 { padding-left: 1rem; }
+.category-depth-2 { padding-left: 2rem; }
+.category-depth-3 { padding-left: 3rem; }
+.category-depth-4 { padding-left: 4rem; }
+
+.no-categories {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggles = document.querySelectorAll('.category-toggle');
+    
+    toggles.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const categoryItem = this.closest('.category-item');
+            const children = categoryItem.querySelector('.category-children');
+            const icon = this.querySelector('i');
+            
+            if (children) {
+                children.style.display = children.style.display === 'none' ? 'block' : 'none';
+                icon.classList.toggle('heroicons-chevron-down-outline');
+                icon.classList.toggle('heroicons-chevron-right-outline');
+            }
+        });
+    });
+});
+</script>

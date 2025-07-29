@@ -1,0 +1,33 @@
+{% extends 'base_content_page.html' %}
+
+{% load wagtailcore_tags %}
+
+{% comment %}
+Newsletter subscription variant for FormPage
+- Optimized for newsletter/subscription forms
+{% endcomment %}
+
+{% block page_content %}
+    <div class="max-w-xl mx-auto">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold mb-4">{{ page.title }}</h1>
+            <div class="prose prose-lg max-w-none">
+                {{ page.body|richtext }}
+            </div>
+        </div>
+
+        <div class="bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/20 p-6 rounded-xl">
+            <form class="space-y-4" action="{% pageurl page %}" method="POST">
+                {% csrf_token %}
+                {{ form.as_div }}
+                <button type="Submit" class="w-full btn btn-primary btn-lg">
+                    {{ page.action_text|default:"Subscribe Now" }}
+                </button>
+            </form>
+        </div>
+        
+        <div class="text-center mt-6 text-xs text-base-content/60">
+            <p>🔒 Your email is safe with us. We respect your privacy and won't spam you.</p>
+        </div>
+    </div>
+{% endblock page_content %}

@@ -1,0 +1,75 @@
+{
+  "name": "quantum",
+  "display_name": "Quantum",
+  "description": "A clean, minimal theme focused on readability and simplicity",
+  "version": "1.0.0",
+  "author": "Wagtail Feathers",
+  "author_email": "info@wagtailfeathers.dev",
+  "author_url": "https://github.com/wagtail-feathers",
+  "screenshot": "screenshot.png",
+  "preview_url": "",
+  "supports": [
+    "dark_mode",
+    "responsive",
+    "accessibility",
+    "print_styles"
+  ],
+  "requires": {
+    "django": ">=5.2",
+    "wagtail": ">=7.0"
+  },
+  "variants": {
+    "hero": [
+      {"value": "default", "label": "Text only (default)"},
+      {"value": "figure-left", "label": "With figure (left)"},
+      {"value": "figure-right", "label": "With figure (right)"},
+      {"value": "overlay", "label": "With overlay image"}
+    ],
+    "image": [
+      {"value": "default", "label": "Default"},
+      {"value": "bordered", "label": "Bordered"},
+      {"value": "rounded", "label": "Rounded"},
+      {"value": "shadow", "label": "With Shadow"}
+    ],
+    "button": [
+      {"value": "default", "label": "Default"},
+      {"value": "primary", "label": "Primary"},
+      {"value": "secondary", "label": "Secondary"},
+      {"value": "outline", "label": "Outline"},
+      {"value": "ghost", "label": "Ghost"}
+    ],
+    "card": [
+      {"value": "default", "label": "Simple"},
+      {"value": "tagged", "label": "With tags"},
+      {"value": "overlay", "label": "With Overlay"}
+    ],
+    "cards-section": [
+      {"value": "default", "label": "Shadowed (default)"},
+      {"value": "bordered", "label": "Bordered"}
+    ],
+    "heading": [
+      {"value": "default", "label": "Default"},
+      {"value": "accent", "label": "Accent"},
+      {"value": "muted", "label": "Muted"}
+    ],
+    "quote": [
+      {"value": "default", "label": "Default"},
+      {"value": "pullquote", "label": "Pull Quote"},
+      {"value": "boxed", "label": "Boxed Quote"}
+    ]
+  },
+  "metadata": {
+    "color_scheme": "light dark",
+    "primary_color": "#2563eb",
+    "secondary_color": "#64748b",
+    "font_family": "system-ui, sans-serif",
+    "features": [
+      "Mobile-first responsive design",
+      "Dark mode toggle",
+      "Accessibility compliant (WCAG 2.1 AA)",
+      "Optimized for performance",
+      "Clean typography scale",
+      "Consistent spacing system"
+    ]
+  }
+}

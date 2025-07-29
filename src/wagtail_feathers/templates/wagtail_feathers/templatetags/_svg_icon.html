@@ -1,0 +1,24 @@
+{% spaceless %}
+    {# Copied from admin, I kept the wrapped parameter as it can be useful in some situations #}
+    {% if wrapped %}<span class="icon-wrapper">{% endif %}
+    {% if svg_content %}
+        {# Handle filename case - inject the SVG content directly #}
+        {% load static %}
+        {{ svg_content|safe }}
+    {% elif name %}
+        {# Handle name case - use Wagtail's icon system #}
+        <svg class="{{ classname }}" aria-hidden="true">
+            <use href="#icon-{{ name }}"></use>
+        </svg>
+    {% else %}
+        {# No icon found - render nothing or placeholder #}
+    {% endif %}
+
+    {% if title %}
+        <span class="sr-only">
+            {{ title }}
+        </span>
+    {% endif %}
+    {% if wrapped %}</span>{% endif %}
+    {# Make sure this file _doesn’t_ end with a final newline. It can break rendering. #}
+{% endspaceless %}

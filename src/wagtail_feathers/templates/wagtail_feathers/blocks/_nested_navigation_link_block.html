@@ -1,0 +1,21 @@
+<li class="menu-item {% if value.children %}has-children{% endif %}">
+    {% for link_block in value.link %}
+        {% if link_block.block_type == 'internal' %}
+            <a href="{{ link_block.value.url }}" class="menu-link">
+                {{ link_block.value.display_title }}
+            </a>
+        {% elif link_block.block_type == 'external' %}
+            <a href="{{ link_block.value.link }}" class="menu-link" target="_blank" rel="noopener noreferrer">
+                {{ link_block.value.title }}
+            </a>
+        {% endif %}
+    {% endfor %}
+
+    {% if value.children %}
+        <ul class="submenu">
+            {% for child in value.children %}
+                {% include_block child %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+</li>

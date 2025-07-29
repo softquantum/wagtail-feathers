@@ -1,0 +1,62 @@
+{% extends 'base_content_page.html' %}
+
+{% load wagtailimages_tags wagtailcore_tags static i18n %}
+
+{% comment %}
+Featured article variant 
+- Larger images, enhanced typography, special styling for featured content
+{% endcomment %}
+
+{% block page_content %}
+   <div class="grid grid-cols-1 md:gap-6 md:grid-cols-6 text-ink">
+      <article {% if page.show_toc %}data-content-toc{% endif %} class="{% if page.show_toc %}md:col-span-4{% else %}md:col-span-6{% endif %} prose prose-lg max-w-none">
+         <header class="mb-8">
+            <div class="badge badge-primary mb-4">Featured Article</div>
+            <h1 class="text-4xl font-bold mb-4">{{ page.title }}</h1>
+            <div class="text-xl mb-6 text-base-content/80">{{ page.intro | richtext }}</div>
+            {% if page.image %}
+               {% image page.image format-jpeg width-800 as page_image_1x_jpg %}
+               {% image page.image format-jpeg width-1600 as page_image_2x_jpg %}
+               {% image page.image format-webp width-800 as page_image_1x_webp %}
+               {% image page.image format-webp width-1600 as page_image_2x_webp %}
+               <figure class="mb-8">
+                  <picture>
+                     <source media="(min-width: 768px)" 
+                             srcset="{{ page_image_2x_webp.url }} 2x, {{ page_image_1x_webp.url }} 1x" 
+                             type="image/webp">
+                     <source media="(min-width: 768px)" 
+                             srcset="{{ page_image_2x_jpg.url }} 2x, {{ page_image_1x_jpg.url }} 1x" 
+                             type="image/jpeg">
+                     <img src="{{ page_image_1x_jpg.url }}" 
+                          alt="{{ page.image.alt }}" 
+                          class="w-full h-auto rounded-lg shadow-lg">
+                  </picture>
+                  {% if page.image.caption %}
+                     <figcaption class="text-sm text-base-content/60 mt-2 text-center">{{ page.image.caption }}</figcaption>
+                  {% endif %}
+               </figure>
+            {% endif %}
+         </header>
+
+         <div class="article-content">
+            {% include_block page.body %}
+         </div>
+      </article>
+
+      {% if page.show_toc %}
+      <nav aria-label="{% trans 'Table of contents' %}" class="md:col-span-2 order-first md:order-last">
+         <div class="sticky top-24 bg-base-200 p-4 rounded-lg">
+            <h2 class="text-lg font-bold mb-4">{% trans "On this page" %}</h2>
+            <div id="toc"></div>
+         </div>
+      </nav>
+      {% endif %}
+   </div>
+{% endblock page_content %}
+
+{% block extra_js %}
+   <script defer src="{% static 'js/code.js' %}"></script>
+   {% if page.show_toc %}
+   <script defer src="{% static 'js/scrollspy.js' %}"></script>
+   {% endif %}
+{% endblock %}

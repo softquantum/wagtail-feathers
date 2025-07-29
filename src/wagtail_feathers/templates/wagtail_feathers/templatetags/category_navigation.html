@@ -1,0 +1,147 @@
+{% load category_tags %}
+
+<nav class="category-navigation">
+    {% if categories %}
+        <ul class="category-nav-list">
+            {% for category in categories %}
+                <li class="category-nav-item {% if current_category and category == current_category %}active{% endif %}">
+                    <a href="/categories/{{ category.get_url_path }}/" class="category-nav-link">
+                        {% if category.icon %}
+                            <i class="{{ category.icon }} category-nav-icon"></i>
+                        {% endif %}
+                        <span class="category-nav-name">{{ category.name }}</span>
+                    </a>
+                    
+                    {% get_category_children category as children %}
+                    {% if children %}
+                        <ul class="category-nav-submenu">
+                            {% for child in children %}
+                                <li class="category-nav-subitem {% if current_category and child == current_category %}active{% endif %}">
+                                    <a href="/categories/{{ child.get_url_path }}/" class="category-nav-sublink">
+                                        {% if child.icon %}
+                                            <i class="{{ child.icon }} category-nav-icon"></i>
+                                        {% endif %}
+                                        <span class="category-nav-name">{{ child.name }}</span>
+                                    </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</nav>
+
+<style>
+.category-navigation {
+    font-family: inherit;
+}
+
+.category-nav-list,
+.category-nav-submenu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.category-nav-item,
+.category-nav-subitem {
+    position: relative;
+}
+
+.category-nav-link,
+.category-nav-sublink {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.2s;
+    border-radius: 0.25rem;
+}
+
+.category-nav-link:hover,
+.category-nav-sublink:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    text-decoration: none;
+}
+
+.category-nav-item.active > .category-nav-link,
+.category-nav-subitem.active > .category-nav-sublink {
+    background-color: var(--primary-color, #3b82f6);
+    color: white;
+}
+
+.category-nav-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+}
+
+.category-nav-name {
+    font-weight: 500;
+}
+
+.category-nav-submenu {
+    padding-left: 1rem;
+    border-left: 2px solid rgba(0, 0, 0, 0.1);
+    margin-left: 1rem;
+    margin-top: 0.25rem;
+}
+
+.category-nav-sublink {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9em;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .category-nav-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+    
+    .category-nav-submenu {
+        position: static;
+        box-shadow: none;
+        border-left: none;
+        padding-left: 1.5rem;
+        margin-left: 0;
+    }
+}
+
+@media (min-width: 769px) {
+    .category-nav-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .category-nav-item {
+        position: relative;
+    }
+    
+    .category-nav-item:hover .category-nav-submenu {
+        display: block;
+    }
+    
+    .category-nav-submenu {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 0.25rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        min-width: 200px;
+        z-index: 100;
+        padding-left: 0;
+        margin-left: 0;
+        border-left: none;
+    }
+}
+</style>

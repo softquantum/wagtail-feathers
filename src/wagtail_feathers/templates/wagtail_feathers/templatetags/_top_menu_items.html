@@ -1,0 +1,31 @@
+{% comment %}
+Header navigation showing only direct children of the site root (depth 1)
+This template is used by the templatetag 'top-menu-items'
+{% endcomment %}
+
+{% load wagtailcore_tags navigation_tags svg_tags %}
+{% wagtail_site as current_site %}
+{% get_site_root as site_root %}
+
+<li class="relative group">
+  <a href="{% pageurl site_root %}"
+     class="transition-all duration-500 ease-out relative flex items-center text-base-content hover:text-secondary"
+     :class="isHomepage && !isScrolled ? 'w-7 h-7 text-white' : (isScrolled ? 'w-5 h-5' : 'w-7 h-7')">
+     <span class="sr-only">Home</span>
+     {% svg_icon name="heroicons-home-solid" classname="" %}
+     <div class="absolute -bottom-1 left-0 w-0 h-0.5 transition-all duration-300 ease-out group-hover:w-full bg-secondary">
+     </div>
+  </a>
+</li>
+{% for menuitem in menuitems %}
+<li class="top-menu-item font-light tracking-wider text-xl relative group">
+  <a href="{% pageurl menuitem %}"
+     class="relative flex items-center space-x-1 {% if menuitem.active %}text-secondary{% else %}text-base-content{% endif %}"
+     :class="isHomepage && !isScrolled ? 'text-md text-white hover:text-secondary' : (isScrolled ? 'text-sm hover:text-secondary' : 'text-md hover:text-secondary')">
+     <span>{{ menuitem.title }}</span>
+     <div class="absolute -bottom-1 left-0 w-0 h-0.5 transition-all duration-300 ease-out group-hover:w-full bg-secondary {% if menuitem.active %}w-full bg-secondary{% endif %}">
+     </div>
+  </a>
+</li>
+{% endfor %}
+

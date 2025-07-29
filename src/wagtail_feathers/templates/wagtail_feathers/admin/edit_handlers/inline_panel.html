@@ -1,0 +1,236 @@
+{% load i18n wagtailadmin_tags %}
+
+<fieldset class="w-panel">
+    <legend class="w-panel__heading">
+        <label class="w-field__label">{{ self.heading }}</label>
+        {% if self.help_text %}
+            <div class="w-field__help">{{ self.help_text }}</div>
+        {% endif %}
+    </legend>
+
+    <div class="w-panel__content">
+        {% if self.relation_name == 'classifiers' %}
+            {# Enhanced classifier selection with Stimulus #}
+            <div 
+                data-controller="classifier-modal"
+                data-classifier-modal-max-selections-value="{{ self.max_num|default:'-1' }}"
+                class="classifier-inline-panel"
+            >
+                <div class="classifier-controls mb-4 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <input 
+                            type="text" 
+                            placeholder="Search classifiers..."
+                            data-classifier-modal-target="searchInput"
+                            class="w-field__input w-field__input--text"
+                            style="max-width: 300px;"
+                        />
+                        <button 
+                            type="button"
+                            data-action="click->classifier-modal#selectAllAction"
+                            class="button button-secondary button-small"
+                        >
+                            Select All Visible
+                        </button>
+                        <button 
+                            type="button"
+                            data-action="click->classifier-modal#clearAllAction" 
+                            class="button button-secondary button-small"
+                        >
+                            Clear All
+                        </button>
+                    </div>
+                    
+                    <div class="selected-count-container" style="display: none;">
+                        <span class="badge badge-primary">
+                            <span data-classifier-modal-target="selectedCount">0</span> selected
+                        </span>
+                    </div>
+                </div>
+
+                <div 
+                    data-classifier-modal-target="classifierList"
+                    class="classifier-list max-h-96 overflow-y-auto border border-gray-200 rounded-md p-3"
+                >
+                    {# Existing inline panel content will be enhanced by Stimulus #}
+                    {{ self.formset.management_form }}
+                    <div class="w-sequence sequence-{{ self.formset.prefix }}">
+                        {% for child_form in self.formset %}
+                            <div 
+                                class="sequence-member sequence-member-{{ forloop.counter0 }}"
+                                data-classifier-modal-target="classifierItem"
+                                data-type="{{ child_form.instance.classifier.group.type|default:'Other' }}"
+                                data-group="{{ child_form.instance.classifier.group.name|default:'Ungrouped' }}"
+                            >
+                                {% for field in child_form %}
+                                    {% if field.name == 'classifier' %}
+                                        <div class="w-field">
+                                            {{ field.label_tag }}
+                                            {{ field }}
+                                            {% if field.help_text %}
+                                                <div class="w-field__help">{{ field.help_text }}</div>
+                                            {% endif %}
+                                            {% if field.errors %}
+                                                <div class="w-field__errors">
+                                                    {% for error in field.errors %}
+                                                        <div class="error-message">{{ error }}</div>
+                                                    {% endfor %}
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% else %}
+                                        {{ field.as_hidden }}
+                                    {% endif %}
+                                {% endfor %}
+                                
+                                <div class="sequence-controls">
+                                    <button type="button" class="button button-secondary sequence-delete" title="{% trans 'Delete' %}">
+                                        {% icon name="bin" %}
+                                    </button>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="classifier-add-section mt-4">
+                    <button type="button" class="button button-secondary sequence-add" data-bs-toggle="modal" data-bs-target="#classifier-chooser-modal">
+                        {% icon name="plus" %}
+                        {% trans "Add classifier" %}
+                    </button>
+                </div>
+            </div>
+
+            {# Enhanced Modal for Classifier Selection #}
+            <div class="modal fade" id="classifier-chooser-modal" tabindex="-1" aria-labelledby="classifierModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="classifierModalLabel">{% trans "Choose Classifiers" %}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div 
+                                data-controller="classifier-modal"
+                                class="classifier-modal-content"
+                            >
+                                <div class="classifier-search mb-3">
+                                    <input 
+                                        type="text" 
+                                        placeholder="Search classifiers by name or group..."
+                                        data-classifier-modal-target="searchInput"
+                                        class="form-control"
+                                    />
+                                </div>
+                                
+                                <div class="classifier-selection-controls mb-3">
+                                    <div class="btn-group" role="group">
+                                        <button 
+                                            type="button"
+                                            data-action="click->classifier-modal#selectAllAction"
+                                            class="btn btn-outline-primary btn-sm"
+                                        >
+                                            {% trans "Select All Visible" %}
+                                        </button>
+                                        <button 
+                                            type="button"
+                                            data-action="click->classifier-modal#clearAllAction" 
+                                            class="btn btn-outline-secondary btn-sm"
+                                        >
+                                            {% trans "Clear Selection" %}
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="selected-count-display">
+                                        <span class="badge bg-primary">
+                                            <span data-classifier-modal-target="selectedCount">0</span> {% trans "selected" %}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div 
+                                    data-classifier-modal-target="classifierList"
+                                    class="classifier-groups-container"
+                                    style="max-height: 400px; overflow-y: auto;"
+                                >
+                                    {# This will be populated by Stimulus with grouped classifiers #}
+                                    {% for classifier in all_classifiers %}
+                                        <div 
+                                            data-classifier-modal-target="classifierItem"
+                                            data-type="{{ classifier.group.type }}"
+                                            data-group="{{ classifier.group.name }}"
+                                            data-classifier-id="{{ classifier.id }}"
+                                            class="classifier-option"
+                                            style="display: none;"
+                                        >
+                                            <input 
+                                                type="checkbox" 
+                                                id="classifier-{{ classifier.id }}" 
+                                                value="{{ classifier.id }}"
+                                                data-action="change->classifier-modal#handleSelectionChange"
+                                            />
+                                            <label for="classifier-{{ classifier.id }}">
+                                                {{ classifier.name }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                {% trans "Cancel" %}
+                            </button>
+                            <button type="button" class="btn btn-primary" id="apply-classifier-selection">
+                                {% trans "Apply Selection" %}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% else %}
+            {# Default inline panel for non-classifier relations #}
+            {{ self.formset.management_form }}
+            <div class="w-sequence sequence-{{ self.formset.prefix }}">
+                {% for child_form in self.formset %}
+                    <div class="sequence-member sequence-member-{{ forloop.counter0 }}">
+                        {% for field in child_form %}
+                            {% if field.name != 'id' and field.name != 'DELETE' %}
+                                <div class="w-field">
+                                    {{ field.label_tag }}
+                                    {{ field }}
+                                    {% if field.help_text %}
+                                        <div class="w-field__help">{{ field.help_text }}</div>
+                                    {% endif %}
+                                    {% if field.errors %}
+                                        <div class="w-field__errors">
+                                            {% for error in field.errors %}
+                                                <div class="error-message">{{ error }}</div>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                {{ field.as_hidden }}
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <div class="sequence-controls">
+                            <button type="button" class="button button-secondary sequence-delete" title="{% trans 'Delete' %}">
+                                {% icon name="bin" %}
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="sequence-add-section">
+                <button type="button" class="button button-secondary sequence-add">
+                    {% icon name="plus" %}
+                    {% trans "Add" %} {{ self.label }}
+                </button>
+            </div>
+        {% endif %}
+    </div>
+</fieldset>

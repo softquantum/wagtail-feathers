@@ -1,0 +1,12 @@
+{% if settings.app_name.GenericSettings.social_media_links.all %}
+  <div class="social-links">
+    {% for social in settings.app_name.GenericSettings.social_media_links.all %}
+      <a href="{{ social.url }}" target="_blank" rel="noopener noreferrer">
+        {% if social.icon %}
+          <i class="{{ social.icon }}"></i>
+        {% endif %}
+        {{ social.name }}
+      </a>
+    {% endfor %}
+  </div>
+{% endif %}

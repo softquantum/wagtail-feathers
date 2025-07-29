@@ -1,0 +1,116 @@
+{% load svg_tags %}
+{% load wagtailcore_tags wagtailimages_tags wagtailsettings_tags %}
+
+{% if value.theme_variant == "overlay" %}
+   <div {% if value.style_id %}id="{{ value.style_id }}"{% endif %}
+        class="{% if not value.fluid %}container mx-auto{% endif %}"
+        data-component="hero"
+        data-variant="{{ value.theme_variant }}">
+      {% if value.background_image %}
+         {% image value.background_image fill-1920x1080 as bg_image %}
+      {% elif settings.wagtail_feathers.SiteSettings.placeholder_image %}
+         {% image settings.wagtail_feathers.SiteSettings.placeholder_image fill-1920x1080 as bg_image %}
+      {% endif %}
+      <div class="hero min-h-[100vh] {% if not bg_image %}bg-base-200{% endif %} relative overflow-hidden"
+           {% if bg_image %}data-parallax-bg="{{ bg_image.url }}"{% endif %}>
+         {% if bg_image %}
+            <div class="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                 style="background-image: url('{{ bg_image.url }}'); transform: scale(1.1);"
+                 data-parallax-element></div>
+         {% endif %}
+         {% if value.overlay_opacity and value.overlay_opacity != "0" %}
+            <div class="hero-overlay opacity-{{ value.overlay_opacity }}"></div>
+         {% endif %}
+         <div class="hero-content text-neutral-content {% if value.alignment == 'left' %}text-left{% elif value.alignment == 'right' %}text-right{% else %}text-center{% endif %}">
+            <div class="max-w-lg">
+               {% if value.sub_heading %}<p class="hero__subheading animate-fade-in-up">{{ value.sub_heading }}</p>{% endif %}
+               {% if value.heading %}
+                  <h2 class="hero__heading animate-fade-in-up animation-delay-200">{{ value.heading|richtext }}</h2>
+               {% endif %}
+               {% if value.description %}
+                  <div class="hero__description animate-fade-in-up animation-delay-400">{{ value.description|richtext }}</div>
+               {% endif %}
+               {% if value.call_to_actions %}
+                  <div class="group hero__cta animate-fade-in-up animation-delay-600 {% if value.alignment == 'left' %} text-left{% elif value.alignment == 'right' %} text-right{% else %} text-center{% endif %}">
+                     {% for cta_block in value.call_to_actions %}
+                        {% if cta_block.block_type == 'cta' %}
+                           <a href="{% if cta_block.value.link %}{{ cta_block.value.link.0.value.url }}{% endif %}"
+                              class="{% if cta_block.value.style == 'primary' %}hero__btn_primary{% elif cta_block.value.style == 'secondary' %}hero__btn_secondary{% else %}hero__btn_outline{% endif %}"
+                              {% if cta_block.value.link.0.value.link_target %}target="_blank"{% endif %}>
+                              {{ cta_block.value.text }}
+                           </a>
+                        {% endif %}
+                     {% endfor %}
+                  </div>
+               {% endif %}
+            </div>
+         </div>
+      </div>
+      <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce z-30">
+         <div class="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
+            <div class="w-1 h-3 bg-white/70 rounded-full mt-2 animate-pulse"></div>
+         </div>
+      </div>
+   </div>
+{% elif value.theme_variant == "figure-left" or value.theme_variant == "figure-right" %}
+   <div class="{% if not value.fluid %}container mx-auto{% endif %}"
+        data-component="hero"
+        data-variant="{{ value.theme_variant }}">
+      <div class="hero bg-base-200 min-h-[85vh] lg:min-h-[50vh]">
+         <div class="hero-content flex-col-reverse{% if value.theme_variant == 'figure-left' %} lg:flex-row{% elif value.theme_variant == 'figure-right' %} lg:flex-row-reverse{% endif %}">
+            {% if value.background_image %}
+               {% image value.background_image fill-512x512 as hero_image %}
+               <img src="{{ hero_image.url }}" alt="{{ value.background_image_alt|default:'' }}" class="max-w-sm rounded-lg shadow-2xl" />
+            {% elif settings.wagtail_feathers.SiteSettings.placeholder_image %}
+               {% image settings.wagtail_feathers.SiteSettings.placeholder_image fill-512x512 as placeholder_img %}
+               <img src="{{ placeholder_img.url }}" alt="Placeholder image" class="max-w-sm rounded-lg shadow-2xl" />
+            {% endif %}
+            <div class="text-center{% if value.alignment == 'right' %} lg:text-right{% else %} lg:text-left{% endif %}">
+               {% if value.heading %}<h2>{{ value.heading|richtext }}</h2>{% endif %}
+               {% if value.sub_heading %}<h3 class="mt-2">{{ value.sub_heading }}</h3>{% endif %}
+               {% if value.description %}<div class="py-6">{{ value.description|richtext }}</div>{% endif %}
+               {% if value.call_to_actions %}
+                  <div class="flex flex-col gap-3 sm:flex-row mt-8 mb-4 text-center{% if value.alignment == 'right' %} lg:text-right{% else %} lg:text-left{% endif %}">
+                     {% for cta_block in value.call_to_actions %}
+                        {% if cta_block.block_type == 'cta' %}
+                           <a href="{% if cta_block.value.link %}{{ cta_block.value.link.0.value.url }}{% endif %}"
+                              class="btn {% if cta_block.value.style == 'primary' %}btn-primary{% elif cta_block.value.style == 'secondary' %}btn-secondary{% else %}btn-outline{% endif %}"
+                              {% if cta_block.value.link.0.value.link_target %}target="_blank"{% endif %}>
+                              {{ cta_block.value.text }}
+                           </a>
+                        {% endif %}
+                     {% endfor %}
+                  </div>
+               {% endif %}
+            </div>
+         </div>
+      </div>
+   </div>
+{% else %}
+   <div class="{% if not value.fluid %}container mx-auto{% endif %}"
+        data-component="hero"
+        data-variant="{{ value.theme_variant }}">
+      <div class="hero bg-base-200 min-h-[85vh] lg:min-h-[50vh]">
+         <div class="hero-content {% if value.alignment == 'left' %}text-left{% elif value.alignment == 'right' %}text-right{% else %}text-center{% endif %}">
+            <div class="max-w-lg">
+               {% if value.heading %}<h2>{{ value.heading|richtext }}</h2>{% endif %}
+               {% if value.sub_heading %}<h3 class="mt-2">{{ value.sub_heading }}sub heading</h3>{% endif %}
+               {% if value.description %}<div class="py-6">{{ value.description|richtext }}</div>{% endif %}
+               {% if value.call_to_actions %}
+                  <div class="flex flex-col gap-3 sm:flex-row mt-8 mb-4{% if value.alignment == 'left' %} text-left{% elif value.alignment == 'right' %} text-right{% else %} text-center{% endif %}">
+                     {% for cta_block in value.call_to_actions %}
+                        {% if cta_block.block_type == 'cta' %}
+                           <a href="{% if cta_block.value.link %}{{ cta_block.value.link.0.value.url }}{% endif %}"
+                              class="btn {% if cta_block.value.style == 'primary' %}btn-primary{% elif cta_block.value.style == 'secondary' %}btn-secondary{% else %}btn-outline{% endif %}"
+                              {% if cta_block.value.link.0.value.link_target %}target="_blank"{% endif %}>
+                              {{ cta_block.value.text }}
+                           </a>
+                        {% endif %}
+                     {% endfor %}
+                  </div>
+               {% endif %}
+            </div>
+         </div>
+      </div>
+   </div>
+{% endif %}

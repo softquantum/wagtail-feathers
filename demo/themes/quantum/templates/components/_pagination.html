@@ -1,0 +1,66 @@
+{% load querystring_tags pagination_tags i18n svg_tags %}
+{#<div class="join">#}
+{#  <button class="join-item btn">1</button>#}
+{#  <button class="join-item btn">2</button>#}
+{#  <button class="join-item btn btn-disabled">...</button>#}
+{#  <button class="join-item btn">99</button>#}
+{#  <button class="join-item btn">100</button>#}
+{#</div>#}
+<div class="flex flex-col xl:flex-row justify-between items-center">
+    <div>
+        {%  translate "Showing" %}
+        {% if items.paginator.num_pages > 1 %}
+            <span class="font-semibold">{{ items.start_index }} </span>
+            {%  translate "to" %}
+        {% endif %}
+        <span class="font-semibold">{{ items.end_index }} </span>
+        {% if items.paginator.num_pages > 1 %}
+        {%  translate "of" %}
+        <span class="font-semibold">{{ items.paginator.count }} </span>
+        {% endif %}
+        {%  translate "results" %}
+    </div>
+
+    {% if items.paginator.num_pages > 1 %}
+    <div class="join" aria-label="Pagination">
+        {% if items.has_previous %}
+            <a href="{% url_replace request page=items.previous_page_number %}"
+               class="join-item btn">
+        {% else %}
+            <a class="join-item btn btn-disabled" disabled>
+        {% endif %}
+            <span class="sr-only">{% if items.has_previous %}Previous{% else %}No Previous{% endif %}</span>
+        {% svg_icon name="arrow-left" classname="h-5 w-5" %}
+            </a>
+    
+        {% get_proper_elided_page_range items.paginator items.number as elided_page_range %}
+        {% for page_num in elided_page_range %}
+            {% if page_num == items.paginator.ELLIPSIS %}
+                <span class="join-item btn btn-disabled !bg-base-200">
+                    {{ page_num }}
+                </span>
+            {% else %}
+                <a href="{% url_replace request page=page_num %}" 
+                   aria-current="{% if page_num == items.number %}page{% endif %}"
+                   class="join-item btn {% if page_num == items.number %}btn-active{% endif %}">
+                    {{ page_num }}
+                </a>
+            {% endif %}
+        {% endfor %}
+    
+        {% if items.has_next %}
+            <a href="{% url_replace request page=items.next_page_number %}"
+               class="join-item btn">
+        {% else %}
+            <a class="join-item btn btn-disabled" disabled>
+        {% endif %}
+            <span class="sr-only">{% if items.has_next %}Next{% else %}No Next{% endif %}</span>
+            {% svg_icon name="arrow-right" classname="h-5 w-5" %}
+            </a>
+    </div>
+    {% endif %}
+</div>
+    
+
+
+

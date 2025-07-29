@@ -1,0 +1,6 @@
+{% load wagtailcore_tags %}
+
+<section class="page-heading{% if not self.fluid %} container max-w-5xl mx-auto px-3 {% endif %}">
+    <div class="page-heading__subheading">{{ self.sub_heading }}</div>
+    <h2 class="page-heading__heading">{{ self.heading | richtext}}</h2>
+</section>

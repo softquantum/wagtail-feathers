@@ -1,0 +1,79 @@
+{% load wagtailimages_tags wagtailcore_tags placeholder_tags i18n svg_tags %}
+
+<div class="space-y-8">
+   {% for article in featured_articles %}
+      <a href="{% pageurl article %}" class="group cursor-pointer block transform transition-all duration-200 hover:scale-105">
+         <article>
+            <div class="bg-white rounded-sm shadow-md hover:shadow-xl transition-all duration-200 overflow-hidden">
+               <div class="flex">
+                  <div class="relative w-42 h-full">
+                     {% get_placeholder_image as placeholder %}
+                     {% with display_image=article.image|default:placeholder %}
+                        {% if display_image %}
+                           <figure class="h-full">
+                              {% image display_image fill-168x280 loading="lazy" class="w-full h-full object-cover" alt=display_image.alternative_text|default:"Article featured image" %}
+                           </figure>
+                        {% endif %}
+                     {% endwith %}
+                     <div class="absolute top-2 left-2">
+                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                           {{ article.classifiers.first.classifier.name }}
+                        </span>
+                     </div>
+                  </div>
+                  <div class="flex-1 p-4">
+                     <div class="flex items-center space-x-3 text-xs text-gray-500 mb-2">
+                        {% svg_icon name="heroicons-calendar-days-outline" classname="w-3 h-3 mr-1" %}
+                        {% if article.publication_date %}
+                           <time datetime="{{ article.publication_date }}" class="tracking-tight text-secondary text-right">
+                              {{ article.publication_date | date:'d M Y' }}
+                           </time>
+                           {% if article.revision_date %}
+                              , updated:
+                              <time datetime="{{ article.revision_date }}" class="tracking-tight text-secondary text-right">
+                                 {{ article.revision_date | date:'d M Y' }}
+                              </time>
+                           {% endif %}
+                        {% endif %}
+                        <div class="flex items-center">
+                           {% svg_icon name="heroicons-clock-outline" classname="w-4 h-4 mr-1" %}
+                           6 min read
+                        </div>
+                     </div>
+                     <h3 class="text-lg font-bold text-gray-900 mb-2 group-hover:text-green-600 transition-colors line-clamp-3"
+                         title="{{ article.title }}">{{ article.title }}</h3>
+
+                     <div class="text-sm text-gray-600 mb-3 line-clamp-3">{{ article.get_intro_fallback|richtext }}</div>
+
+                     <div class="flex flex-auto space-x-2 mb-3">
+                        {% for tag in article.tags.all|slice:":2" %}
+                           <span class="badge badge-sm badge-ghost">{{ tag.name }}</span>
+                        {% endfor %}
+                        {% if article.tags.all|length > 2 %}<span class="badge badge-sm badge-ghost">...</span>{% endif %}
+                     </div>
+                     <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                           {% svg_icon name="heroicons-user-circle-outline" classname="w-4 h-4 mr-2" %}
+                           <span class="text-sm text-gray-600">
+                              <p class="text-sm text-secondary">
+                                 {% if article.display_authors and article.authors.all %}
+                                    {% with article.authors.all|first as author %}
+                                       {{ author.person }}
+                                       {% if not forloop.last %},{% endif %}
+                                    {% endwith %}
+                                 {% endif %}
+                              </p>
+                           </span>
+                        </div>
+                        <button class="inline-flex items-center text-green-700 font-medium group-hover:text-green-600 transition-colors">
+                           {% translate "Read" %}
+                           {% svg_icon name="heroicons-chevron-right-outline" classname="w-5 h-5 ml-2 text-green-800 group-hover:text-green-600 transition-colors" %}
+                        </button>
+                     </div>
+                  </div>
+               </div>
+            </div>
+         </article>
+      </a>
+   {% endfor %}
+</div>

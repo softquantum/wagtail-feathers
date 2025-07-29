@@ -1,0 +1,45 @@
+{% extends 'base_content_page.html' %}
+
+{% load wagtailcore_tags feathers_tags %}
+
+{% block page_content %}
+    <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-16 transform transition-all duration-1000">
+            <h1 class="inline-flex items-center px-4 py-2 rounded-full bg-green-100 text-green-700 text-sm font-medium mb-6">
+                {{ page.title }}
+            </h1>
+            <h2 class="form-page heading">
+                {{ page.heading|richtext|unwrap_p|safe }}
+            </h2>
+            <div class="text-left prose prose-lg max-w-none mb-8">{{ page.body|richtext }}</div>
+        </div>
+
+        <div class="bg-base-200 p-8 rounded-lg shadow-lg">
+            {{ form.media }}
+            <form class="form-page" action="{% pageurl page %}" method="POST" novalidate>
+                {% csrf_token %}
+
+                {% for field in form %}
+                    <div class="mb-4 {% if field.errors %}has-errors{% endif %}">
+                        <label class="{% if field.field.required %}required{% endif %}">
+                            {{ field.label_tag }}
+                        </label>
+                        {{ field|placeholder_from_help }}
+                        {% if field.errors %}
+                            <div class="error-text">{{ field.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+
+                <div class="text-center pt-4">
+                    <button type="Submit" class="btn btn-primary btn-lg">
+                        {{ page.action_text|default:"Send Message" }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% include "includes/contact_addresses.html" %}
+
+{% endblock page_content %}

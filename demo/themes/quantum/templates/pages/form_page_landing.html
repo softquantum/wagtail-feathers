@@ -1,0 +1,28 @@
+{% extends "base_content_page.html" %}
+{% load wagtailcore_tags i18n %}
+
+{% block page_content %}
+    <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-16 transform transition-all duration-1000">
+            <h1 class="inline-flex items-center px-4 py-2 rounded-full bg-green-100 text-green-700 text-sm font-medium mb-6">
+                {{ page.title }}
+            </h1>
+            <h2 class="form-page heading">
+                {{ page.heading|richtext|unwrap_p|safe }}
+            </h2>
+            <div class="text-left prose prose-lg max-w-none mb-8">{{ page.body|richtext }}</div>
+        </div>
+
+        <div class="bg-base-200 p-8 rounded-lg shadow-lg prose prose-lg max-w-none">
+            {% if page.thank_you_text %}
+                {{ page.thank_you_text|richtext }}
+            {% else %}
+                <p>{% translate "Thank you! Your form has been submitted successfully." %}</p>
+            {% endif %}
+        </div>
+        <a href="/" class="btn btn-primary">Return Home</a>
+    </div>
+
+    {% include "includes/contact_addresses.html" %}
+
+{% endblock page_content %}

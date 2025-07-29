@@ -1,0 +1,27 @@
+{% extends 'base_content_page.html' %}
+{% load wagtailcore_tags %}
+
+{% comment %}
+Portfolio variant for WebPage
+- Grid-based layout for showcasing work/projects
+{% endcomment %}
+
+{% block page_content %}
+    {% if page.header %}
+        {% include_block page.header %}
+    {% endif %}
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2">
+            <div class="prose prose-lg max-w-none">
+                {% include_block page.body %}
+            </div>
+        </div>
+        <div class="lg:col-span-1">
+            <div class="bg-base-200 p-6 rounded-lg">
+                <h3 class="text-lg font-semibold mb-4">Portfolio Highlights</h3>
+                <p class="text-sm text-base-content/70">This sidebar can be customized for portfolio-specific content.</p>
+            </div>
+        </div>
+    </div>
+{% endblock page_content %}

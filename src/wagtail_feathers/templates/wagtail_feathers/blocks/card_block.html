@@ -1,0 +1,44 @@
+{% load wagtailcore_tags %}
+{% load wagtailimages_tags %}
+
+<div class="card card-default card-tagged card-overlay bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 h-full{% if value.theme_variant == 'tagged' %} tagged-variant{% endif %}{% if value.theme_variant == 'overlay' %} overlay-variant{% endif %}"
+     data-component="card"
+     data-variant="{{ value.theme_variant|default:'default' }}">
+    
+    {% if value.image %}
+        <figure class="relative overflow-hidden">
+            {% image value.image fill-400x250 as card_img %}
+            <img src="{{ card_img.url }}" 
+                 alt="{{ value.image_alt|default:value.heading }}" 
+                 class="w-full h-48 object-cover transition-transform duration-300 hover:scale-105"
+                 loading="lazy">
+        </figure>
+    {% endif %}
+    
+    <div class="card-body p-6 flex flex-col flex-grow">
+        {% if value.heading %}
+            <h3 class="card-title text-xl font-semibold mb-3 text-base-content line-clamp-2">{{ value.heading }}</h3>
+        {% endif %}
+        
+        {% if value.text %}
+            <div class="prose prose-sm max-w-none text-base-content/80 mb-4 flex-grow">
+                {{ value.text|richtext }}
+            </div>
+        {% endif %}
+        
+        {% if value.link and value.link_text %}
+            <div class="card-actions justify-start mt-auto">
+                {% for block in value.link %}
+                    <a href="{{ block.value.url }}" 
+                       class="btn btn-primary btn-sm"
+                       {% if block.value.link_target %}target="_blank" rel="noopener"{% endif %}>
+                        {{ value.link_text }}
+                        <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </a>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>

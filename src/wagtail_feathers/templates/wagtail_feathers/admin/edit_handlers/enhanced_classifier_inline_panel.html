@@ -1,0 +1,169 @@
+{% load i18n wagtailadmin_tags %}
+
+<fieldset class="w-panel classifier-enhanced-panel">
+    {% if self.help_text %}
+        <div class="help-block help-info">
+            <svg class="icon icon-help icon" aria-hidden="true"><use href="#icon-help"></use></svg>
+            <div class="help">{{ self.help_text }}</div>
+        </div>
+    {% endif %}
+
+    <div class="w-panel__content">
+        <div 
+            data-controller="classifier-modal"
+            data-classifier-modal-max-selections-value="{{ self.max_num|default:'-1' }}"
+            class="classifier-inline-panel"
+        >
+            <!-- Search and Controls -->
+            <div class="classifier-controls mb-4">
+                <div class="classifier-search-container mb-3">
+                    <input 
+                        type="text" 
+                        placeholder="{% trans 'Search classifiers...' %}"
+                        data-classifier-modal-target="searchInput"
+                        class="w-field__input"
+                    />
+                </div>
+                
+                <div class="classifier-action-buttons">
+                    <button 
+                        type="button"
+                        data-action="click->classifier-modal#clearAllAction" 
+                        class="button button-secondary button-small"
+                    >
+                        {% trans "Clear All" %}
+                    </button>
+                    
+                    <div class="selected-count-container" style="display: none;">
+                        <span class="badge">
+                            <span data-classifier-modal-target="selectedCount">0</span> {% trans "selected" %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available Classifiers for Selection -->
+            {% if classifier_groups %}
+                <div class="available-classifiers mb-4">
+                    <div class="available-classifiers-header">
+                        <div class="header-left">
+                            <h4>{% trans "Available Classifiers" %}</h4>
+                            <div class="total-selected-count-container" style="display: none;">
+                                <span class="badge">
+                                    <span data-classifier-modal-target="selectedCount">0</span> {% trans "selected" %}
+                                </span>
+                            </div>
+                        </div>
+                        <button 
+                            type="button" 
+                            class="collapse-all-button button button-secondary button-small"
+                            data-action="click->classifier-modal#toggleAllGroups"
+                            data-state="expanded"
+                        >
+                            <span class="collapse-all-icon">▼</span>
+                            <span class="collapse-all-text">{% trans "Collapse All" %}</span>
+                        </button>
+                    </div>
+                    <div data-classifier-modal-target="classifierList" class="classifier-groups">
+                        {% for group in classifier_groups %}
+                            {% comment %}Calculate selected count for this group{% endcomment %}
+                            {% with selected_count=0 %}
+                                {% for classifier in group.classifiers.all %}
+                                    {% for child_form in self.formset %}
+                                        {% if child_form.instance.classifier.id == classifier.id %}
+                                            {% with selected_count=selected_count|add:1 %}{% endwith %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                                
+                                <div class="classifier-group mb-3" data-group="{{ group.name }}" data-type="{{ group.type }}" data-max-selections="{{ group.max_selections }}">
+                                    <div class="classifier-group-header {{ group.type|lower }}">
+                                        <button 
+                                            type="button" 
+                                            class="group-toggle button button-secondary {{ group.type|lower }} button-small"
+                                            data-action="click->classifier-modal#toggleGroup"
+                                            data-group="{{ group.name }}"
+                                        >
+                                            <span class="toggle-icon">{% if selected_count > 0 %}▼{% else %}▶{% endif %}</span>
+                                            <span class="group-type">{{ group.type }}</span>:
+                                            <span class="group-name">{{ group.name }}</span>
+                                            <span class="classifier-count">({{ group.classifiers.count }})</span>
+                                            {% if group.max_selections > 1 %}
+                                                <span class="badge selection-mode-badge limited-mode">(select {{ group.max_selections }} max.)</span>
+                                            {% endif %}
+{#                                            {% if selected_count > 0 %}#}
+{#                                                {% if group.max_selections == 1 %}#}
+{#                                                    <span class="badge group-selected-badge">1 selected</span>#}
+{#                                                {% else %}#}
+{#                                                    <span class="badge group-selected-badge">{{ selected_count }} selected</span>#}
+{#                                                {% endif %}#}
+{#                                            {% endif %}#}
+                                        </button>
+                                    </div>
+                                    <div class="classifier-items" {% if selected_count > 0 %}style="display: block;"{% else %}style="display: none;"{% endif %}>
+                                        {% for classifier in group.classifiers.all %}
+                                            <div 
+                                                class="classifier-item"
+                                                data-classifier-modal-target="classifierItem"
+                                                data-type="{{ classifier.group.type }}"
+                                                data-group="{{ classifier.group.name }}"
+                                                data-classifier-id="{{ classifier.id }}"
+                                                data-classifier-name="{{ classifier.name }}"
+                                            >
+                                                <label class="classifier-checkbox">
+                                                    {% if group.max_selections == 1 %}
+                                                        <input 
+                                                            type="radio" 
+                                                            name="group_{{ group.id }}_selection"
+                                                            value="{{ classifier.id }}"
+                                                            data-action="change->classifier-modal#handleSelection"
+                                                            {% comment %}Check if this classifier is already selected{% endcomment %}
+                                                            {% for child_form in self.formset %}
+                                                                {% if child_form.instance.classifier.id == classifier.id %}checked{% endif %}
+                                                            {% endfor %}
+                                                        />
+                                                    {% else %}
+                                                        <input 
+                                                            type="checkbox" 
+                                                            value="{{ classifier.id }}"
+                                                            data-action="change->classifier-modal#handleSelection"
+                                                            {% comment %}Check if this classifier is already selected{% endcomment %}
+                                                            {% for child_form in self.formset %}
+                                                                {% if child_form.instance.classifier.id == classifier.id %}checked{% endif %}
+                                                            {% endfor %}
+                                                        />
+                                                    {% endif %}
+                                                    <span class="classifier-name">{{ classifier.name }}</span>
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Hidden Formset for Django Form Handling -->
+            <div style="display: none;">
+                {{ self.formset.management_form }}
+                <div class="w-sequence sequence-{{ self.formset.prefix }}">
+                    {% for child_form in self.formset %}
+                        <div 
+                            class="sequence-member sequence-member-{{ forloop.counter0 }}"
+                            data-classifier-id="{% if child_form.instance.classifier %}{{ child_form.instance.classifier.id }}{% endif %}"
+                        >
+                            {% for field in child_form %}
+                                {{ field.as_hidden }}
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Hidden Add Button for Stimulus to trigger -->
+                <button type="button" class="sequence-add" style="display: none;"></button>
+            </div>
+        </div>
+    </div>
+</fieldset>

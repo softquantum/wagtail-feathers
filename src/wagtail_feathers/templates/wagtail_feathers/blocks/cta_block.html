@@ -1,0 +1,140 @@
+{% load wagtailcore_tags %}
+
+<div class="cta-section{% if value.theme_variant %} cta-{{ value.theme_variant }}{% endif %} cta-bg-{{ value.background_color|default:'primary' }}" 
+     data-component="cta"
+     data-variant="{{ value.theme_variant|default:'default' }}">
+    
+    <div class="cta-container">
+        {% if value.heading %}
+            <h2 class="cta-heading">{{ value.heading }}</h2>
+        {% endif %}
+        
+        {% if value.text %}
+            <div class="cta-text">
+                {{ value.text|richtext }}
+            </div>
+        {% endif %}
+        
+        {% if value.button_link %}
+            {% for block in value.button_link %}
+                <a href="{{ block.value.url }}" 
+                   class="cta-button"
+                   {% if block.value.link_opens_in_new_tab %}target="_blank" rel="noopener"{% endif %}>
+                    {{ value.button_text }}
+                </a>
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+
+<style>
+/* Base CTA Styles */
+.cta-section {
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.cta-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.cta-heading {
+    font-size: clamp(1.875rem, 4vw, 3rem);
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 1rem;
+}
+
+.cta-text {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    margin: 0 0 2rem;
+}
+
+.cta-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem 2.5rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 1.125rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    min-width: 160px;
+}
+
+/* Background Color Variants */
+.cta-bg-default {
+    background: var(--cta-default-bg, #f7fafc);
+    color: var(--cta-default-color, #1a202c);
+}
+
+.cta-bg-default .cta-button {
+    background: var(--cta-default-button-bg, #3182ce);
+    color: var(--cta-default-button-color, white);
+}
+
+.cta-bg-default .cta-button:hover {
+    background: var(--cta-default-button-hover, #2c5aa0);
+    transform: translateY(-2px);
+}
+
+.cta-bg-primary {
+    background: var(--cta-primary-bg, #3182ce);
+    color: var(--cta-primary-color, white);
+}
+
+.cta-bg-primary .cta-button {
+    background: var(--cta-primary-button-bg, white);
+    color: var(--cta-primary-button-color, #3182ce);
+}
+
+.cta-bg-primary .cta-button:hover {
+    background: var(--cta-primary-button-hover, #f7fafc);
+    transform: translateY(-2px);
+}
+
+.cta-bg-secondary {
+    background: var(--cta-secondary-bg, #718096);
+    color: var(--cta-secondary-color, white);
+}
+
+.cta-bg-secondary .cta-button {
+    background: var(--cta-secondary-button-bg, white);
+    color: var(--cta-secondary-button-color, #718096);
+}
+
+.cta-bg-secondary .cta-button:hover {
+    background: var(--cta-secondary-button-hover, #f7fafc);
+    transform: translateY(-2px);
+}
+
+.cta-bg-accent {
+    background: var(--cta-accent-bg, #ed8936);
+    color: var(--cta-accent-color, white);
+}
+
+.cta-bg-accent .cta-button {
+    background: var(--cta-accent-button-bg, white);
+    color: var(--cta-accent-button-color, #ed8936);
+}
+
+.cta-bg-accent .cta-button:hover {
+    background: var(--cta-accent-button-hover, #f7fafc);
+    transform: translateY(-2px);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .cta-section {
+        padding: 3rem 1rem;
+    }
+    
+    .cta-button {
+        width: 100%;
+        max-width: 300px;
+    }
+}
+</style>

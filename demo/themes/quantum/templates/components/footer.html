@@ -1,0 +1,107 @@
+{% load wagtailcore_tags navigation_tags svg_tags social_tags %}
+
+{% wagtail_site as current_site %}
+{% get_site_root as site_root %}
+{% get_footer_for_site as footer %}
+<footer class="bg-base-200">
+   <div class="container mx-auto px-4 py-10">
+      {% if footer %}
+         <div class="grid grid-cols-1 lg:grid-cols-6 gap-10">
+            <div class="md:col-span-2">
+               <div class="w-20 h-20 mb-4">{% svg_icon filename="branding/logo.svg" classname="w-full h-full" %}</div>
+               {% if footer.footer_text %}<div class="text-base-content/60">{{ footer.footer_text|linebreaks }}</div>{% endif %}
+            </div>
+            <div class="md:col-span-4 md:pt-4">
+               {% if footer.footer_navigation and footer.footer_navigation.menu_sections %}
+                  <div class="footer grid grid-cols-2 lg:grid-cols-4 gap-8 mb-8 mx-auto">
+                     {% for section in footer.footer_navigation.menu_sections %}
+                        <div>
+                           <div class="footer-title text-base-content opacity-60 text-sm font-semibold uppercase tracking-wide mb-4">
+                              {{ section.value.section_heading }}
+                           </div>
+                           <ul class="space-y-3">
+                              {% for link in section.value.links %}
+                                 {% if link.block_type == 'page_links' %}
+                                    {% comment %}Handle PageMenuBlock - renders page and its children as menu items{% endcomment %}
+                                    {% if link.value.show_parent and link.value.parent_page %}
+                                       <li>
+                                          <a href="{% pageurl link.value.parent_page %}" class="link link-hover text-base-content/80">
+                                             {{ link.value.title|default:link.value.parent_page.title }}
+                                          </a>
+                                       </li>
+                                    {% endif %}
+                                    {% get_footer_page_children link.value.parent_page as child_pages %}
+                                    {% for child_page in child_pages %}
+                                       <li>
+                                          <a href="{% pageurl child_page %}" class="link link-hover text-base-content/80">{{ child_page.title }}</a>
+                                       </li>
+                                    {% endfor %}
+                                 {% elif link.block_type == 'internal' %}
+                                    {% comment %}Handle InternalLinkBlock - page or document{% endcomment %}
+                                     <li>
+                                        <a href="{{ link.value.url }}"
+                                          class="link link-hover text-base-content/80"
+                                          {% if link.value.link_type == 'document' %}target="_blank" download{% endif %}
+                                        >
+                                          {{ link.value.get_title }}
+                                       </a>
+                                     </li>
+                                 {% elif link.block_type == 'external' %}
+                                    {% comment %}Handle ExternalLinkBlock{% endcomment %}
+                                    <li>
+                                       <a href="{{ link.value.link }}"
+                                          class="link link-hover text-base-content/80"
+                                          {% if link.value.link_target %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                                          {{ link.value.get_title }}
+                                       </a>
+                                    </li>
+                                 {% endif %}
+                              {% endfor %}
+                           </ul>
+                        </div>
+                     {% endfor %}
+                  </div>
+               {% endif %}
+            </div>
+         </div>
+         <div class="divider"></div>
+         <div class="flex flex-col-reverse lg:flex-row items-center justify-between gap-4 text-sm">
+            <p class="text-base-content/60 text-center lg:hidden">{{ footer.copyright_text }}</p>
+            {% social_media_links %}
+            <p class="text-base-content/60 text-center hidden lg:inline-block lg:text-left">{{ footer.copyright_text }}</p>
+            {% if footer.footer_links %}
+               <ul class="flex flex-wrap justify-center lg:justify-end gap-x-6 gap-y-2">
+                  {% for link_block in footer.footer_links %}
+                     <li>
+                        {% if link_block.block_type == 'internal' %}
+                           <a href="{{ link_block.value.url }}"
+                              {% if link_block.value.link_type == 'document' %}target="_blank"{% endif %}
+                              class="link link-hover text-base-content/80">
+                              {{ link_block.value.get_title }}
+                           </a>
+                        {% elif link_block.block_type == 'external' %}
+                           <a href="{{ link_block.value.url }}"
+                              {% if link_block.value.link_target %}target="_blank" rel="noopener noreferrer"{% endif %}
+                              class="link link-hover text-base-content/80">
+                              {{ link_block.value.get_title }}
+                           </a>
+                        {% endif %}
+                     </li>
+                  {% endfor %}
+               </ul>
+            {% endif %}
+         </div>
+      {% else %}
+         <div class="text-center text-base-content/60">
+            <p>
+               © {% now "Y" %}
+               {% if current_site.site_name %}
+                  {{ current_site.site_name }}
+               {% else %}
+                  {{ request.get_host }}
+               {% endif %}
+            </p>
+         </div>
+      {% endif %}
+   </div>
+</footer>

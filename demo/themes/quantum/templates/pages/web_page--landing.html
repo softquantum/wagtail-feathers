@@ -1,0 +1,19 @@
+{% extends 'base_content_page.html' %}
+{% load wagtailcore_tags %}
+
+{% comment %}
+Landing page variant for WebPage
+- Features larger headers, centered content, and call-to-action focus
+{% endcomment %}
+
+{% block page_content %}
+    {% if page.header %}
+        {% include_block page.header %}
+    {% endif %}
+    
+    <div class="text-center max-w-4xl mx-auto">
+        <div class="prose prose-xl max-w-none text-center">
+            {% include_block page.body %}
+        </div>
+    </div>
+{% endblock page_content %}

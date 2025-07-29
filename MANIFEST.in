@@ -1,0 +1,28 @@
+# Include important package files
+include README.md
+include LICENSE
+include pyproject.toml
+include tox.ini
+
+# Include source code
+recursive-include src/wagtail_feathers *.py
+recursive-include src/wagtail_feathers *.html
+recursive-include src/wagtail_feathers *.json
+recursive-include src/wagtail_feathers *.txt
+
+# Include templates and static files if any
+recursive-include src/wagtail_feathers/templates *
+recursive-include src/wagtail_feathers/static *
+
+# Exclude unnecessary files
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude *.pyd
+global-exclude __pycache__
+global-exclude .DS_Store
+global-exclude *.so
+global-exclude *.log
+
+# Exclude test logs and cache
+recursive-exclude src/wagtail_feathers/tests/logs *
+prune src/wagtail_feathers/tests/logs

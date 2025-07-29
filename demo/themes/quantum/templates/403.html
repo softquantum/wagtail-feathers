@@ -1,0 +1,45 @@
+
+{% extends "base.html" %}
+{% load wagtailcore_tags wagtailimages_tags i18n %}
+
+{% block title %}
+    {% translate "Permission Denied" %}
+{% endblock %}
+
+{% block content %}
+<div class="error-page">
+    <div class="container mx-auto px-4 py-16 text-center">
+        <h1 class="text-6xl font-bold text-gray-800 mb-4">403</h1>
+
+        {% if request.error_page %}
+            <h2 class="text-3xl font-semibold text-gray-600 mb-6">{{ request.error_page.heading }}</h2>
+
+            {% if request.error_page.image %}
+                <div class="mb-8">
+                    {% image request.error_page.image width-400 class="mx-auto rounded-lg" %}
+                </div>
+            {% endif %}
+
+            {% if request.error_page.message %}
+                <div class="prose prose-lg mx-auto mb-8">
+                    {{ request.error_page.message|richtext }}
+                </div>
+            {% endif %}
+        {% else %}
+            <h2 class="text-3xl font-semibold text-gray-600 mb-6">{% translate "Permission Denied" %}</h2>
+            <p class="text-lg text-gray-600 mb-8">
+                {% translate "You don't have permission to access this resource." %}
+            </p>
+        {% endif %}
+
+        <div class="space-x-4">
+            <a href="/" class="inline-block px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                {% translate "Go Home" %}
+            </a>
+            <button onclick="history.back()" class="inline-block px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer">
+                {% translate "Go Back" %}
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

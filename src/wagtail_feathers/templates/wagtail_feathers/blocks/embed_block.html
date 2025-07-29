@@ -1,0 +1,17 @@
+{% load wagtailembeds_tags %}
+
+<style>
+.embed-block iframe {
+    width: 100% !important;
+    height: auto;
+    aspect-ratio: 16/9;
+}
+</style>
+
+<div class="embed-block w-full">
+    {% embed self.url %}
+</div>
+
+
+
+

@@ -1,0 +1,28 @@
+{% load wagtailimages_tags %}
+
+{% if self.image %}
+<div class="{% if not self.fluid %} container max-w-7xl mx-auto px-3{% endif %} relative overflow-hidden">
+<figure class="relative">
+    <div class="header-image-parallax relative h-64 md:h-80 lg:h-96 overflow-hidden">
+        {% picture self.image format-{avif,webp,jpeg} fill-{400x220,800x450,1200x675,1600x900} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw" loading="lazy" class="w-full h-full object-cover transform transition-transform duration-700 ease-out" %}
+        
+        <!-- Optional overlay for better text readability -->
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20"></div>
+    </div>
+
+    {% if self.image.caption or self.image.attribution %}
+    <figcaption class="mt-3 text-sm text-gray-600 bg-white/80 backdrop-blur-sm p-2 rounded">
+        {% if self.image.caption %}
+            {{ self.image.caption }}
+        {% endif %}
+        {% if self.image.caption and self.image.attribution %}
+            <span class="mx-1">—</span>
+        {% endif %}
+        {% if self.image.attribution %}
+            <cite>{{ self.image.attribution }}</cite>
+        {% endif %}
+    </figcaption>
+    {% endif %}
+</figure>
+</div>
+{% endif %}

@@ -1,0 +1,36 @@
+{% extends 'base_content_page.html' %}
+{% load wagtailcore_tags %}
+
+{% comment %}
+Newsletter subscription landing (thank you) page variant
+- Matches the newsletter form variant styling
+{% endcomment %}
+
+{% block page_content %}
+    <div class="max-w-xl mx-auto text-center">
+        <div class="bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/30 rounded-xl p-8 mb-8">
+            <div class="text-primary text-6xl mb-4">
+                <svg class="w-16 h-16 mx-auto" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                </svg>
+            </div>
+            
+            <h1 class="text-2xl font-bold text-primary mb-4">{{ page.title }}</h1>
+            
+            <div class="prose prose-lg max-w-none">
+                {% if page.thank_you_text %}
+                    {{ page.thank_you_text|richtext }}
+                {% else %}
+                    <p>🎉 <strong>Welcome aboard!</strong> You've successfully subscribed to our newsletter.</p>
+                    <p>Check your email for a confirmation message, and get ready for amazing content!</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="space-x-4">
+            <a href="/" class="btn btn-primary">Return Home</a>
+            <a href="/blog" class="btn btn-outline">Read Our Blog</a>
+        </div>
+    </div>
+{% endblock page_content %}

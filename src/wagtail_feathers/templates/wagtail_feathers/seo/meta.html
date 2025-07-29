@@ -1,0 +1,118 @@
+{% comment %}
+SEO Meta Tags Template for Wagtail Feathers
+
+Include this template in your page <head> section to automatically generate:
+- Basic meta tags (title, description, canonical URL)
+- Open Graph tags for social media sharing
+- Twitter Card tags
+- Search engine directives (robots)
+
+Usage:
+    {% include "wagtail_feathers/seo/meta.html" %}
+
+Requires:
+    - page: Current page object with SeoMixin applied
+{% endcomment %}
+
+{% load seo_tags %}
+
+{# Basic meta tags #}
+<title>{{ page.get_seo_title }}</title>
+<meta name="description" content="{{ page.get_seo_description }}">
+<meta name="robots" content="{{ page.get_robots_content }}">
+
+{# Canonical URL #}
+{% if page.get_canonical_url %}
+<link rel="canonical" href="{{ page.get_canonical_url }}">
+{% endif %}
+
+{# Open Graph meta tags for social media #}
+<meta property="og:type" content="{{ page.seo_content_type }}">
+<meta property="og:title" content="{{ page.get_seo_title }}">
+<meta property="og:description" content="{{ page.get_seo_description }}">
+{% if page.get_canonical_url %}
+<meta property="og:url" content="{{ page.get_canonical_url }}">
+{% endif %}
+
+{# Open Graph image #}
+{% with seo_image=page.get_seo_image %}
+    {% if seo_image %}
+        {% load wagtailimages_tags %}
+        {% image seo_image fill-1200x630 as og_image %}
+        <meta property="og:image" content="{{ request.build_absolute_uri:og_image.url }}">
+        <meta property="og:image:width" content="{{ og_image.width }}">
+        <meta property="og:image:height" content="{{ og_image.height }}">
+        <meta property="og:image:alt" content="{{ seo_image.title|default:page.get_seo_title }}">
+    {% endif %}
+{% endwith %}
+
+{# Site name from Wagtail site settings #}
+{% if page.get_site %}
+<meta property="og:site_name" content="{{ page.get_site.site_name }}">
+{% endif %}
+
+{# Twitter Card meta tags #}
+<meta name="twitter:card" content="{{ page.twitter_card_type }}">
+<meta name="twitter:title" content="{{ page.get_seo_title }}">
+<meta name="twitter:description" content="{{ page.get_seo_description }}">
+
+{# Twitter image - reuse Open Graph image #}
+{% with seo_image=page.get_seo_image %}
+    {% if seo_image %}
+        {% load wagtailimages_tags %}
+        {% if page.twitter_card_type == 'summary_large_image' %}
+            {% image seo_image fill-1200x630 as twitter_image %}
+        {% else %}
+            {% image seo_image fill-400x400 as twitter_image %}
+        {% endif %}
+        <meta name="twitter:image" content="{{ request.build_absolute_uri:twitter_image.url }}">
+        <meta name="twitter:image:alt" content="{{ seo_image.title|default:page.get_seo_title }}">
+    {% endif %}
+{% endwith %}
+
+{# Additional meta tags for specific content types #}
+{% if page.seo_content_type == 'article' %}
+    {# Article-specific meta tags #}
+    {% if page.publication_date %}
+    <meta property="article:published_time" content="{{ page.publication_date|date:'c' }}">
+    {% endif %}
+    {% if page.revision_date %}
+    <meta property="article:modified_time" content="{{ page.revision_date|date:'c' }}">
+    {% elif page.last_published_at %}
+    <meta property="article:modified_time" content="{{ page.last_published_at|date:'c' }}">
+    {% endif %}
+    
+    {# Article tags from taxonomy #}
+    {% if page.tags.all %}
+        {% for tag in page.tags.all %}
+        <meta property="article:tag" content="{{ tag.name }}">
+        {% endfor %}
+    {% endif %}
+{% endif %}
+
+{# Language and locale #}
+{% get_current_language as LANGUAGE_CODE %}
+<meta property="og:locale" content="{{ LANGUAGE_CODE|default:'en' }}">
+
+{# Custom meta tags from page-specific implementations #}
+{% if page.get_custom_meta_tags %}
+    {% for name, content in page.get_custom_meta_tags.items %}
+    <meta name="{{ name }}" content="{{ content }}">
+    {% endfor %}
+{% endif %}
+
+{# Custom Open Graph tags from page-specific implementations #}
+{% if page.get_custom_og_tags %}
+    {% for property, content in page.get_custom_og_tags.items %}
+    <meta property="{{ property }}" content="{{ content }}">
+    {% endfor %}
+{% endif %}
+
+{# Custom Twitter tags from page-specific implementations #}
+{% if page.get_custom_twitter_tags %}
+    {% for name, content in page.get_custom_twitter_tags.items %}
+    <meta name="{{ name }}" content="{{ content }}">
+    {% endfor %}
+{% endif %}
+
+{# Additional structured data will be included via structured_data.html #}

@@ -1,0 +1,49 @@
+# Python
+.python-version
+__pycache__/
+*.py[oc]
+
+# Virtual environments
+.venv/
+venv/
+.env
+*.local
+
+# Build and distribution
+build/
+dist/
+wheels/
+.pypirc
+
+# Testing and coverage
+.coverage
+.coverage.*
+coverage.xml
+/htmlcov
+/.tox
+/.tx
+
+# Code quality tools
+.ruff_cache
+
+# IDE and editors
+.idea/
+.vscode/
+.fleet
+
+# Operating system
+.DS_Store
+
+# Logs and databases
+*.log
+*.sqlite3
+
+# Project specific
+dumps/
+media/
+uv.lock
+
+# AI assistant
+CLAUDE.md
+.claude/
+

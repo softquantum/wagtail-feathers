@@ -1,0 +1,90 @@
+{% extends "wagtailadmin/base.html" %}
+{% load i18n wagtailadmin_tags %}
+
+{% block titletag %}{{ title }}{% endblock %}
+
+{% block content %}
+    {% trans "Add child category" as add_child_label %}
+    {% include "wagtailadmin/shared/header.html" with title=title icon="plus" %}
+
+    <div class="nice-padding">
+        <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <div class="help-block help-info">
+                <svg class="icon icon-help icon" aria-hidden="true"><use href="#icon-help"></use></svg>
+                <strong>Adding child category under: {{ parent_category.name }}</strong>
+                <p>This will create a new category as a child of "{{ parent_category.name }}" in the category hierarchy.</p>
+            </div>
+
+            {% for field in form %}
+                <section class="w-panel" id="panel-{{ field.name }}-section" aria-labelledby="panel-{{ field.name }}-heading" data-panel="">
+                    <div class="w-panel__header">
+                        <a class="w-panel__anchor w-panel__anchor--prefix" href="#panel-{{ field.name }}-section" data-panel-anchor="" aria-labelledby="panel-{{ field.name }}-heading">
+                            <svg class="icon icon-link w-panel__icon" aria-hidden="true"><use href="#icon-link"></use></svg>
+                        </a>
+                        <button class="w-panel__toggle" type="button" aria-label="Toggle section" aria-describedby="panel-{{ field.name }}-heading" data-panel-toggle="" aria-controls="panel-{{ field.name }}-content" aria-expanded="true">
+                            <svg class="icon icon-placeholder w-panel__icon" aria-hidden="true"><use href="#icon-placeholder"></use></svg>
+                        </button>
+                        
+                        <h2 class="w-panel__heading w-panel__heading--label" id="panel-{{ field.name }}-heading" data-panel-heading="">
+                            <label for="{{ field.id_for_label }}" id="{{ field.id_for_label }}-label">
+                                <span data-panel-heading-text="">{{ field.label }}</span>
+                                {% if field.field.required %}<span class="w-required-mark" data-panel-required="">*</span>{% endif %}
+                            </label>
+                        </h2>
+                        
+                        <a class="w-panel__anchor w-panel__anchor--suffix" href="#panel-{{ field.name }}-section" aria-labelledby="panel-{{ field.name }}-heading">
+                            <svg class="icon icon-link w-panel__icon" aria-hidden="true"><use href="#icon-link"></use></svg>
+                        </a>
+                        <div class="w-panel__divider"></div>
+                    </div>
+
+                    <div id="panel-{{ field.name }}-content" class="w-panel__content">
+                        <div class="w-field__wrapper" data-field-wrapper="">
+                            <div class="w-field w-field--{{ field.name }} w-field--commentable" data-field="" data-contentpath="{{ field.name }}">
+                                
+                                <div class="w-field__errors" data-field-errors="" id="panel-{{ field.name }}-errors">
+                                    {% if field.errors %}
+                                        {% for error in field.errors %}
+                                            <div class="error-message">{{ error }}</div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+
+                                {% if field.help_text %}
+                                    <div class="w-field__help" id="panel-{{ field.name }}-helptext" data-field-help="">
+                                        {{ field.help_text }}
+                                    </div>
+                                {% endif %}
+
+                                <div class="w-field__input" data-field-input="">
+                                    {{ field }}
+                                    
+                                    <button class="w-field__comment-button w-field__comment-button--add" type="button" data-component="add-comment-button" data-comment-add="" aria-label="Add comment" aria-describedby="{{ field.id_for_label }}-label">
+                                        <svg class="icon icon-comment-add icon" aria-hidden="true"><use href="#icon-comment-add"></use></svg>
+                                        <svg class="icon icon-comment-add-reversed icon" aria-hidden="true"><use href="#icon-comment-add-reversed"></use></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            {% endfor %}
+
+            <footer class="footer">
+                <div class="actions actions--primary footer__container" aria-label="Actions">
+                    <div class="footer__container-item">
+                        <button type="submit" class="button button-longrunning">
+                            <svg class="icon icon-plus icon" aria-hidden="true"><use href="#icon-plus"></use></svg>
+                            {% trans "Add child category" %}
+                        </button>
+                    </div>
+                    <div class="footer__container-item">
+                        <a href="{% url 'wagtailsnippets_wagtail_feathers_category:list' %}" class="button button-secondary">{% trans "Cancel" %}</a>
+                    </div>
+                </div>
+            </footer>
+        </form>
+    </div>
+{% endblock %}

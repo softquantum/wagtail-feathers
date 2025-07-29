@@ -1,0 +1,15 @@
+{% extends "base_page.html" %}
+
+{% comment %}
+Base template for all content pages (non-homepage pages).
+Provides consistent top spacing to ensure content is not hidden behind the fixed header.
+{% endcomment %}
+
+{% block content %}
+    <div style="padding-top: 100px;">
+        <div class="max-w-7xl mx-auto w-full p-4">
+            {% block page_content %}
+            {% endblock page_content %}
+        </div>
+    </div>
+{% endblock content %}

@@ -1,0 +1,13 @@
+{% extends 'base_content_page.html' %}
+{% load wagtailcore_tags %}
+
+{% block page_content %}
+    {% if page.header %}
+        {% include_block page.header %}
+    {% endif %}
+    
+    <div class="prose prose-lg max-w-none">
+        {% include_block page.body %}
+    </div>
+{% endblock page_content %}
+

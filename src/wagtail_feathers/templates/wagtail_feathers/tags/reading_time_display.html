@@ -1,0 +1,18 @@
+{% comment %}
+Reading Time Badge Template
+
+Displays a reading time badge with optional icon.
+Customize CSS classes and styling as needed.
+{% endcomment %}
+
+{% if reading_time %}
+<span class="{{ css_class }}">
+    {% if show_icon %}
+        <svg class="reading-time-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12,6 12,12 16,14"></polyline>
+        </svg>
+    {% endif %}
+    <span class="reading-time-text">{{ reading_time }}</span>
+</span>
+{% endif %}

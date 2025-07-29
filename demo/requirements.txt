@@ -1,0 +1,6 @@
+# Install wagtail-feathers in editable mode from parent directory
+-e ../
+
+# Demo-specific dependencies
+django-debug-toolbar>=4.0.0
+factory-boy>=3.3.0

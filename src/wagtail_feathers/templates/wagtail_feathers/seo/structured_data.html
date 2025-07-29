@@ -1,0 +1,63 @@
+{% comment %}
+Structured Data (JSON-LD) Template for Wagtail Feathers
+
+Include this template before the closing </body> tag to generate structured data
+for search engines. Automatically generates appropriate schema based on the page's
+seo_content_type setting.
+
+Usage:
+    {% include "wagtail_feathers/seo/structured_data.html" %}
+
+Requires:
+    - page: Current page object with SeoMixin applied
+
+Generates schema for:
+    - Articles (with author, publication dates, images)
+    - Organizations (with logo, contact info)
+    - General WebPages (default)
+    - Products, Events, etc.
+{% endcomment %}
+
+{% if page.get_structured_data %}
+<script type="application/ld+json">
+{{ page.get_structured_data|safe }}
+</script>
+{% endif %}
+
+{% comment %}
+Additional structured data can be added here for specific use cases:
+- Organization schema for the site itself
+- Breadcrumb navigation
+- Site search functionality
+- Local business information
+{% endcomment %}
+
+{% if page.get_site and page.seo_content_type != 'organization' %}
+{# Add website/organization schema for the site itself #}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "{{ page.get_site.site_name }}",
+    "url": "{{ page.get_site.root_url|default:'https://'|add:page.get_site.hostname }}"
+}
+</script>
+{% endif %}
+
+{% if page.tags.all %}
+{# Add additional metadata for tagged content #}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    "about": [
+        {% for tag in page.tags.all %}
+        {
+            "@type": "Thing",
+            "name": "{{ tag.name }}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ]
+}
+</script>
+{% endif %}

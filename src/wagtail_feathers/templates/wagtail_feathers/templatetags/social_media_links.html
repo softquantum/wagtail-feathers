@@ -1,0 +1,49 @@
+{% load i18n svg_tags %}
+
+{% if social_links %}
+<nav aria-label="{% trans 'Social media links' %}">
+    {% if variant == 'sidebar' %}
+        <div class="flex flex-col space-y-3">
+            {% for link in social_links %}
+                <a href="{{ link.url }}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="flex items-center justify-center text-base-content/60 hover:text-accent-content rounded-full transition-all duration-200 hover:scale-110"
+                   title="{% trans 'Follow us on' %} {{ link.name }}">
+                    {% if link.icon %}
+                        {% svg_icon name=link.icon classname="w-10 h-10" %}
+                    {% else %}
+                        <span class="text-sm font-bold">{{ link.name|first }}</span>
+                    {% endif %}
+                    {% if show_names %}
+                        <span class="sr-only">
+                            {% if link.handle %}@{{ link.handle }}{% else %}{{ link.name }}{% endif %}
+                        </span>
+                    {% endif %}
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <ul class="flex items-center space-x-4">
+            {% for link in social_links %}
+                <li>
+                    <a href="{{ link.url }}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="inline-flex items-center gap-2 px-3 py-2 text-base-content hover:text-primary rounded-full transition-all duration-200 hover:scale-115"
+                       title="{% trans 'Follow us on' %} {{ link.name }}">
+                        {% if link.icon %}
+                            {% svg_icon name=link.icon classname="w-6 h-6" %}
+                        {% endif %}
+                        {% if show_names %}
+                            <span class="text-sm font-medium">
+                                {% if link.handle %}@{{ link.handle }}{% else %}{{ link.name }}{% endif %}
+                            </span>
+                        {% endif %}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</nav>
+{% endif %}
