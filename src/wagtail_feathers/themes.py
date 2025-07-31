@@ -660,4 +660,4 @@ class ThemeAwareFileSystemFinder(FileSystemFinder):
                         # Check against ignore patterns
                         if not matches_patterns(file_path, ignore_patterns):
                             # Yield with theme prefix
-                            yield f"{prefix}/{file_path}", theme_storage
+                            yield file_path, theme_storage
