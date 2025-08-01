@@ -63,8 +63,21 @@ class ReadingTimeMixin(models.Model):
 
     def save(self, *args, **kwargs):
         """Auto-calculate reading time on save."""
-        self.reading_time_minutes = self.calculate_reading_time()
-        super().save(*args, **kwargs)
+        # Calculate reading time before saving, but only if not in a partial update
+        # or if reading_time_minutes is specifically being updated
+        update_fields = kwargs.get('update_fields')
+        
+        if not update_fields or 'reading_time_minutes' in update_fields:
+            calculated_time = self.calculate_reading_time()
+            if self.reading_time_minutes != calculated_time:
+                self.reading_time_minutes = calculated_time
+                # Add reading_time_minutes to update_fields if it exists
+                if update_fields:
+                    update_fields = set(update_fields)
+                    update_fields.add('reading_time_minutes')
+                    kwargs['update_fields'] = list(update_fields)
+        
+        return super().save(*args, **kwargs)
     
     def calculate_reading_time(self):
         """
