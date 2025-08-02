@@ -2,7 +2,6 @@ from typing import List, Type
 
 from django import forms
 from django.utils.functional import cached_property
-from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from wagtail import blocks
 from wagtail.blocks import RichTextBlock
