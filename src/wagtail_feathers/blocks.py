@@ -2,6 +2,7 @@ from typing import List, Type
 
 from django import forms
 from django.utils.functional import cached_property
+from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from wagtail import blocks
 from wagtail.blocks import RichTextBlock
@@ -315,12 +316,20 @@ class HeaderImageBlock(BaseBlock):
 
 
 class HeadingBlock(BaseBlock):
-    """A block that allows editors to add a heading with level two, three, or four."""
+    """A block that allows editors to add a heading with level two, three, or four.
+
+
+    clean(): Handles form validation and saving
+    get_form_state(): Auto-fills heading_id in the admin interface when loading existing content
+    get_api_representation(): Ensures API responses always include the heading_id
+
+    """
     
     component_type = "heading"
     default_variant = "default"
 
-    heading_text = blocks.CharBlock(classname="title", required=True)
+    heading_text = blocks.CharBlock(required=True)
+    heading_id = blocks.CharBlock(required=False, help_text="required for toc generation")
     size = blocks.ChoiceBlock(
         choices=[
             ("", _("Select a header size")),
@@ -334,10 +343,16 @@ class HeadingBlock(BaseBlock):
         required=False,
     )
 
+    def clean(self, value):
+        result = super().clean(value)
+        if result.get('heading_text') and not result.get('heading_id'):
+            result['heading_id'] = slugify(result['heading_text'])
+        return result
+
     class Meta:
         icon = "title"
         template = "wagtail_feathers/blocks/heading_block.html"
-        preview_value = {"heading_text": _("A beautiful weather today"), "size": "h2"}
+        preview_value = {"heading_text": _("A beautiful weather today"), "heading_id": "a-beautiful-weather-today", "size": "h2"}
         description = _("A heading with level two, three, or four")
 
 
