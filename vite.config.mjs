@@ -4,24 +4,38 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-export default defineConfig({
-  build: {
-    outDir: resolve(__dirname, 'src/wagtail_feathers/static/js'),
-    emptyOutDir: false,
-    
-    rollupOptions: {
-      input: {
-        admin: resolve(__dirname, 'frontend/src/javascript/feathers_admin.js'),
-      },
-      output: {
-        entryFileNames: '[name].js',
-        format: 'iife',
-        manualChunks: undefined,
-      },
-    },
+export default defineConfig((configEnv) => {
 
-    cssCodeSplit: false,
-    
-    minify: false,
+  const isDev = configEnv.mode === 'development';
+  const config = {
+    build: {
+      watch: configEnv.command === 'build' && process.argv.includes('--watch')
+        ? {exclude: ['node_modules/**', 'src/wagtail_feathers/static/**']}
+        : null,
+
+      cssCodeSplit: false,
+      minify: false,
+      outDir: resolve(__dirname, 'src/wagtail_feathers/static'),
+      emptyOutDir: false,
+
+      rollupOptions: {
+        input: {
+          feather_admin: resolve(__dirname, 'frontend/src/javascript/feathers_admin.js'),
+        },
+        output: {
+          entryFileNames: 'js/[name].js',
+          format: 'es',
+          manualChunks: undefined,
+          assetFileNames: (assetInfo) => {
+            if (assetInfo.name?.endsWith('.css')) {
+              return 'css/feather_admin.css';
+            }
+            return 'assets/[name].[ext]';
+          },
+
+        },
+      },
+    }
   }
+  return config;
 });

@@ -1,0 +1,484 @@
+/* Enhanced Classifier Admin Styles with Stimulus Support */
+
+/* Enhanced Inline Panel for Classifiers */
+.classifier-inline-panel {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid #e9ecef;
+}
+
+.classifier-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.classifier-controls .w-field__input {
+    max-width: 300px;
+    margin-right: 12px;
+}
+
+.selected-count-container {
+    display: flex;
+    align-items: center;
+}
+
+.selected-count-container .badge {
+    background-color: #2563eb;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Classifier List Container */
+.classifier-list {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 12px;
+    background: white;
+}
+
+/* Type Headers */
+.classifier-type-header {
+    margin-bottom: 12px;
+}
+
+.classifier-type-header h3 {
+    margin: 0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.classifier-type-header h3.bg-green-100 {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.classifier-type-header h3.bg-orange-100 {
+    background-color: #fed7aa;
+    color: #9a3412;
+}
+
+/* Group Sections */
+.classifier-group {
+    margin-bottom: 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: white;
+}
+
+/* Subject and Attribute group styling */
+.classifier-group[data-type="Subject"] {
+    border-left: 4px solid #10b981;
+}
+
+.classifier-group[data-type="Attribute"] {
+    border-left: 4px solid #f59e0b;
+}
+
+.classifier-group-header {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+	&.attribute {
+		background-color: #fef3c7;
+		color: #92400e;
+	}
+	&.subject {
+		background-color: #d1fae5;
+		color: #065f46;
+	}
+}
+
+.button-secondary.attribute {
+    color: #92400e !important;
+}
+
+.button-secondary.subject {
+    color: #065f46 !important;
+}
+
+.classifier-group-header:hover {
+    background: #f3f4f6;
+}
+
+.classifier-group-header .toggle-icon {
+    margin-right: 8px;
+    font-size: 12px;
+    color: #6b7280;
+    transition: transform 0.2s ease;
+}
+
+.classifier-group-header h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    flex: 1;
+}
+
+.classifier-group-header .text-xs {
+    font-size: 11px;
+    color: #9ca3af;
+}
+
+/* Group type with different colors */
+.group-type {
+    padding: 2px 6px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.group-name {
+    padding: 2px 6px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Group selection badges */
+.group-selected-badge {
+    background-color: #059669;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 14px;
+    font-size: 10px;
+    font-weight: 600;
+    margin-left: 8px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Selection mode badges */
+.selection-mode-badge {
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 6px;
+}
+
+.selection-mode-badge.radio-mode {
+    background-color: #8b5cf6;
+    color: white;
+}
+
+.selection-mode-badge.limited-mode {
+    background-color: #f59e0b;
+    color: white;
+}
+
+/* Radio button specific styling */
+.classifier-group[data-max-selections="1"] .classifier-item input[type="radio"] {
+    transform: scale(1.2);
+    accent-color: #8b5cf6;
+}
+
+/* Limited selection styling */
+.classifier-group[data-max-selections] .classifier-item {
+    padding-left: 10px;
+}
+
+/* Available Classifiers Header */
+.available-classifiers-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.available-classifiers-header .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.available-classifiers-header h4 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.total-selected-count-container {
+    display: flex;
+    align-items: center;
+}
+
+.collapse-all-button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    padding: 4px 8px;
+}
+
+.collapse-all-icon {
+    font-size: 10px;
+    transition: transform 0.2s ease;
+}
+
+.collapse-all-button[data-state="collapsed"] .collapse-all-icon {
+    transform: rotate(-90deg);
+}
+
+/* Selection limit error messages */
+.selection-limit-error {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-top: 8px;
+    color: #dc2626;
+    font-size: 12px;
+    font-weight: 500;
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Group Items */
+.classifier-group-items {
+    padding: 8px 12px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.classifier-group-items.hidden {
+    display: none;
+}
+
+.classifier-item-wrapper {
+    margin-bottom: 4px;
+}
+
+.classifier-item {
+    display: flex;
+    align-items: center;
+    padding: 6px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    font-size: 13px;
+}
+
+.classifier-item:hover {
+    background-color: #f3f4f6;
+}
+
+.classifier-item input[type="checkbox"] {
+    margin-right: 8px;
+    transform: scale(1.1);
+}
+
+.classifier-item .classifier-label {
+    flex: 1;
+    color: #374151;
+}
+
+.classifier-item.opacity-50 {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Search Highlighting */
+.classifier-item mark {
+    background-color: #fef08a;
+    padding: 1px 2px;
+    border-radius: 2px;
+}
+
+/* Modal Enhancements */
+.classifier-modal-content {
+    padding: 0;
+}
+
+.classifier-search input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.2s ease;
+}
+
+.classifier-search input:focus {
+    border-color: #3b82f6;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.classifier-selection-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.classifier-selection-controls .btn-group {
+    display: flex;
+    gap: 8px;
+}
+
+.classifier-selection-controls .btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.selected-count-display .badge {
+    background-color: #2563eb;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 16px;
+    font-size: 11px;
+    font-weight: 600;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.classifier-groups-container {
+    background: #f8f9fa;
+    border-radius: 6px;
+    padding: 12px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .classifier-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .classifier-controls .w-field__input {
+        max-width: none;
+        margin-right: 0;
+    }
+    
+    .classifier-selection-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+    
+    .classifier-selection-controls .btn-group {
+        justify-content: center;
+    }
+}
+
+/* Accessibility Improvements */
+.classifier-item:focus-within,
+.classifier-group-header:focus {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+.classifier-item input[type="checkbox"]:focus {
+    outline: none;
+}
+
+/* Animation for smooth interactions */
+.classifier-group-items {
+    transition: all 0.2s ease;
+}
+
+.toggle-icon {
+    transition: transform 0.2s ease;
+}
+
+/* Loading States */
+.classifier-loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    color: #6b7280;
+}
+
+.classifier-loading::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f4f6;
+    border-top: 2px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-left: 8px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Error States */
+.classifier-error {
+    padding: 12px;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 6px;
+    color: #dc2626;
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+/* No Results State */
+.classifier-no-results {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b7280;
+    font-style: italic;
+}
+
+.classifier-no-results svg {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+}
+
+/* Success States */
+.classifier-success {
+    padding: 12px;
+    background-color: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    color: #166534;
+    font-size: 14px;
+    margin-bottom: 12px;
+}

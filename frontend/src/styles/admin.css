@@ -1,0 +1,56 @@
+@import "./_admin_blocks.css";
+@import "./_admin_classifiers.css";
+
+.author-type-chooser-widget {
+    text-align: center;
+}
+
+.author-type-chooser-widget .author-type-radio-options > div {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.author-type-chooser-widget .author-type-radio-options > div > div {
+    margin: 0;
+}
+
+.author-type-chooser-widget .author-type-radio-options label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+}
+
+.author-type-chooser-widget .author-type-add-button {
+    margin-top: 15px;
+}
+
+/* Category hierarchy display */
+.category-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.category-item .icon {
+	width: 1.5rem;
+	height: 1.5rem;
+	flex-shrink: 0;
+}
+
+.category-live .category-name {
+    font-weight: 500;
+}
+
+.category-disabled .category-name {
+    opacity: 0.6;
+    font-style: italic;
+}
+
+/* Alternative selector for older browsers */
+.listing th:last-child {
+    text-align: center;
+    width: 80px;
+}
+

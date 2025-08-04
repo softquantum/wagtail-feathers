@@ -1,0 +1,98 @@
+/* Hero Block Custom Layout */
+.hero-block-form {
+    /* Content Section */
+    [data-contentpath="headline"],
+    [data-contentpath="subheadline"],
+    [data-contentpath="description"] {
+        border-left: 4px solid #007cba;
+        padding-left: 15px;
+        background-color: rgba(0, 124, 186, 0.05);
+        border-radius: 0 4px 4px 0;
+    }
+    
+    [data-contentpath="headline"]::before {
+        content: "Content";
+        display: block;
+        font-weight: bold;
+        color: #007cba;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Background Section */
+    [data-contentpath="background_image"],
+    [data-contentpath="background_image_alt"] {
+        border-left: 4px solid #28a745;
+        padding-left: 15px;
+        background-color: rgba(40, 167, 69, 0.05);
+        border-radius: 0 4px 4px 0;
+    }
+    
+    [data-contentpath="background_image"]::before {
+        content: "Background & Media";
+        display: block;
+        font-weight: bold;
+        color: #28a745;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Actions Section */
+    [data-contentpath="call_to_actions"] {
+        border-left: 4px solid #dc3545;
+        padding-left: 15px;
+        background-color: rgba(220, 53, 69, 0.05);
+        border-radius: 0 4px 4px 0;
+	    margin-bottom: 1rem;
+    }
+    
+    [data-contentpath="call_to_actions"]::before {
+        content: "\1F517 Actions";
+        display: block;
+        font-weight: bold;
+        color: #dc3545;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Layout Section */
+    [data-contentpath="fluid"],
+    [data-contentpath="alignment"],
+    [data-contentpath="overlay_opacity"] {
+        border-left: 4px solid #6f42c1;
+        padding-left: 15px;
+        background-color: rgba(111, 66, 193, 0.05);
+        border-radius: 0 4px 4px 0;
+    }
+    
+    [data-contentpath="fluid"]::before {
+        content: "Layout";
+        display: block;
+        font-weight: bold;
+        color: #6f42c1;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Style the theme variant field differently */
+    [data-contentpath="theme_variant"] {
+        border-left: 4px solid #ffc107;
+        padding-left: 15px;
+        background-color: rgba(255, 193, 7, 0.05);
+        border-radius: 0 4px 4px 0;
+    }
+
+    [data-contentpath="theme_variant"]::before {
+        content: "\1F3A8 Theme";
+        display: block;
+        font-weight: bold;
+        color: #ffc107;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+}
