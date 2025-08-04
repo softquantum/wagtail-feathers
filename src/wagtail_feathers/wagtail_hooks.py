@@ -105,7 +105,7 @@ def classifier_admin_js():
     """Add Stimulus-based enhanced classifier admin JavaScript."""
     return format_html(
         '<script type="module" src="{}"></script>',
-        static("js/stimulus_admin_feathers.js")
+        static("wagtail_feathers/js/admin.js")
     )
 
 

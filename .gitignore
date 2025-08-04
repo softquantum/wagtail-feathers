@@ -43,6 +43,9 @@ dumps/
 media/
 uv.lock
 
+# Node
+node_modules/
+
 # AI assistant
 CLAUDE.md
 .claude/

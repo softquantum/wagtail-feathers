@@ -1,0 +1,14 @@
+{
+  "name": "wagtail-feathers-admin",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Admin JavaScript bundle for wagtail_feathers",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "@hotwired/stimulus": "^3.2.2",
+    "vite": "^6.0.3"
+  }
+}
