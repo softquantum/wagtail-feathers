@@ -108,8 +108,9 @@ class FeatherBasePage(SeoMixin, CustomWagtailPage, metaclass=FeatherBasePageMeta
     ]
 
     taxonomy_panels = [
-        MultipleChooserPanel("categories", "category", label=_("Categories")),
-        EnhancedClassifierInlinePanel("classifiers", label=_("Classifiers")),
+        MultipleChooserPanel("categories", "category"),
+        MultipleChooserPanel("classifiers", "classifier"),
+        # EnhancedClassifierInlinePanel("classifiers", label=_("Classifiers")),
         FieldPanel("tags"),
     ]
 

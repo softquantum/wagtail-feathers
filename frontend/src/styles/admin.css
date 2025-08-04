@@ -54,3 +54,13 @@
     width: 80px;
 }
 
+/* Classifiers */
+.classifier-type-radio-options {
+	display: flex;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.classifier-type-radio-options label {
+	margin-right: 0.5rem;
+}

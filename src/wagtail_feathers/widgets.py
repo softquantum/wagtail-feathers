@@ -1,0 +1,3 @@
+from wagtail_feathers.viewsets import classifier_chooser_viewset
+
+ClassifierChooserWidget = classifier_chooser_viewset.widget_class

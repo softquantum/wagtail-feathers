@@ -24,6 +24,8 @@ from wagtail_feathers.viewsets import (
     PersonViewSetGroup,
 )
 
+from wagtail_feathers.viewsets import classifier_chooser_viewset
+
 logger = logging.getLogger(__name__)
 
 
@@ -223,6 +225,13 @@ def create_or_update_user_person_profile(sender, instance, created, **kwargs):
                     )
                     logger.error(error_msg)
 
+
+# Chooser viewsets:
+# === === === === === ===
+
+@hooks.register("register_admin_viewset")
+def register_viewset():
+    return classifier_chooser_viewset
 
 
 # TODO: admin notification system to make these warnings more visible to administrators.

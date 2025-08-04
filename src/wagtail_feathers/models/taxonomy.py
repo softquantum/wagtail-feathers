@@ -677,7 +677,7 @@ class Classifier(index.Indexed, Orderable):
         )
 
     def __str__(self):
-        return f"{self.group.type} - {self.name} ({self.group.name})"
+        return f"{self.group.name} – {self.name} ({self.group.type})"
 
     class Meta:
         verbose_name = _("Classifier")

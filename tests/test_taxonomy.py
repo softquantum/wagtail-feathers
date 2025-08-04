@@ -477,7 +477,7 @@ class TestClassifier:
         assert classifier.slug == "ai"
     
     def test_str_representation(self, classifiers):
-        expected = "Subject - Artificial Intelligence (Technology)"
+        expected = "Technology – Artificial Intelligence (Subject)"
         assert str(classifiers['ai']) == expected
     
     def test_unique_constraint(self, classifier_groups):

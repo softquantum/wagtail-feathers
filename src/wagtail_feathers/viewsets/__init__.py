@@ -11,6 +11,7 @@ from .viewset_groups import (
     FeathersTaxonomyViewSetGroup,
     PersonViewSetGroup,
 )
+from .choosers import classifier_chooser_viewset
 
 __all__ = [
     "AuthorTypeViewSet",
@@ -31,4 +32,5 @@ __all__ = [
     "PersonViewSetGroup",
     "FeathersSiteComponentsViewSetGroup",
     "SocialMediaSettingsViewSet",
+    "classifier_chooser_viewset"
 ]

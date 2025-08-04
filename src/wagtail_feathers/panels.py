@@ -29,7 +29,7 @@ class EnhancedClassifierInlinePanel(InlinePanel):
     """Enhanced InlinePanel for classifiers with Stimulus-based UI improvements."""
     
     class BoundPanel(InlinePanel.BoundPanel):
-        template_name = "wagtail_feathers/admin/edit_handlers/enhanced_classifier_inline_panel.html"
+        template_name = "wagtail_feathers/admin/panels/enhanced_classifier_inline_panel.html"
         
         def get_context_data(self, parent_context):
             context = super().get_context_data(parent_context)
