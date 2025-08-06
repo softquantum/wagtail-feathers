@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import path, reverse
@@ -8,7 +9,7 @@ from wagtail.admin.filters import WagtailFilterSet
 from wagtail.admin.forms import WagtailAdminModelForm
 from wagtail.snippets.views.snippets import SnippetViewSet
 
-from wagtail_feathers.models import Category, Classifier, ClassifierGroup
+from wagtail_feathers.models import Category, ClassifierGroup
 
 
 class CategoryMoveForm(forms.Form):
@@ -81,15 +82,16 @@ class CategoryViewSet(SnippetViewSet):
     model = Category
     icon = "heroicons-folder-outline"
     filterset_class = CategoryFilterSet
-    list_display = ["get_name_display", "depth", "aliases", "icon", "live"]
     search_fields = ["name"]
     list_per_page = 20
     ordering = ["path"]
+    list_display = ["get_name_display", "depth", "aliases", "icon", "live"]
+    if getattr(settings, "WAGTAIL_I18N_ENABLED", False):
+        list_display.append("locale")
 
     def get_queryset(self, request):
         """Return all categories including tree structure but exclude hidden root from listing."""
         return Category._base_manager.exclude(name=Category.ROOT_CATEGORY).order_by("path")
-
 
     def get_urlpatterns(self):
         """Add custom URL patterns for child category management."""
@@ -174,5 +176,7 @@ class ClassifierGroupViewSet(SnippetViewSet):
     menu_label = "Classifiers"
     icon = "list-ul"
     list_filter = ["type"]
-    list_display = ["name", "max_selections", "classifiers_list", "type", "locale"]
-    search_fields = ["name"]
+    list_display = ["name", "max_selections", "classifiers_list", "type"]
+
+    if getattr(settings, "WAGTAIL_I18N_ENABLED", False):
+        list_display.append("locale")

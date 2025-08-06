@@ -1,5 +1,6 @@
 # from abc import ABC, abstractmethod  # Cannot use due to metaclass conflicts with MP_Node
 from django import forms
+from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
@@ -20,6 +21,8 @@ try:
     WAGTAIL_LOCALIZE_AVAILABLE = True
 except ImportError:
     WAGTAIL_LOCALIZE_AVAILABLE = False
+
+WAGTAIL_I18N_ENABLED = getattr(settings, "WAGTAIL_I18N_ENABLED", False)
 
 
 """
@@ -214,6 +217,8 @@ class Category(TranslatableMixin, BaseMPNode):
             SynchronizedField("icon"),
         ]
 
+    ROOT_CATEGORY = TaxonomyConstants.ROOT_CATEGORY_NAME
+
     slug = AutoSlugField(populate_from="name", editable=True)
     icon = models.CharField(max_length=100, blank=True, help_text=_("Choose the icon from the admin/styleguide."))
 
@@ -239,6 +244,9 @@ class Category(TranslatableMixin, BaseMPNode):
         index.FilterField("live"),
         index.FilterField("depth"),
     ]
+    
+    if WAGTAIL_I18N_ENABLED:
+        search_fields.append(index.FilterField("locale_id"))
 
     class Meta:
         verbose_name = _("Category")
@@ -600,6 +608,9 @@ class ClassifierGroup(index.Indexed, TranslatableMixin, ClusterableModel):
         index.FilterField("type"),
     ]
 
+    if WAGTAIL_I18N_ENABLED:
+        search_fields.append(index.FilterField("locale_id"))
+
     def __str__(self):
         return f"{self.name} ({self.type})"
 
@@ -684,6 +695,7 @@ class Classifier(index.Indexed, TranslatableMixin, Orderable):
         FieldPanel("slug", help_text=_("Leave blank to auto-generate a unique slug.")),
     ]
 
+    # Build search fields dynamically based on i18n configuration
     search_fields = [
         index.SearchField("name", boost=10),
         index.SearchField("slug"),
@@ -691,13 +703,16 @@ class Classifier(index.Indexed, TranslatableMixin, Orderable):
         index.FilterField("name"),
         index.FilterField("group"),
         index.RelatedFields(
-            "group",
-            [
-                index.SearchField("name"),
-                index.FilterField("type"),
-            ],
-        ),
+                "group",
+                [
+                    index.SearchField("name"),
+                    index.FilterField("type"),
+                ],
+        )
     ]
+    
+    if WAGTAIL_I18N_ENABLED:
+        search_fields.append(index.FilterField("locale_id"))
 
     def get_related_classifiers(self, limit=5):
         """Find classifiers commonly used together."""
