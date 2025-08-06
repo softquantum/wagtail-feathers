@@ -3,7 +3,7 @@ from .author import AuthorTypeViewSet
 from .navigation import FlatMenuViewSet, FooterNavigationViewSet, FooterViewSet, MenuViewSet, NestedMenuViewSet
 from .person import PersonGroupViewSet, PersonViewSet
 from .social import SocialMediaSettingsViewSet
-from .taxonomy import CategoryFilterSet, CategoryViewSet, ClassifierGroupViewSet, ClassifierViewSet
+from .taxonomy import CategoryFilterSet, CategoryViewSet, ClassifierGroupViewSet
 from .viewset_groups import (
     FeathersAuthorshipViewSetGroup,
     FeathersNavigationViewSetGroup,
@@ -16,7 +16,6 @@ from .choosers import classifier_chooser_viewset
 __all__ = [
     "AuthorTypeViewSet",
     "CategoryViewSet",
-    "ClassifierViewSet",
     "ClassifierGroupViewSet",
     "CategoryFilterSet",
     "FooterNavigationViewSet",

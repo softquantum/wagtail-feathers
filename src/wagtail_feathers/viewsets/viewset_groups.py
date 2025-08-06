@@ -4,7 +4,6 @@ from wagtail_feathers.viewsets import (
     AuthorTypeViewSet,
     CategoryViewSet,
     ClassifierGroupViewSet,
-    ClassifierViewSet,
     FlatMenuViewSet,
     FooterNavigationViewSet,
     FooterViewSet,
@@ -48,7 +47,6 @@ class FeathersTaxonomyViewSetGroup(SnippetViewSetGroup):
     add_to_settings_menu = True
     items = (
         CategoryViewSet,
-        ClassifierViewSet,
         ClassifierGroupViewSet,
     )
 

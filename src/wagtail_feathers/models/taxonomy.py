@@ -12,8 +12,15 @@ from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
 from treebeard.mp_tree import MP_Node
 from wagtail.admin.panels import FieldPanel, HelpPanel, InlinePanel, MultiFieldPanel
-from wagtail.models import Orderable
+from wagtail.models import Orderable, TranslatableMixin
 from wagtail.search import index
+
+try:
+    from wagtail_localize.fields import SynchronizedField, TranslatableField
+    WAGTAIL_LOCALIZE_AVAILABLE = True
+except ImportError:
+    WAGTAIL_LOCALIZE_AVAILABLE = False
+
 
 """
 Taxonomy models for hierarchical categorization and content classification.
@@ -198,8 +205,14 @@ class CategoryQuerySet(models.QuerySet):
         return self.active().filter(numchild__gt=0)
 
 
-class Category(BaseMPNode):
+class Category(TranslatableMixin, BaseMPNode):
     """A category for grouping related items using a hierarchical tree structure."""
+
+    if WAGTAIL_LOCALIZE_AVAILABLE:
+        override_translatable_fields = [
+            SynchronizedField("slug"),
+            SynchronizedField("icon"),
+        ]
 
     slug = AutoSlugField(populate_from="name", editable=True)
     icon = models.CharField(max_length=100, blank=True, help_text=_("Choose the icon from the admin/styleguide."))
@@ -231,6 +244,12 @@ class Category(BaseMPNode):
         verbose_name = _("Category")
         verbose_name_plural = _("Categories")
         ordering = ["path"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=('translation_key', 'locale'),
+                name='unique_translation_key_locale_wagtail_feathers_category'
+            ),
+        ]
         indexes = [
             models.Index(fields=["live", "path"]),
             models.Index(fields=["slug"]),
@@ -466,10 +485,15 @@ class ClassifierGroupQuerySet(models.QuerySet):
         )
 
 
-class ClassifierGroup(index.Indexed, ClusterableModel):
+class ClassifierGroup(index.Indexed, TranslatableMixin, ClusterableModel):
     """A group for organizing classifiers by type."""
 
     objects = ClassifierGroupQuerySet.as_manager()
+
+    if WAGTAIL_LOCALIZE_AVAILABLE:
+        override_translatable_fields = [
+            SynchronizedField("slug"),
+        ]
 
     TYPE_CHOICES = [
         ("Subject", _("Subject")),
@@ -478,6 +502,7 @@ class ClassifierGroup(index.Indexed, ClusterableModel):
 
     type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     name = models.CharField(max_length=255)
+    slug = AutoSlugField(populate_from="name", editable=True)
     max_selections = models.PositiveIntegerField(default=0, help_text=_("Maximum number of selections allowed. 0 for unlimited"))
 
     panels = [
@@ -570,6 +595,7 @@ class ClassifierGroup(index.Indexed, ClusterableModel):
 
     search_fields = [
         index.SearchField("name", boost=10),
+        index.SearchField("slug"),
         index.AutocompleteField("name"),
         index.FilterField("type"),
     ]
@@ -605,10 +631,13 @@ class ClassifierGroup(index.Indexed, ClusterableModel):
     classifiers_list.short_description = "Classifiers"
 
     class Meta:
-        verbose_name = _("Classifier Group")
-        verbose_name_plural = _("Classifier Groups")
+        verbose_name = _("Group of classifiers")
+        verbose_name_plural = _("Groups of classifiers")
         ordering = ["type", "name"]
-        constraints = [models.UniqueConstraint(fields=["type", "name"], name="unique_classifier_group_type_name")]
+        constraints = [
+            models.UniqueConstraint(fields=["type", "name", "locale"], name="unique_classifier_group_type_name_locale"),
+            models.UniqueConstraint(fields=('translation_key', 'locale'), name='unique_translation_key_locale_wagtail_feathers_classifiergroup')
+        ]
         indexes = [
             models.Index(fields=["id"]),
         ]
@@ -635,10 +664,15 @@ class ClassifierQuerySet(models.QuerySet):
         return qs.order_by("group__type", "group__name", "name")
 
 
-class Classifier(index.Indexed, Orderable):
+class Classifier(index.Indexed, TranslatableMixin, Orderable):
     """A classifier for tagging and organizing content."""
 
     objects = ClassifierQuerySet.as_manager()
+
+    if WAGTAIL_LOCALIZE_AVAILABLE:
+        override_translatable_fields = [
+            SynchronizedField("slug"),
+        ]
 
     group = ParentalKey(ClassifierGroup, on_delete=models.CASCADE, related_name="classifiers")
     name = models.CharField(max_length=255)
@@ -652,6 +686,7 @@ class Classifier(index.Indexed, Orderable):
 
     search_fields = [
         index.SearchField("name", boost=10),
+        index.SearchField("slug"),
         index.AutocompleteField("name"),
         index.FilterField("name"),
         index.FilterField("group"),
@@ -683,7 +718,10 @@ class Classifier(index.Indexed, Orderable):
         verbose_name = _("Classifier")
         verbose_name_plural = _("Classifiers")
         ordering = ["sort_order"]
-        constraints = [models.UniqueConstraint(fields=["group", "name"], name="unique_classifier_group_name")]
+        constraints = [
+            models.UniqueConstraint(fields=["group", "name", "locale"], name="unique_classifier_group_name_locale"),
+            models.UniqueConstraint(fields=('translation_key', 'locale'), name='unique_translation_key_locale_wagtail_feathers_classifier')
+        ]
         indexes = [
             models.Index(fields=["group", "name"]),
             models.Index(fields=["slug"]),

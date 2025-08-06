@@ -171,29 +171,8 @@ class ClassifierGroupViewSet(SnippetViewSet):
     """Admin viewset for managing ClassifierGroup snippets in the Wagtail admin interface."""
 
     model = ClassifierGroup
+    menu_label = "Classifiers"
+    icon = "list-ul"
     list_filter = ["type"]
-    list_display = ["name", "max_selections", "classifiers_list", "type"]
+    list_display = ["name", "max_selections", "classifiers_list", "type", "locale"]
     search_fields = ["name"]
-
-
-class ClassifierViewSet(SnippetViewSet):
-    """Admin viewset for managing Classifier snippets with advanced filtering.
-
-    Note:
-        Due to a Wagtail limitation, combining filters with search queries
-        (e.g., ?group__type=something&q=search_term) can cause search backend
-        failures when applied to querysets containing JOINs. If this issue
-        occurs, set `search_backend_name = False` to use database queries
-        instead of the search backend for filtering operations.
-
-        Filtering on index.RelatedFields with the QuerySet API is planned
-        for a future release of Wagtail.
-
-    """
-
-    model = Classifier
-    list_filter = ["group", "group__type"]
-    list_display = ["name", "group__name", "group__type"]
-    search_fields = ["name"]
-    list_per_page = 20
-    search_backend_name = False
