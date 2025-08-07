@@ -3,8 +3,8 @@
 A comprehensive Wagtail CMS extension providing foundational functionality for building sophisticated content management systems.
 
 [![Python Version](https://img.shields.io/pypi/pyversions/wagtail-feathers.svg)](https://pypi.org/project/wagtail-feathers/)
-[![Django Version](https://img.shields.io/badge/django-5.1%20%7C%205.2-blue.svg)](https://docs.djangoproject.com/en/5.2/)
-[![Wagtail Version](https://img.shields.io/badge/wagtail-6.x%20%7C%207.x-orange.svg)](https://wagtail.org/)
+[![Django Version](https://img.shields.io/badge/django-5.2-blue.svg)](https://docs.djangoproject.com/en/5.2/)
+[![Wagtail Version](https://img.shields.io/badge/wagtail-7.x-orange.svg)](https://wagtail.org/)
 [![License](https://img.shields.io/badge/license-BSD--3--Clause-green.svg)](LICENSE)
 
 > [!CAUTION]
