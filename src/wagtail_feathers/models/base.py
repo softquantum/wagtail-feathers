@@ -10,7 +10,6 @@ from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase
 from wagtail.admin.panels import (
     FieldPanel,
-    InlinePanel,
     MultipleChooserPanel,
     ObjectList,
     TabbedInterface,
@@ -25,8 +24,7 @@ from wagtail_feathers.blocks import CommonContentBlock, HeroContentBlock, PageHe
 from wagtail_feathers.forms import TemplateVariantPageForm
 
 from ..utils.query import order_by_pk_position
-from ..mixins import ReadingTimeMixin
-from .seo import SeoMixin
+from ..mixins import ReadingTimeMixin, SeoMixin
 from .utils import FEATHER_PAGE_MODELS
 
 
@@ -360,7 +358,6 @@ class IndexPage(FeatherPage):
 
     class Meta:
         abstract = True
-
 
 
 class ItemPageQuerySet(PageQuerySet):
