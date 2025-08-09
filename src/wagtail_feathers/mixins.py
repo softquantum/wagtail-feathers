@@ -4,7 +4,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
-from wagtail.admin.panels import FieldPanel, InlinePanel
+from wagtail.admin.panels import FieldPanel, InlinePanel, FieldRowPanel, MultiFieldPanel
 from urllib.parse import urljoin
 from django.utils.html import strip_tags
 from django.utils.text import Truncator
@@ -436,14 +436,19 @@ class SeoMixin(models.Model):
             help_text=_("Prevent search engines from following links on this page")
     )
 
-    # SEO panel for admin
     seo_panels = [
-        FieldPanel('og_image'),
-        FieldPanel('canonical_url'),
-        FieldPanel('seo_content_type'),
-        FieldPanel('twitter_card_type'),
-        FieldPanel('no_index'),
-        FieldPanel('no_follow'),
+        MultiFieldPanel([
+            FieldPanel('og_image'),
+            FieldPanel('canonical_url'),
+            FieldRowPanel([
+                FieldPanel('seo_content_type'),
+                FieldPanel('twitter_card_type'),
+            ]),
+            FieldRowPanel([
+                FieldPanel('no_index'),
+                FieldPanel('no_follow'),
+            ]),
+        ], heading=_("SEO")),
     ]
 
     # Translation support

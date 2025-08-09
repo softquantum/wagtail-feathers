@@ -12,7 +12,7 @@ from wagtail.admin.panels import (
     FieldPanel,
     MultipleChooserPanel,
     ObjectList,
-    TabbedInterface,
+    TabbedInterface, FieldRowPanel,
 )
 from wagtail.fields import RichTextField, StreamField
 from wagtail.images import get_image_model_string
@@ -227,13 +227,18 @@ class FeatherBasePage(SeoMixin, CustomWagtailPage, metaclass=FeatherBasePageMeta
     @cached_classmethod
     def get_edit_handler(cls):  # noqa
         """Override to "lazily load" the panels overridden by subclasses."""
+
+        # if cls.seo_panels:
+        #     cls.promote_panels += cls.seo_panels
+
         panels = [
             ObjectList(cls.content_panels, heading=_("Content")),
             ObjectList(cls.taxonomy_panels, heading=_("Taxonomy")),
-            ObjectList(cls.seo_panels, heading=_("SEO")),
-            ObjectList(cls.promote_panels, heading=_("Promote")),
             ObjectList(cls.settings_panels, heading=_("Settings")),
         ]
+
+        combined_promote_panels = cls.promote_panels + cls.seo_panels
+        panels.insert(2, ObjectList(combined_promote_panels, heading=_("Promote")))
 
         if cls.authorship_panels:
             panels.insert(1, ObjectList(cls.authorship_panels, heading=_("Authorship")))
@@ -378,18 +383,15 @@ class ItemPageManager(PageManager):
         )
 
 
-class ItemPage(ReadingTimeMixin, FeatherPage):
+class ItemPage(FeatherPage):
     """Abstract item page model with reading time calculation.
 
     Use this for individual "item" pages that are usually children of an index page
     e.g., Article, News Item, Event Detail, etc.
     
     Features:
-    - Automatic reading time calculation from content
     - Publication and revision date tracking
     - Featured image support
-    - Author attribution system
-    - Geographic tagging
     """
 
     objects = ItemPageManager()
@@ -419,8 +421,10 @@ class ItemPage(ReadingTimeMixin, FeatherPage):
     ]
 
     promote_panels = [
-        FieldPanel("publication_date"),
-        FieldPanel("revision_date"),
+        FieldRowPanel([
+            FieldPanel("publication_date"),
+            FieldPanel("revision_date"),
+        ]),
     ] + ReadingTimeMixin.reading_time_panels + FeatherPage.promote_panels
 
 
