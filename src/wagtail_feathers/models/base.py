@@ -25,7 +25,7 @@ from wagtail_feathers.blocks import CommonContentBlock, HeroContentBlock, PageHe
 from wagtail_feathers.forms import TemplateVariantPageForm
 
 from ..utils.query import order_by_pk_position
-from .reading_time import ReadingTimeMixin
+from ..mixins import ReadingTimeMixin
 from .seo import SeoMixin
 from .utils import FEATHER_PAGE_MODELS
 
@@ -415,19 +415,6 @@ class ItemPage(ReadingTimeMixin, FeatherPage):
         help_text="Official last revision date.",
     )
 
-    display_authors = models.BooleanField(
-        default=False,
-        help_text="Display author names on the page.",
-    )
-
-    authorship_panels = [
-        FieldPanel("display_authors"),
-        InlinePanel("authors", label=_("Authors")),
-    ]
-
-    geographic_panels = [
-        InlinePanel("countries", label=_("Countries")),
-    ]
     content_panels = [FeatherPage.content_panels[0]] + [
         FieldPanel("image"),
         FieldPanel("introduction"),

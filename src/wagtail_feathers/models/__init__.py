@@ -17,7 +17,6 @@ from .geographic import PageCountry
 from .inline import RelatedDocument, RelatedExternalLink, RelatedPage
 from .navigation import FlatMenu, Footer, FooterNavigation, Menu, MenuItem, NestedMenu
 from .person import Person, PersonGroup
-from .reading_time import ReadingTimeMixin
 from .seo import SeoMixin, SeoContentType, TwitterCardType
 from .settings import SiteSettings
 from .social import SocialMediaLink, SocialMediaSettings
