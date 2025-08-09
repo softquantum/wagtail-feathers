@@ -23,7 +23,6 @@ from wagtail.utils.decorators import cached_classmethod
 
 from wagtail_feathers.blocks import CommonContentBlock, HeroContentBlock, PageHeaderBlock
 from wagtail_feathers.forms import TemplateVariantPageForm
-from wagtail_feathers.panels import EnhancedClassifierInlinePanel
 
 from ..utils.query import order_by_pk_position
 from .reading_time import ReadingTimeMixin
@@ -110,7 +109,6 @@ class FeatherBasePage(SeoMixin, CustomWagtailPage, metaclass=FeatherBasePageMeta
     taxonomy_panels = [
         MultipleChooserPanel("categories", "category"),
         MultipleChooserPanel("classifiers", "classifier"),
-        # EnhancedClassifierInlinePanel("classifiers", label=_("Classifiers")),
         FieldPanel("tags"),
     ]
 

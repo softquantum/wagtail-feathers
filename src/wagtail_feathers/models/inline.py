@@ -42,13 +42,6 @@ class RelatedPage(Orderable, RelatedLink):
     panels = RelatedLink.panels + [
         FieldPanel("url"),
     ]
-    # def get_panels(self):
-    #     """Avoid circular import by using wagtail_feathers.panels."""
-    #     from wagtail_feathers.panels import CurrentLocalePageChooserPanel
-    #
-    #     return RelatedLink.panels + [
-    #         CurrentLocalePageChooserPanel("url", ["wagtailcore.Page"], help_text="Select a page"),
-    #     ]
 
 
 class RelatedDocument(Orderable, RelatedLink):

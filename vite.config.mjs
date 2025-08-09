@@ -20,7 +20,7 @@ export default defineConfig((configEnv) => {
 
       rollupOptions: {
         input: {
-          feathers_admin: resolve(__dirname, 'frontend/src/javascript/admin.js'),
+          wagtail_feathers_admin: resolve(__dirname, 'frontend/src/javascript/admin.js'),
         },
         output: {
           entryFileNames: 'js/[name].js',
@@ -28,7 +28,7 @@ export default defineConfig((configEnv) => {
           manualChunks: undefined,
           assetFileNames: (assetInfo) => {
             if (assetInfo.name?.endsWith('.css')) {
-              return 'css/feathers_admin.css';
+              return 'css/wagtail_feathers_admin.css';
             }
             return 'assets/[name].[ext]';
           },

@@ -99,7 +99,7 @@ def register_icons(icons):
 @hooks.register("insert_global_admin_css", order=100)
 def global_admin_css():
     """Add /static/css/admin.css to the admin."""
-    return format_html('<link rel="stylesheet" href="{}">', static("css/feathers_admin.css"))
+    return format_html('<link rel="stylesheet" href="{}">', static("css/wagtail_feathers_admin.css"))
 
 
 @hooks.register("insert_global_admin_js", order=100)
@@ -107,7 +107,7 @@ def classifier_admin_js():
     """Add Stimulus-based enhanced classifier admin JavaScript."""
     return format_html(
         '<script type="module" src="{}"></script>',
-        static("js/feathers_admin.js")
+        static("js/wagtail_feathers_admin.js")
     )
 
 
