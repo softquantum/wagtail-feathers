@@ -339,13 +339,17 @@ class AuthorShipMixin(models.Model):
 class GeoMixin(models.Model):
     """Mixin to add geographic fields to pages."""
 
-    country = CountryField(
-        blank=True,
-        help_text="Country linked to the page.",
-    )
+    country = CountryField(blank=True, help_text="Country linked to the page.")
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
 
     geographic_panels = [
         InlinePanel("countries", label=_("Countries")),
+        FieldRowPanel([
+            FieldPanel("latitude"),
+            FieldPanel("longitude"),
+        ]),
+
     ]
 
     class Meta:
