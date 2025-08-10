@@ -318,22 +318,13 @@ class IndexPage(FeatherPage):
         """Get items to display on this index page.
         
         Override this method in subclasses to define what items to show.
-        Default returns live child pages.
+        Default returns live child pages ordered by publication date.
         """
         return (self.get_children()
                 .live()
                 .specific()
-                .annotate(
-                most_recent=Greatest(
-                        F("specific__revision_date"),
-                        F("specific__publication_date"),
-                        F("specific__first_published_at"),
-                        output_field=models.DateField(),)
-                )
-                .order_by("-most_recent")
+                .order_by("-first_published_at"))
 
-                )
-    
     def get_context(self, request, *args, **kwargs):
         """Add paginated items to context."""
         context = super().get_context(request, *args, **kwargs)
