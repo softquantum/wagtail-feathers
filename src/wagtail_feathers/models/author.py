@@ -68,13 +68,13 @@ class BaseContentAuthor(models.Model):
 
     person = models.ForeignKey(
         "wagtail_feathers.Person",
-        on_delete=models.CASCADE,
+        on_delete=models.PROTECT,
         related_name="+",
         verbose_name=_("Person"),
     )
     type = models.ForeignKey(
         "wagtail_feathers.AuthorType",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         related_name="+",
         verbose_name=_("Type"),
         null=True,

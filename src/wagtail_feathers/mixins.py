@@ -349,7 +349,6 @@ class GeoMixin(models.Model):
             FieldPanel("latitude"),
             FieldPanel("longitude"),
         ]),
-
     ]
 
     class Meta:
@@ -387,6 +386,7 @@ class SeoMixin(models.Model):
     """
     Mixin providing enhanced SEO functionality for Wagtail pages.
 
+    Included in FeatherPage model.
     Extends Wagtail's built-in SEO fields (seo_title, search_description) with:
     - Open Graph and Twitter Card support
     - Canonical URL management

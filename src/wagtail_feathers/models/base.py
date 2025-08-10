@@ -24,7 +24,7 @@ from wagtail_feathers.blocks import CommonContentBlock, HeroContentBlock, PageHe
 from wagtail_feathers.forms import TemplateVariantPageForm
 
 from ..utils.query import order_by_pk_position
-from ..mixins import ReadingTimeMixin, SeoMixin
+from ..mixins import SeoMixin
 from .utils import FEATHER_PAGE_MODELS
 
 
@@ -228,9 +228,6 @@ class FeatherBasePage(SeoMixin, CustomWagtailPage, metaclass=FeatherBasePageMeta
     def get_edit_handler(cls):  # noqa
         """Override to "lazily load" the panels overridden by subclasses."""
 
-        # if cls.seo_panels:
-        #     cls.promote_panels += cls.seo_panels
-
         panels = [
             ObjectList(cls.content_panels, heading=_("Content")),
             ObjectList(cls.taxonomy_panels, heading=_("Taxonomy")),
@@ -384,7 +381,7 @@ class ItemPageManager(PageManager):
 
 
 class ItemPage(FeatherPage):
-    """Abstract item page model with reading time calculation.
+    """Abstract item page model.
 
     Use this for individual "item" pages that are usually children of an index page
     e.g., Article, News Item, Event Detail, etc.
@@ -424,8 +421,8 @@ class ItemPage(FeatherPage):
         FieldRowPanel([
             FieldPanel("publication_date"),
             FieldPanel("revision_date"),
-        ]),
-    ] + ReadingTimeMixin.reading_time_panels + FeatherPage.promote_panels
+        ], heading="Publication dates"),
+    ] + FeatherPage.promote_panels
 
 
     class Meta:
