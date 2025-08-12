@@ -19,18 +19,21 @@ class PersonViewSetGroup(SnippetViewSetGroup):
     """Admin viewset for managing Person snippets in the Wagtail admin interface."""
 
     menu_label = "People"
-    menu_icon = "heroicons-user-group-solid"
-    menu_order = 410  # 000 being 1st, 100 2nd, etc.
+    menu_icon = "group"
+    menu_order = 410
+    add_to_settings_menu = False
     items = (PersonViewSet, PersonGroupViewSet)
 
 
+# For Settings Menu:
+# === === === === ===
 class FeathersNavigationViewSetGroup(SnippetViewSetGroup):
     """Admin viewset for managing Settings specific to Wagtail Feathers."""
 
     menu_label = "Navigation"
     menu_icon = "wagtail-icon"
     menu_order = 100
-    add_to_settings_menu = True
+    add_to_admin_menu = False
     items = (
         MenuViewSet,
         FlatMenuViewSet,
@@ -44,7 +47,7 @@ class FeathersTaxonomyViewSetGroup(SnippetViewSetGroup):
     menu_label = "Taxonomy"
     menu_icon = "wagtail-icon"
     menu_order = 110
-    add_to_settings_menu = True
+    add_to_admin_menu = False
     items = (
         CategoryViewSet,
         ClassifierGroupViewSet,
@@ -56,7 +59,7 @@ class FeathersAuthorshipViewSetGroup(SnippetViewSetGroup):
     menu_label = "Authorship"
     menu_icon = "wagtail-icon"
     menu_order = 120
-    add_to_settings_menu = True
+    add_to_admin_menu = False
     items = (
         AuthorTypeViewSet,
     )
@@ -68,9 +71,23 @@ class FeathersSiteComponentsViewSetGroup(SnippetViewSetGroup):
     menu_label = "Components"
     menu_icon = "wagtail-icon"
     menu_order = 130
-    add_to_settings_menu = True
+    add_to_admin_menu = False
     items = (
         FooterViewSet,
         SocialMediaSettingsViewSet,
     )
 
+
+class WagtailFeathersViewSetGroup(SnippetViewSetGroup):
+    """Admin viewset for managing Wagtail Feathers components."""
+
+    menu_label = "Wagtail Feathers"
+    menu_icon = "snippet"
+    menu_order = 110
+    add_to_settings_menu = True
+    items = (
+        FeathersNavigationViewSetGroup,
+        FeathersTaxonomyViewSetGroup,
+        FeathersAuthorshipViewSetGroup,
+        FeathersSiteComponentsViewSetGroup,
+    )

@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite';
+import tailwindcss from "@tailwindcss/vite";
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -13,7 +14,7 @@ export default defineConfig((configEnv) => {
         ? {exclude: ['node_modules/**', 'src/wagtail_feathers/static/**']}
         : null,
 
-      cssCodeSplit: false,
+      cssCodeSplit: true,
       minify: false,
       outDir: resolve(__dirname, 'src/wagtail_feathers/static'),
       emptyOutDir: false,

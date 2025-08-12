@@ -16,15 +16,8 @@ from wagtail.snippets import widgets as wagtailsnippets_widgets
 from wagtail.snippets.models import register_snippet
 
 from wagtail_feathers.models import Category, Person
-from wagtail_feathers.viewsets import (
-    FeathersAuthorshipViewSetGroup,
-    FeathersNavigationViewSetGroup,
-    FeathersSiteComponentsViewSetGroup,
-    FeathersTaxonomyViewSetGroup,
-    PersonViewSetGroup,
-)
-
-from wagtail_feathers.viewsets import classifier_chooser_viewset
+from wagtail_feathers.viewsets import PersonViewSetGroup, classifier_chooser_viewset
+from wagtail_feathers.viewsets.viewset_groups import WagtailFeathersViewSetGroup
 
 logger = logging.getLogger(__name__)
 
@@ -268,8 +261,5 @@ def category_listing_buttons(snippet, user, next_url=None):
 
 # ViewSet registrations:
 # === === === === === ===
-register_snippet(FeathersNavigationViewSetGroup)
-register_snippet(FeathersTaxonomyViewSetGroup)
-register_snippet(FeathersAuthorshipViewSetGroup)
 register_snippet(PersonViewSetGroup)
-register_snippet(FeathersSiteComponentsViewSetGroup)
+register_snippet(WagtailFeathersViewSetGroup)
