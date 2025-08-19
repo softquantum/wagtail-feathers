@@ -9,8 +9,9 @@ from django.utils.html import strip_tags
 from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
-from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface
 from wagtail.images import get_image_model_string
+from wagtail.utils.decorators import cached_classmethod
 
 try:
     from wagtail_localize.fields import TranslatableField

@@ -10,9 +10,10 @@ from modelcluster.fields import ParentalKey
 from taggit.models import TaggedItemBase
 from wagtail.admin.panels import (
     FieldPanel,
+    FieldRowPanel,
     MultipleChooserPanel,
     ObjectList,
-    TabbedInterface, FieldRowPanel,
+    TabbedInterface,
 )
 from wagtail.fields import RichTextField, StreamField
 from wagtail.images import get_image_model_string
@@ -23,8 +24,8 @@ from wagtail.utils.decorators import cached_classmethod
 from wagtail_feathers.blocks import CommonContentBlock, HeroContentBlock, PageHeaderBlock
 from wagtail_feathers.forms import TemplateVariantPageForm
 
-from ..utils.query import order_by_pk_position
 from ..mixins import SeoMixin
+from ..utils.query import order_by_pk_position
 from .utils import FEATHER_PAGE_MODELS
 
 
@@ -110,8 +111,6 @@ class FeatherBasePage(SeoMixin, CustomWagtailPage, metaclass=FeatherBasePageMeta
         FieldPanel("tags"),
     ]
 
-    authorship_panels = []
-    geographic_panels = []
 
     def clean(self):
         """Validate max_selections constraints for classifier groups."""
@@ -237,9 +236,9 @@ class FeatherBasePage(SeoMixin, CustomWagtailPage, metaclass=FeatherBasePageMeta
         combined_promote_panels = cls.promote_panels + cls.seo_panels
         panels.insert(2, ObjectList(combined_promote_panels, heading=_("Promote")))
 
-        if cls.authorship_panels:
+        if hasattr(cls, 'authorship_panels') and cls.authorship_panels:
             panels.insert(1, ObjectList(cls.authorship_panels, heading=_("Authorship")))
-        if cls.geographic_panels:
+        if hasattr(cls, 'geographic_panels') and cls.geographic_panels:
             panels.insert(2, ObjectList(cls.geographic_panels, heading=_("Geographic")))
 
         edit_handler = TabbedInterface(panels)
