@@ -4,6 +4,7 @@ from urllib.parse import urljoin
 
 from django import forms
 from django.db import models
+from modelcluster.fields import ParentalManyToManyField
 from django.utils import timezone
 from django.utils.html import strip_tags
 from django.utils.text import Truncator
@@ -343,7 +344,7 @@ class GeoMixin(models.Model):
     """Mixin to add geographic fields to pages."""
 
     country = CountryField(blank=True, help_text="Country linked to the page.")
-    country_groups = models.ManyToManyField(
+    country_groups = ParentalManyToManyField(
         'wagtail_feathers.CountryGroup',
         blank=True,
         help_text=_("Select predefined country groups")
