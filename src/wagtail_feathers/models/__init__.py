@@ -13,7 +13,7 @@ from .base import (
 )
 from .errors import ErrorPage
 from .faq import FAQ, FAQCategory
-from .geographic import PageCountry
+from .geographic import CountryGroup, PageCountry
 from .inline import RelatedDocument, RelatedExternalLink, RelatedPage
 from .navigation import FlatMenu, Footer, FooterNavigation, Menu, MenuItem, NestedMenu
 from .person import Person, PersonGroup
@@ -34,6 +34,7 @@ __all__ = [
     "Category",
     "Classifier",
     "ClassifierGroup",
+    "CountryGroup",
     "CustomWagtailPage",
     "ErrorPage",
     "FAQ",

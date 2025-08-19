@@ -1,13 +1,15 @@
-import re
 import json
+import re
+from urllib.parse import urljoin
+
+from django import forms
 from django.db import models
 from django.utils import timezone
-from django.utils.translation import gettext_lazy as _
-from django_countries.fields import CountryField
-from wagtail.admin.panels import FieldPanel, InlinePanel, FieldRowPanel, MultiFieldPanel
-from urllib.parse import urljoin
 from django.utils.html import strip_tags
 from django.utils.text import Truncator
+from django.utils.translation import gettext_lazy as _
+from django_countries.fields import CountryField
+from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel
 from wagtail.images import get_image_model_string
 
 try:
@@ -340,10 +342,16 @@ class GeoMixin(models.Model):
     """Mixin to add geographic fields to pages."""
 
     country = CountryField(blank=True, help_text="Country linked to the page.")
+    country_groups = models.ManyToManyField(
+        'wagtail_feathers.CountryGroup',
+        blank=True,
+        help_text=_("Select predefined country groups")
+    )
     latitude = models.FloatField(null=True, blank=True)
     longitude = models.FloatField(null=True, blank=True)
 
     geographic_panels = [
+        FieldPanel("country_groups", widget=forms.CheckboxSelectMultiple),
         InlinePanel("countries", label=_("Countries")),
         FieldRowPanel([
             FieldPanel("latitude"),
@@ -353,6 +361,49 @@ class GeoMixin(models.Model):
 
     class Meta:
         abstract = True
+
+    def get_all_countries(self):
+        """Get all countries from both groups and individual selections."""
+        countries = set()
+        
+        # Add countries from groups
+        for group in self.country_groups.all():
+            countries.update(group.get_country_codes())
+        
+        # Add individual country selection
+        if self.country:
+            countries.add(str(self.country))
+        
+        # Add countries from PageCountry relationships
+        for page_country in self.countries.all():
+            if page_country.countries:
+                countries.add(str(page_country.countries))
+        
+        return list(countries)
+
+    def get_countries_from_groups(self):
+        """Get list of countries from selected groups only."""
+        countries = set()
+        for group in self.country_groups.all():
+            countries.update(group.get_country_codes())
+        return list(countries)
+
+    def get_countries_display(self):
+        """Get formatted display of all effective countries."""
+        from django_countries import countries as all_countries
+        
+        country_codes = self.get_all_countries()
+        if not country_codes:
+            return _("No countries selected")
+        
+        country_names = []
+        for code in country_codes:
+            try:
+                country_names.append(all_countries.name(code))
+            except KeyError:
+                country_names.append(code)
+        
+        return ", ".join(sorted(country_names))
 
 
 """

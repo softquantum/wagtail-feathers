@@ -4,6 +4,7 @@ from wagtail_feathers.viewsets import (
     AuthorTypeViewSet,
     CategoryViewSet,
     ClassifierGroupViewSet,
+    CountryGroupViewSet,
     FlatMenuViewSet,
     FooterNavigationViewSet,
     FooterViewSet,
@@ -78,6 +79,18 @@ class FeathersSiteComponentsViewSetGroup(SnippetViewSetGroup):
     )
 
 
+class FeathersGeographicViewSetGroup(SnippetViewSetGroup):
+    """Admin viewset for managing geographic settings."""
+
+    menu_label = "Geographic"
+    menu_icon = "globe-americas"
+    menu_order = 140
+    add_to_admin_menu = False
+    items = (
+        CountryGroupViewSet,
+    )
+
+
 class WagtailFeathersViewSetGroup(SnippetViewSetGroup):
     """Admin viewset for managing Wagtail Feathers components."""
 
@@ -90,4 +103,5 @@ class WagtailFeathersViewSetGroup(SnippetViewSetGroup):
         FeathersTaxonomyViewSetGroup,
         FeathersAuthorshipViewSetGroup,
         FeathersSiteComponentsViewSetGroup,
+        FeathersGeographicViewSetGroup,
     )
