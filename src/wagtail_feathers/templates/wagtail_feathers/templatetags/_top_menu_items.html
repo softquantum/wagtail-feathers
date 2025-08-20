@@ -18,7 +18,7 @@ This template is used by the templatetag 'top-menu-items'
   </a>
 </li>
 {% for menuitem in menuitems %}
-<li class="top-menu-item font-light tracking-wider text-xl relative group">
+<li class="top-menu-item font-light tracking-wider text-lg relative group">
   <a href="{% pageurl menuitem %}"
      class="relative flex items-center space-x-1 {% if menuitem.active %}text-secondary{% else %}text-base-content{% endif %}"
      :class="isHomepage && !isScrolled ? 'text-md text-white hover:text-secondary' : (isScrolled ? 'text-sm hover:text-secondary' : 'text-md hover:text-secondary')">
