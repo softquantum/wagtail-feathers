@@ -977,6 +977,93 @@ class FAQSectionBlock(BaseBlock):
         description = _("A group of related FAQ items with optional section heading")
 
 
+class HTMLGridItemBlock(blocks.StructBlock):
+    """Individual HTML grid item with raw HTML content."""
+    
+    title = blocks.CharBlock(
+        required=False,
+        max_length=100,
+        help_text=_("Optional title for organization (not displayed)")
+    )
+    content = blocks.RawHTMLBlock(
+        required=True,
+        help_text=_("⚠️ Only use when editors are fully trusted - allows any HTML/JavaScript")
+    )
+    
+    class Meta:
+        icon = "code"
+        label = _("HTML Grid Item")
+
+
+class HTMLGridBlock(BaseBlock):
+    """A responsive grid of custom HTML content blocks."""
+    
+    component_type = "html_grid"
+    default_variant = "default"
+    
+    fluid = blocks.BooleanBlock(
+        required=False,
+        default=False,
+        label=_("Full width"),
+        help_text=_("If checked, the grid will span the full width of the page")
+    )
+    
+    heading = blocks.CharBlock(
+        form_classname="title",
+        icon="title",
+        required=False,
+        help_text=_("Optional heading for the grid section")
+    )
+    
+    sr_only_label = blocks.BooleanBlock(
+        required=False,
+        label=_("Screen reader only label"),
+        help_text=_("If checked, the heading will be hidden from view and available to screen-readers only")
+    )
+    
+    columns = blocks.ChoiceBlock(
+        choices=[
+            ("1", _("1 Column")),
+            ("2", _("2 Columns")),
+            ("3", _("3 Columns")),
+            ("4", _("4 Columns")),
+        ],
+        default="3",
+        help_text=_("Number of columns for the grid on desktop")
+    )
+    
+    items = blocks.ListBlock(
+        HTMLGridItemBlock(),
+        max_num=18,
+        label=_("HTML Items"),
+        help_text=_("Add up to 18 HTML grid items")
+    )
+    
+    class Meta:
+        template = "wagtail_feathers/blocks/html_grid_block.html"
+        icon = "grip"
+        label = _("HTML Grid")
+        description = _("A responsive grid of custom HTML content")
+        preview_value = {
+            "heading": _("Custom Content Grid"),
+            "columns": "3",
+            "items": [
+                {
+                    "title": "Widget 1",
+                    "content": '<div style="padding: 20px; background: #f0f0f0; border-radius: 8px;"><h3>Custom Widget</h3><p>Any HTML content here</p></div>'
+                },
+                {
+                    "title": "Widget 2", 
+                    "content": '<div style="padding: 20px; background: #e0e0ff; border-radius: 8px;"><h3>Another Widget</h3><button>Click me</button></div>'
+                },
+                {
+                    "title": "Widget 3",
+                    "content": '<div style="padding: 20px; background: #ffe0e0; border-radius: 8px;"><img src="/placeholder.jpg" alt="Image" style="width: 100%;"/></div>'
+                }
+            ]
+        }
+
+
 class FAQSectionEmbedBlock(BaseBlock):
     """Embed FAQ items from a specific category anywhere in content."""
     
