@@ -1065,6 +1065,21 @@ class HTMLGridBlock(BaseBlock):
         }
 
 
+def get_faq_choices():
+    """Get FAQ choices for ChoiceBlock."""
+    try:
+        from django.apps import apps
+        if not apps.ready:
+            return [('', _('No FAQs available'))]
+
+        from wagtail_feathers.models.faq import FAQ
+        faqs = FAQ.objects.all()
+        choices = [(str(faq.id), faq.name) for faq in faqs]
+        return choices if choices else [('', _('No FAQs available'))]
+    except Exception:
+        return [('', _('No FAQs available'))]
+
+
 class FAQSectionEmbedBlock(BaseBlock):
     """Embed FAQ items from a specific faq anywhere in content."""
     
@@ -1078,7 +1093,7 @@ class FAQSectionEmbedBlock(BaseBlock):
     )
     
     faq = blocks.ChoiceBlock(
-        choices=[],  # Will be populated dynamically
+        choices=get_faq_choices,
         help_text=_("Select a FAQ to display")
     )
     
@@ -1100,38 +1115,6 @@ class FAQSectionEmbedBlock(BaseBlock):
         help_text=_("Link to full FAQ page (for 'View All' link)")
     )
 
-    def get_form_context(self, value, prefix='', errors=None):
-        """Update category choices when form is rendered."""
-        context = super().get_form_context(value, prefix, errors)
-        
-        # Only update choices when form is actually being rendered (not during startup)
-        # TODO: Verify if there is another way to achieve this
-        try:
-            from django.apps import apps
-            if not apps.ready:
-                return context
-                
-            from wagtail_feathers.models.faq import FAQ
-            categories = FAQ.objects.all()
-            choices = [(str(cat.id), cat.name) for cat in categories]
-            if not choices:
-                choices = [('', _('No FAQ categories available'))]
-            
-            # Update the field choices
-            if hasattr(self.child_blocks['faq_category'], 'field'):
-                self.child_blocks['faq_category'].field.choices = choices
-            elif hasattr(self.child_blocks['faq_category'], 'choices'):
-                self.child_blocks['faq_category'].choices = choices
-                
-        except Exception:
-            # Fallback if models aren't ready yet
-            choices = [('', _('No categories available'))]
-            if hasattr(self.child_blocks['faq_category'], 'field'):
-                self.child_blocks['faq_category'].field.choices = choices
-            elif hasattr(self.child_blocks['faq_category'], 'choices'):
-                self.child_blocks['faq_category'].choices = choices
-        
-        return context
     
     def clean(self, value):
         """Validate the selected FAQ page is actually an FAQ page."""
@@ -1158,21 +1141,21 @@ class FAQSectionEmbedBlock(BaseBlock):
         
         try:
             from wagtail_feathers.models.faq import FAQ, FAQItem
+
+            faq_id = value.get('faq')
+            max_items = value.get('max_items', 10)
             
-            category_id = value.get('faq_category')
-            max_items = value.get('max_items', 5)
-            
-            if category_id:
-                faqs = FAQItem.objects.filter(
-                    faq_id=category_id,
+            if faq_id:
+                faq_items = FAQItem.objects.filter(
+                    faq_id=faq_id,
                     live=True
                 ).order_by('sort_order')[:max_items]
                 
-                category = FAQ.objects.filter(id=category_id).first()
+                faq = FAQ.objects.filter(id=faq_id).first()
                 
                 context.update({
-                    'faqs': faqs,
-                    'category': category,
+                    'faq_items': faq_items,
+                    'faq': faq,
                     'faq_page_url': value.get('faq_page').url if value.get('faq_page') else None,
                 })
         except Exception:
@@ -1190,7 +1173,7 @@ class FAQSectionEmbedBlock(BaseBlock):
         label = _("FAQ Section")
         preview_value = {
             "section_title": _("Frequently Asked Questions"),
-            "faq_category": "",
+            "faq": "",
             "max_items": 5,
             "show_view_all_link": True,
         }
