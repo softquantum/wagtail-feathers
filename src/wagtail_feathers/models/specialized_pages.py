@@ -201,7 +201,7 @@ class FAQBasePage(FeatherPage):
     
     # FAQ categories to display
     faq_categories = models.ManyToManyField(
-        'wagtail_feathers.FAQCategory',
+            'wagtail_feathers.FAQ',
         blank=True,
         help_text=_("Select FAQ categories to display on this page")
     )
@@ -235,8 +235,8 @@ class FAQBasePage(FeatherPage):
         if not self.faq_categories.exists():
             return []
         
-        from .faq import FAQ
-        return FAQ.objects.filter(
+        from .faq import FAQItem
+        return FAQItem.objects.filter(
             category__in=self.faq_categories.all(),
             live=True
         ).select_related('category').order_by('category__name', 'sort_order')

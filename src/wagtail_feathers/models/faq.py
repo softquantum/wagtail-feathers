@@ -6,6 +6,7 @@ Provides translatable FAQ items organized by categories with admin management.
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django_extensions.db.fields import AutoSlugField
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
 from wagtail.admin.panels import FieldPanel, InlinePanel
@@ -20,19 +21,12 @@ except ImportError:
     WAGTAIL_LOCALIZE_AVAILABLE = False
 
 
-class FAQCategory(TranslatableMixin, ClusterableModel):
-    """Category for organizing FAQ items."""
+class FAQ(TranslatableMixin, ClusterableModel):
+    """Group of FAQ items."""
     
-    name = models.CharField(
-        max_length=100,
-        help_text=_("Category name")
-    )
-    
-    slug = models.SlugField(
-        max_length=100,
-        unique=True,
-        help_text=_("URL-friendly version of the name")
-    )
+    name = models.CharField(max_length=150)
+
+    slug = AutoSlugField(populate_from="name", editable=True)
     
     description = models.TextField(
         blank=True,
@@ -55,12 +49,12 @@ class FAQCategory(TranslatableMixin, ClusterableModel):
         ]
     
     class Meta:
-        verbose_name = _("FAQ Category")
-        verbose_name_plural = _("FAQ Categories")
+        verbose_name = _("FAQ")
+        verbose_name_plural = _("FAQs")
         ordering = ['name']
         constraints = [
             models.UniqueConstraint(
-                fields=["translation_key", "locale"], name="unique_faqcategory_translation_key_locale"
+                fields=["translation_key", "locale"], name="unique_faq_translation_key_locale"
             )
         ]
     
@@ -69,26 +63,26 @@ class FAQCategory(TranslatableMixin, ClusterableModel):
     
     @property
     def published_faqs(self):
-        """Get published FAQ items for this category."""
+        """Get published FAQ items for this FAQ."""
         return self.faqs.filter(live=True).order_by('sort_order')
 
 
-class FAQ(TranslatableMixin, index.Indexed, Orderable):
-    """Individual FAQ item within a category."""
+class FAQItem(TranslatableMixin, index.Indexed, Orderable):
+    """Individual FAQ item within a FAQ."""
     
-    category = ParentalKey(
-        FAQCategory,
+    faq = ParentalKey(
+        FAQ,
         on_delete=models.CASCADE,
         related_name='faqs'
     )
     
     question = models.CharField(
-        max_length=200,
+        max_length=255,
         help_text=_("The FAQ question")
     )
     
     answer = RichTextField(
-        features=['bold', 'italic', 'link', 'ul', 'ol'],
+        features=["bold", "italic", "link", "ul", "ol", "document-link"],
         help_text=_("The answer to the question")
     )
     
@@ -97,7 +91,6 @@ class FAQ(TranslatableMixin, index.Indexed, Orderable):
         help_text=_("Whether this FAQ is published and visible")
     )
     
-    # Admin panels
     panels = [
         FieldPanel('question'),
         FieldPanel('answer'),
@@ -109,7 +102,6 @@ class FAQ(TranslatableMixin, index.Indexed, Orderable):
         index.SearchField('answer'),
     ]
     
-    # Translation support
     if WAGTAIL_LOCALIZE_AVAILABLE:
         translatable_fields = [
             TranslatableField('question'),
@@ -122,9 +114,10 @@ class FAQ(TranslatableMixin, index.Indexed, Orderable):
         ordering = ['sort_order']
         constraints = [
             models.UniqueConstraint(
-                fields=["translation_key", "locale"], name="unique_faq_translation_key_locale"
+                fields=["translation_key", "locale"], name="unique_faq_item_translation_key_locale"
             )
         ]
     
     def __str__(self):
         return self.question
+    

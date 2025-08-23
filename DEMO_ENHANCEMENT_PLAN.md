@@ -59,7 +59,7 @@
 
 ### 6. **FAQ System** ❓
 **Missing in Demo:**
-- `FAQ` & `FAQCategory` - FAQ management
+- `FAQ` & `FAQItem` - FAQ management
 - `FAQBasePage` - Specialized FAQ pages
 
 **Should Demonstrate:**

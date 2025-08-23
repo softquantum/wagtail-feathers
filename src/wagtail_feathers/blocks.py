@@ -12,6 +12,7 @@ from wagtail.images import get_image_model
 from wagtail.images.blocks import ImageChooserBlock
 from wagtail.models import Collection
 from wagtailmarkdown.blocks import MarkdownBlock
+
 from wagtail_feathers.struct_values import LinkStructValue
 from wagtail_feathers.themes import get_theme_variants
 
@@ -1065,7 +1066,7 @@ class HTMLGridBlock(BaseBlock):
 
 
 class FAQSectionEmbedBlock(BaseBlock):
-    """Embed FAQ items from a specific category anywhere in content."""
+    """Embed FAQ items from a specific faq anywhere in content."""
     
     component_type = "faq_embed"
     default_variant = "default"
@@ -1076,16 +1077,16 @@ class FAQSectionEmbedBlock(BaseBlock):
         help_text=_("Optional title for this FAQ section")
     )
     
-    faq_category = blocks.ChoiceBlock(
+    faq = blocks.ChoiceBlock(
         choices=[],  # Will be populated dynamically
-        help_text=_("Select FAQ category to display")
+        help_text=_("Select a FAQ to display")
     )
     
     max_items = blocks.IntegerBlock(
-        default=5,
+        default=10,
         min_value=1,
         max_value=20,
-        help_text=_("Maximum number of FAQ items to show")
+        help_text=_("Maximum number of FAQ items to show, default 10, maximum 20.")
     )
     
     show_view_all_link = blocks.BooleanBlock(
@@ -1110,8 +1111,8 @@ class FAQSectionEmbedBlock(BaseBlock):
             if not apps.ready:
                 return context
                 
-            from wagtail_feathers.models.faq import FAQCategory
-            categories = FAQCategory.objects.all()
+            from wagtail_feathers.models.faq import FAQ
+            categories = FAQ.objects.all()
             choices = [(str(cat.id), cat.name) for cat in categories]
             if not choices:
                 choices = [('', _('No FAQ categories available'))]
@@ -1156,18 +1157,18 @@ class FAQSectionEmbedBlock(BaseBlock):
         context = super().get_context(value, parent_context)
         
         try:
-            from wagtail_feathers.models.faq import FAQ, FAQCategory
+            from wagtail_feathers.models.faq import FAQ, FAQItem
             
             category_id = value.get('faq_category')
             max_items = value.get('max_items', 5)
             
             if category_id:
-                faqs = FAQ.objects.filter(
-                    category_id=category_id,
+                faqs = FAQItem.objects.filter(
+                    faq_id=category_id,
                     live=True
                 ).order_by('sort_order')[:max_items]
                 
-                category = FAQCategory.objects.filter(id=category_id).first()
+                category = FAQ.objects.filter(id=category_id).first()
                 
                 context.update({
                     'faqs': faqs,

@@ -1,5 +1,7 @@
 """Viewsets for wagtail_feathers."""
 from .author import AuthorTypeViewSet
+from .choosers import classifier_chooser_viewset
+from .components import FAQItemViewSet, FAQViewSet
 from .geographic import CountryGroupViewSet
 from .navigation import FlatMenuViewSet, FooterNavigationViewSet, FooterViewSet, MenuViewSet, NestedMenuViewSet
 from .person import PersonGroupViewSet, PersonViewSet
@@ -13,7 +15,6 @@ from .viewset_groups import (
     FeathersTaxonomyViewSetGroup,
     PersonViewSetGroup,
 )
-from .choosers import classifier_chooser_viewset
 
 __all__ = [
     "AuthorTypeViewSet",
@@ -25,6 +26,8 @@ __all__ = [
     "FooterViewSet",
     "MenuViewSet",
     "NestedMenuViewSet",
+    "FAQViewSet",
+    "FAQItemViewSet",
     "FlatMenuViewSet",
     "PersonViewSet",
     "PersonGroupViewSet",

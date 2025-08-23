@@ -12,7 +12,7 @@ from .base import (
     WebBasePage,
 )
 from .errors import ErrorPage
-from .faq import FAQ, FAQCategory
+from .faq import FAQ, FAQItem
 from .geographic import CountryGroup, PageCountry
 from .inline import RelatedDocument, RelatedExternalLink, RelatedPage
 from .navigation import FlatMenu, Footer, FooterNavigation, Menu, MenuItem, NestedMenu
@@ -37,9 +37,9 @@ __all__ = [
     "CountryGroup",
     "CustomWagtailPage",
     "ErrorPage",
-    "FAQ",
+    "FAQItem",
     "FAQBasePage",
-    "FAQCategory",
+    "FAQ",
     "FeatherBasePage",
     "FeatherPage",
     "FeatherBasePageMeta",

@@ -5,6 +5,7 @@ from wagtail_feathers.viewsets import (
     CategoryViewSet,
     ClassifierGroupViewSet,
     CountryGroupViewSet,
+    FAQViewSet,
     FlatMenuViewSet,
     FooterNavigationViewSet,
     FooterViewSet,
@@ -76,6 +77,7 @@ class FeathersSiteComponentsViewSetGroup(SnippetViewSetGroup):
     items = (
         FooterViewSet,
         SocialMediaSettingsViewSet,
+        FAQViewSet,
     )
 
 

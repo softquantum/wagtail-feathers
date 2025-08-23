@@ -60,7 +60,7 @@ Wagtail Feathers provides a comprehensive set of reusable components and pattern
 - **ErrorPage Model**: Editable error pages with custom messages and images
 
 ### ❓ **FAQ System**
-- **FAQ Management**: Structured FAQ system with FAQCategory and FAQ models
+- **FAQ Management**: Structured FAQ system with FAQ and FAQItem models
 - **Categorized Content**: Organize frequently asked questions by category
 
 ### 🔗 **Page Relationships**
@@ -216,18 +216,18 @@ error_404 = ErrorPage.objects.create(
 ### FAQ System
 
 ```python
-from wagtail_feathers.models import FAQCategory, FAQ
+from wagtail_feathers.models import FAQ, FAQItem
 
 # Create FAQ categories and items
-category = FAQCategory.objects.create(
-    title="General Questions",
-    slug="general"
+category = FAQ.objects.create(
+        name="General Questions",
+        slug="general"
 )
 
-faq = FAQ.objects.create(
-    question="How do I get started?",
-    answer="<p>Follow our quick start guide...</p>",
-    category=category
+faq = FAQItem.objects.create(
+        question="How do I get started?",
+        answer="<p>Follow our quick start guide...</p>",
+        faq=category
 )
 ```
 
@@ -714,7 +714,7 @@ wagtail_feathers/
 │   ├── base.py      # FeatherBasePage and foundation classes
 │   ├── author.py    # AuthorType and PageAuthor models
 │   ├── errors.py    # ErrorPage model
-│   ├── faq.py       # FAQ and FAQCategory models  
+│   ├── faq.py       # FAQ and FAQItem models  
 │   ├── geographic.py # PageCountry model
 │   ├── inline.py    # Related content models
 │   ├── navigation.py # Menu and navigation models
@@ -739,7 +739,7 @@ Based on the migration, wagtail_feathers provides these core models:
 - **Taxonomy**: `Category`, `Classifier`, `ClassifierGroup`, `PageCategory`, `PageClassifier`
 - **Navigation**: `Menu`, `MenuItem`, `FlatMenu`, `NestedMenu`, `Footer`, `FooterNavigation`
 - **People & Authors**: `Person`, `PersonGroup`, `AuthorType`, `PageAuthor`
-- **Content Organization**: `FAQ`, `FAQCategory`, `ErrorPage`
+- **Content Organization**: `FAQ`, `FAQItem`, `ErrorPage`
 - **Relationships**: `RelatedPage`, `RelatedDocument`, `RelatedExternalLink`
 - **Geography**: `PageCountry`
 - **Social**: `SocialMediaSettings`, `SocialMediaLink`

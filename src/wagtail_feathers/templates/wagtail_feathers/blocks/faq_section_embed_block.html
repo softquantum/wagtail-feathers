@@ -1,0 +1,35 @@
+{% load i18n wagtailcore_tags %}
+
+<div class="space-y-4">
+    {% if self.section_title %}
+        <h2 class="text-xl font-semibold">{{ self.section_title }}</h2>
+    {% endif %}
+    
+    {% if faqs %}
+        <div class="space-y-2">
+            {% for faq in faqs %}
+                <details class="group">
+                    <summary class="cursor-pointer list-none flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg">
+                        <span class="font-medium">{{ faq.question }}</span>
+                        <svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </summary>
+                    <div class="px-4 pb-4">
+                        {{ faq.answer|richtext }}
+                    </div>
+                </details>
+            {% endfor %}
+        </div>
+        
+        {% if self.show_view_all_link and faq_page_url %}
+            <div class="mt-6">
+                <a href="{{ faq_page_url }}" class="text-blue-600 hover:underline">
+                    {% trans "View All FAQs" %} →
+                </a>
+            </div>
+        {% endif %}
+    {% else %}
+        <p class="text-gray-500">{% trans "No FAQs available in this category." %}</p>
+    {% endif %}
+</div>
