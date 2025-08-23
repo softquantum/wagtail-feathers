@@ -1086,12 +1086,6 @@ class FAQSectionEmbedBlock(BaseBlock):
     component_type = "faq_embed"
     default_variant = "default"
 
-    section_title = blocks.CharBlock(
-        max_length=100,
-        required=False,
-        help_text=_("Optional title for this FAQ section")
-    )
-    
     faq = blocks.ChoiceBlock(
         choices=get_faq_choices,
         help_text=_("Select a FAQ to display")
