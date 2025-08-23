@@ -1,17 +1,24 @@
 {% load i18n wagtailcore_tags %}
 
+<style>
+	details[open] .rotate-icon {
+		transform: rotate(180deg);
+	}
+</style>
+
+
 <div class="space-y-4">
     {% if faq_items %}
         <div class="space-y-2">
             {% for faq in faq_items %}
-                <details class="group">
-                    <summary class="cursor-pointer list-none flex items-center justify-between p-4 hover:bg-gray-50 rounded-lg">
+                <details class="group border-2 border-base-300 rounded-md">
+                    <summary class="cursor-pointer flex items-center justify-between p-4 hover:bg-gray-50 rounded-md">
                         <span class="font-medium">{{ faq.question }}</span>
-                        <svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        <svg class="w-5 h-5 transition-transform duration-200 rotate-icon" stroke="currentColor" viewBox="0 0 24 24">
+                            <path fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                         </svg>
                     </summary>
-                    <div class="px-4 pb-4">
+                    <div class="p-3 bg-base-200 rounded-b-md">
                         {{ faq.answer|richtext }}
                     </div>
                 </details>
