@@ -1,11 +1,11 @@
 {% load svg_tags %}
 {% load wagtailcore_tags wagtailimages_tags wagtailsettings_tags %}
 
-{% if value.theme_variant == "overlay" %}
-   <div {% if value.style_id %}id="{{ value.style_id }}"{% endif %}
-        class="{% if not value.fluid %}container mx-auto{% endif %}"
+{% if value.theme.theme_variant == "overlay" %}
+   <div {% if value.theme.style_id %}id="{{ value.theme.style_id }}"{% endif %}
+        class="{% if not value.fluid %}container mx-auto{% endif %}{% if value.theme.classname %} {{ value.theme.classname }}{% endif %}"
         data-component="hero"
-        data-variant="{{ value.theme_variant }}">
+        data-variant="{{ value.theme.theme_variant }}">
       {% if value.background_image %}
          {% image value.background_image fill-1920x1080 as bg_image %}
       {% elif settings.wagtail_feathers.SiteSettings.placeholder_image %}
@@ -52,12 +52,12 @@
          </div>
       </div>
    </div>
-{% elif value.theme_variant == "figure-left" or value.theme_variant == "figure-right" %}
+{% elif value.theme.theme_variant == "figure-left" or value.theme.theme_variant == "figure-right" %}
    <div class="{% if not value.fluid %}container mx-auto{% endif %}"
         data-component="hero"
-        data-variant="{{ value.theme_variant }}">
+        data-variant="{{ value.theme.theme_variant }}">
       <div class="hero bg-base-200 min-h-[85vh] lg:min-h-[50vh]">
-         <div class="hero-content flex-col-reverse{% if value.theme_variant == 'figure-left' %} lg:flex-row{% elif value.theme_variant == 'figure-right' %} lg:flex-row-reverse{% endif %}">
+         <div class="hero-content flex-col-reverse{% if value.theme.theme_variant == 'figure-left' %} lg:flex-row{% elif value.theme.theme_variant == 'figure-right' %} lg:flex-row-reverse{% endif %}">
             {% if value.background_image %}
                {% image value.background_image fill-512x512 as hero_image %}
                <img src="{{ hero_image.url }}" alt="{{ value.background_image_alt|default:'' }}" class="max-w-sm rounded-lg shadow-2xl" />
@@ -89,7 +89,7 @@
 {% else %}
    <div class="{% if not value.fluid %}container mx-auto{% endif %}"
         data-component="hero"
-        data-variant="{{ value.theme_variant }}">
+        data-variant="{{ value.theme.theme_variant }}">
       <div class="hero bg-base-200 min-h-[85vh] lg:min-h-[50vh]">
          <div class="hero-content {% if value.alignment == 'left' %}text-left{% elif value.alignment == 'right' %}text-right{% else %}text-center{% endif %}">
             <div class="max-w-lg">

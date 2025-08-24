@@ -1,8 +1,8 @@
 {% load wagtailcore_tags %}
 
-<div class="cta-section{% if value.theme_variant %} cta-{{ value.theme_variant }}{% endif %} cta-bg-{{ value.background_color|default:'primary' }}" 
+<div class="cta-section{% if value.theme.theme_variant %} cta-{{ value.theme.theme_variant }}{% endif %} cta-bg-{{ value.background_color|default:'primary' }}"
      data-component="cta"
-     data-variant="{{ value.theme_variant|default:'default' }}">
+     data-variant="{{ value.theme.theme_variant|default:'default' }}">
     
     <div class="cta-container">
         {% if value.heading %}

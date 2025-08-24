@@ -1,7 +1,7 @@
 {% load wagtailcore_tags %}
 
-<div class="{% if not value.fluid %}container mx-auto{% endif %}" data-component="cards-section" data-variant="{{ value.theme_variant|default:'default' }}">
-    <section class="card-section card-section-default card-section-bordered py-8 lg:py-12{% if value.theme_variant == 'bordered' %} bordered-variant{% else %} shadowed-variant{% endif %}">
+<div class="{% if not value.fluid %}container mx-auto{% endif %}" data-component="cards-section" data-variant="{{ value.theme.theme_variant|default:'default' }}">
+    <section class="card-section card-section-default card-section-bordered py-8 lg:py-12{% if value.theme.theme_variant == 'bordered' %} bordered-variant{% else %} shadowed-variant{% endif %}">
         {% if value.heading %}
             {% if value.sr_only_label %}
                 <h2 class="sr-only">{{ value.heading }}</h2>

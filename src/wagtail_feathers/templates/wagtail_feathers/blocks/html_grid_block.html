@@ -1,6 +1,6 @@
 {% load i18n %}
 
-<div class="my-8 theme-{{ value.theme_variant|default:'default' }}">
+<div class="my-8 theme-{{ value.theme.theme_variant|default:'default' }}">
     <div class="{% if not value.fluid %}container mx-auto{% endif %}">
         {% if value.heading %}
             <h2 class="mb-6 text-3xl font-bold {% if value.sr_only_label %}sr-only{% endif %}">

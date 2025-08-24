@@ -16,8 +16,8 @@ from wagtailmarkdown.blocks import MarkdownBlock
 from wagtail_feathers.struct_values import LinkStructValue
 from wagtail_feathers.themes import get_theme_variants
 
-""" Base Blocks
-All custom blocks should inherit from one of these classes.
+""" Chooser Blocks
+Themes and Collections.
 """
 
 
@@ -110,6 +110,118 @@ class CollectionChooserBlock(blocks.FieldBlock):
         return value
 
 
+""" Settings Blocks
+These collapsible blocks settings to keep the main interface clean. They use the collapsed=True parameter to hide settings by default.
+https://docs.wagtail.org/en/stable/advanced_topics/customization/streamfield_blocks.html#custom-editing-interfaces-for-structblock
+"""
+
+
+class GridSettingsBlock(blocks.StructBlock):
+    """Collapsible grid-specific settings for GridBlock."""
+
+    fluid = blocks.BooleanBlock(
+            required=False,
+            default=True,
+            label=_("Full width"),
+            help_text=_("It will span the full width of its wrapper"),
+    )
+
+    columns_layout = blocks.ChoiceBlock(
+            choices=[
+                ("auto", _("Auto (use column width settings)")),
+                ("equal-2", _("2 Equal Columns")),
+                ("equal-3", _("3 Equal Columns")),
+                ("equal-4", _("4 Equal Columns")),
+                ("equal-5", _("5 Equal Columns")),
+                ("equal-6", _("6 Equal Columns")),
+            ],
+            default="auto",
+            required=False,
+            label=_("Column Layout"),
+            help_text=_("Predefined column layouts")
+    )
+
+    vertical_alignment = blocks.ChoiceBlock(
+            choices=[
+                ("start", _("Top")),
+                ("center", _("Center")),
+                ("end", _("Bottom")),
+                ("stretch", _("Stretch")),
+            ],
+            default="start",
+            required=False,
+            label=_("Vertical Alignment"),
+            help_text=_("Vertical alignment of columns")
+    )
+
+    gap = blocks.ChoiceBlock(
+            choices=[
+                ("0", _("No gap")),
+                ("1", _("Small gap")),
+                ("3", _("Medium gap")),
+                ("5", _("Large gap")),
+            ],
+            default="3",
+            required=False,
+            label=_("Gap"),
+            help_text=_("Space between columns")
+    )
+
+    class Meta:
+        icon = "cogs"
+        collapsed = True
+        label_format = "Layout: {columns_layout} | Fluid: {fluid} | Alignment: {vertical_alignment} | Gap: {gap}"
+
+
+class ThemeSettingsBlock(blocks.StructBlock):
+    """Collapsible theme and styling settings."""
+
+    def __init__(self, component_type=None, default_variant="default", local_blocks=None, **kwargs):
+        if component_type is None:
+            raise ValueError("component_type must be defined")
+        self.component_type = component_type
+        self.default_variant = default_variant
+
+        if not local_blocks:
+            local_blocks = ()
+
+        theme_variant_block = ThemeVariantChooserBlock(
+                component_type=self.component_type,
+                default=self.default_variant,
+                required=False,
+                label="Theme variant",
+                help_text="Select a theme variant for this component",
+        )
+
+        local_blocks = (("theme_variant", theme_variant_block),) + local_blocks
+
+        super().__init__(local_blocks, **kwargs)
+
+    classname = blocks.CharBlock(
+            required=False,
+            max_length=100,
+            label=_("CSS Classes"),
+            help_text=_("Additional CSS classes (space-separated)")
+    )
+
+    style_id = blocks.CharBlock(
+            required=False,
+            max_length=50,
+            label=_("HTML ID"),
+            help_text=_("Custom HTML ID for this block")
+    )
+
+    class Meta:
+        collapsed = True
+        icon = "cogs"
+        label_format = "Theme variant: {theme_variant} | Custom ID: {style_id} | Custom CSS Classes: {classname}"
+
+
+""" Base Blocks
+All custom blocks should inherit from one of these classes.
+"""
+
+
 class BaseBlock(blocks.StructBlock):
     """Base block class with theme awareness.
 
@@ -123,30 +235,39 @@ class BaseBlock(blocks.StructBlock):
         Child classes must override component_type to match their theme.json variants.
 
     """
+
     max_num = 1
     component_type = None
     default_variant = None
 
     def __init__(self, local_blocks=None, **kwargs):
-        """Add theme variants for this component type."""
+        """Add theme variants for this component type.
+
+        Reorder child_blocks to ensure theme_settings appears first
+        """
         if not local_blocks:
             local_blocks = ()
 
         if self.component_type:
-            local_blocks += (
-                (
-                    "theme_variant",
-                    ThemeVariantChooserBlock(
-                        component_type=self.component_type,
-                        default=self.default_variant or "default",
-                        required=False,
-                        label="Theme variant",
-                        help_text="Select a theme variant for this component",
-                    ),
-                ),
+            theme_settings_block = ThemeSettingsBlock(
+                    component_type=self.component_type,
+                    default_variant=self.default_variant or "default"
             )
 
+            local_blocks = (("theme", theme_settings_block),) + local_blocks
+
         super().__init__(local_blocks, **kwargs)
+
+        if self.component_type and "theme" in self.child_blocks:
+            from collections import OrderedDict
+            reordered = OrderedDict()
+            reordered["theme"] = self.child_blocks["theme"]
+
+            for name, block in self.child_blocks.items():
+                if name != "theme":
+                    reordered[name] = block
+            
+            self.child_blocks = reordered
 
     class Meta:
         abstract = True
@@ -433,12 +554,6 @@ class HeroBlock(BaseBlock):
     
     component_type = "hero"
     default_variant = "default"
-
-    style_id = blocks.CharBlock(
-        max_length=50,
-        required=False,
-        help_text=_("Optional id for the hero section style"),
-    )
 
     heading = blocks.RichTextBlock(
         max_length=120,
@@ -925,26 +1040,51 @@ class PageHeaderBlock(blocks.StreamBlock):
 
 
 class ColumnBlock(BaseBlock):
-    """Individual column block for flexible grid layouts."""
-    
-    component_type = "column"
-    default_variant = "default"
+    """Individual column block for flexible grid layouts.
+
+    component_type = None since it is used as a child block in GridBlock
+    """
     
     width = blocks.ChoiceBlock(
         choices=[
-            ("auto", _("Auto")),
             ("1", _("1/12")),
             ("2", _("2/12")),
-            ("3", _("3/12 (1/4)")),
-            ("4", _("4/12 (1/3)")),
-            ("6", _("6/12 (1/2)")),
-            ("8", _("8/12 (2/3)")),
-            ("9", _("9/12 (3/4)")),
+            ("3", _("3/12")),
+            ("4", _("4/12")),
+            ("5", _("5/12")),
+            ("6", _("6/12")),
+            ("7", _("7/12")),
+            ("8", _("8/12")),
+            ("9", _("9/12")),
+            ("10", _("10/12")),
+            ("11", _("11/12")),
             ("12", _("12/12 (Full)")),
         ],
-        default="auto",
-        help_text=_("Column width (12-column grid system)")
+        default="4",
+        help_text=_("Column width (12-column grid system), ignored when grid columns_layout is not 'auto'"),
     )
+    
+    def __init__(self, local_blocks=None, **kwargs):
+        """Override to customize theme_variant form_classname."""
+        if not local_blocks:
+            local_blocks = ()
+
+        if self.component_type:
+            local_blocks += (
+                (
+                    "theme_variant",
+                    ThemeVariantChooserBlock(
+                        component_type=self.component_type,
+                        default=self.default_variant or "default",
+                        required=False,
+                        label="Theme variant",
+                        help_text="Select a theme variant for this component",
+                        form_classname="w50"
+                    ),
+                ),
+            )
+
+        super().__init__(local_blocks, **kwargs)
     
     content = blocks.StreamBlock([
         ("heading", HeadingBlock()),
@@ -973,57 +1113,16 @@ class GridBlock(BaseBlock):
     
     component_type = "grid"
     default_variant = "default"
-    
-    fluid = blocks.BooleanBlock(
-        required=False,
-        default=False,
-        label=_("Full width"),
-        help_text=_("If checked, the grid will span the full width of the page")
-    )
-    
-    columns_layout = blocks.ChoiceBlock(
-        choices=[
-            ("auto", _("Auto (responsive)")),
-            ("equal-2", _("2 Equal Columns")),
-            ("equal-3", _("3 Equal Columns")),
-            ("equal-4", _("4 Equal Columns")),
-            ("sidebar-left", _("Sidebar Left (4-8)")),
-            ("sidebar-right", _("Sidebar Right (8-4)")),
-            ("custom", _("Custom (use column width settings)")),
-        ],
-        default="auto",
-        help_text=_("Predefined column layouts or custom")
-    )
-    
-    vertical_alignment = blocks.ChoiceBlock(
-        choices=[
-            ("start", _("Top")),
-            ("center", _("Center")),
-            ("end", _("Bottom")),
-            ("stretch", _("Stretch")),
-        ],
-        default="start",
-        help_text=_("Vertical alignment of columns")
-    )
-    
-    gap = blocks.ChoiceBlock(
-        choices=[
-            ("0", _("No gap")),
-            ("1", _("Small gap")),
-            ("3", _("Medium gap")),
-            ("5", _("Large gap")),
-        ],
-        default="3",
-        help_text=_("Space between columns")
-    )
+
+    settings = GridSettingsBlock()
     
     columns = blocks.ListBlock(
         ColumnBlock(),
-        max_num=4,
+        max_num=12,
         label=_("Columns"),
-        help_text=_("Add columns to create your layout (max 4)")
+        help_text=_("Add columns to create your layout")
     )
-    
+
     class Meta:
         icon = "grip"
         template = "wagtail_feathers/blocks/grid_block.html"
@@ -1033,8 +1132,6 @@ class GridBlock(BaseBlock):
             "columns": []
         }
         description = _("A flexible multi-column grid layout")
-
-
 
 
 class HTMLGridItemBlock(blocks.StructBlock):
@@ -1340,4 +1437,3 @@ class CommonContentBlock(blocks.StreamBlock):
     faq_block = FAQSectionEmbedBlock(label="FAQ Section")
     table_block = TableBlock(label="Table")
     grid_block = GridBlock(label="Grid Layout")
-    column_block = ColumnBlock(label="Column")

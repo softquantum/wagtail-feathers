@@ -1,5 +1,12 @@
 {% load wagtailimages_tags wagtailcore_tags %}
 
-<blockquote><p class="text">{{ self.quote|richtext }}</p>
-    <p class="attribute-name">{{ self.attribution}}</p>
-</blockquote>
+<div class="quote-block" data-component="quote" data-variant="default">
+    <blockquote class="quote-content">
+        <div class="quote-text">{{ self.quote|richtext }}</div>
+        {% if self.attribution %}
+            <footer class="quote-attribution">
+                <cite>{{ self.attribution }}</cite>
+            </footer>
+        {% endif %}
+    </blockquote>
+</div>

@@ -1,9 +1,9 @@
 {% load wagtailcore_tags %}
 {% load wagtailimages_tags %}
 
-<div class="card card-default card-tagged card-overlay bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 h-full{% if value.theme_variant == 'tagged' %} tagged-variant{% endif %}{% if value.theme_variant == 'overlay' %} overlay-variant{% endif %}"
+<div class="card card-default card-tagged card-overlay bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 h-full{% if value.theme.theme_variant == 'tagged' %} tagged-variant{% endif %}{% if value.theme.theme_variant == 'overlay' %} overlay-variant{% endif %}"
      data-component="card"
-     data-variant="{{ value.theme_variant|default:'default' }}">
+     data-variant="{{ value.theme.theme_variant|default:'default' }}">
     
     {% if value.image %}
         <figure class="relative overflow-hidden">

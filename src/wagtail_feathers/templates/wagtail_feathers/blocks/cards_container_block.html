@@ -12,9 +12,9 @@
 
 
 
-<div class="cards-container{% if value.theme_variant %} cards-{{ value.theme_variant }}{% endif %}"
+<div class="cards-container{% if value.theme.theme_variant %} cards-{{ value.theme.theme_variant }}{% endif %}"
      data-component="cards_container"
-     data-variant="{{ value.theme_variant }}">
+     data-variant="{{ value.theme.theme_variant }}">
 
     <div class="cards-wrapper">
         {% if value.heading %}

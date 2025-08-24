@@ -1,42 +1,13 @@
 {% load wagtailcore_tags %}
 
-<section class="grid-block{% if value.theme_variant and value.theme_variant != 'default' %} grid-block--{{ value.theme_variant }}{% endif %}"
-         data-component="grid"
-         data-variant="{{ value.theme_variant }}">
-    <div class="{% if not value.fluid %}container mx-auto{% endif %}">
-        <div class="grid {% if value.columns_layout == 'equal-2' %}grid-cols-1 md:grid-cols-2{% elif value.columns_layout == 'equal-3' %}grid-cols-1 md:grid-cols-2 lg:grid-cols-3{% elif value.columns_layout == 'equal-4' %}grid-cols-1 md:grid-cols-2 lg:grid-cols-4{% elif value.columns_layout == 'sidebar-left' %}grid-cols-1 lg:grid-cols-12{% elif value.columns_layout == 'sidebar-right' %}grid-cols-1 lg:grid-cols-12{% else %}grid-cols-1 md:grid-cols-{{ value.columns|length|default:'auto' }}{% endif %}
-            {%- if value.gap == '0' %} gap-0{% elif value.gap == '1' %} gap-2{% elif value.gap == '5' %} gap-8{% else %} gap-6{% endif -%}
-            {%- if value.vertical_alignment == 'center' %} items-center{% elif value.vertical_alignment == 'end' %} items-end{% elif value.vertical_alignment == 'stretch' %} items-stretch{% endif -%}
-        ">
-            {% for column in value.columns %}
-                {% if value.columns_layout == 'custom' %}
-                    {% include_block column %}
-                {% elif value.columns_layout == 'sidebar-left' %}
-                    <div class="{% if forloop.first %}lg:col-span-4{% else %}lg:col-span-8{% endif %}{% if column.value.theme_variant and column.value.theme_variant != 'default' %} column--{{ column.value.theme_variant }}{% endif %}">
-                        {% if column.value.content %}
-                            {% for block in column.value.content %}
-                                {% include_block block %}
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                {% elif value.columns_layout == 'sidebar-right' %}
-                    <div class="{% if forloop.first %}lg:col-span-8{% else %}lg:col-span-4{% endif %}{% if column.value.theme_variant and column.value.theme_variant != 'default' %} column--{{ column.value.theme_variant }}{% endif %}">
-                        {% if column.value.content %}
-                            {% for block in column.value.content %}
-                                {% include_block block %}
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                {% else %}
-                    <div class="{% if column.value.theme_variant and column.value.theme_variant != 'default' %}column--{{ column.value.theme_variant }}{% endif %}">
-                        {% if column.value.content %}
-                            {% for block in column.value.content %}
-                                {% include_block block %}
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                {% endif %}
-            {% endfor %}
-        </div>
+<div {% if value.theme.style_id %}id="{{ value.theme.style_id }}"{% endif %}
+     class="grid-container{% if not value.settings.fluid %} container mx-auto{% endif %}{% if value.settings.gap %} gap-{{ value.settings.gap }}{% endif %}{% if value.theme.classname %} {{ value.theme.classname }}{% endif %}"
+     data-component="grid"
+     data-variant="{{ value.theme.theme_variant }}">
+        <div class="grid{% if value.settings.columns_layout == 'equal-2' %} grid-cols-2{% elif value.settings.columns_layout == 'equal-3' %} grid-cols-3{% elif value.settings.columns_layout == 'equal-4' %} grid-cols-4{% elif value.settings.columns_layout == 'equal-5' %} grid-cols-5{% elif value.settings.columns_layout == 'equal-6' %} grid-cols-6{% else %} grid-cols-12{% endif %}{% if value.settings.vertical_alignment %} items-{{ value.settings.vertical_alignment }}{% endif %}{% if value.settings.gap %} gap-{{ value.settings.gap }}{% endif %}">
+    {% for column in value.columns %}
+        {% include_block column with columns_layout=value.settings.columns_layout %}
+    {% endfor %}
     </div>
-</section>
+</div>
+

@@ -1,11 +1,26 @@
 {% load wagtailcore_tags %}
 
-<div class="column{% if value.width != 'auto' and value.width == '1' %} col-span-1{% elif value.width == '2' %} col-span-2{% elif value.width == '3' %} col-span-3{% elif value.width == '4' %} col-span-4{% elif value.width == '6' %} col-span-6{% elif value.width == '8' %} col-span-8{% elif value.width == '9' %} col-span-9{% elif value.width == '12' %} col-span-12{% endif %}{% if value.theme_variant and value.theme_variant != 'default' %} column--{{ value.theme_variant }}{% endif %}"
-     data-component="column"
-     data-variant="{{ value.theme_variant }}">
-    {% if value.content %}
-        {% for block in value.content %}
-            {% include_block block %}
-        {% endfor %}
-    {% endif %}
+{% spaceless %}
+    <div class="
+    {% if columns_layout == 'auto' %}
+        {% if value.width == '1' %}col-span-1
+        {% elif value.width == '2' %}col-span-2
+        {% elif value.width == '3' %}col-span-3
+        {% elif value.width == '4' %}col-span-4
+        {% elif value.width == '5' %}col-span-5
+        {% elif value.width == '6' %}col-span-6
+        {% elif value.width == '7' %}col-span-7
+        {% elif value.width == '8' %}col-span-8
+        {% elif value.width == '9' %}col-span-9
+        {% elif value.width == '10' %}col-span-10
+        {% elif value.width == '11' %}col-span-11
+        {% elif value.width == '12' %}col-span-12
+        {% else %}col-span-4
+        {% endif %}
+    {% endif %}">
+{% endspaceless %}
+{% for block in value.content %}
+    {% include_block block %}
+{% endfor %}
 </div>
+
