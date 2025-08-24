@@ -924,58 +924,117 @@ class PageHeaderBlock(blocks.StreamBlock):
         max_num = 5
 
 
-class FAQItemBlock(BaseBlock):
-    """A single FAQ question and answer block."""
+class ColumnBlock(BaseBlock):
+    """Individual column block for flexible grid layouts."""
     
-    component_type = "faq_item"
+    component_type = "column"
     default_variant = "default"
-
-    question = blocks.CharBlock(
-        max_length=200,
-        help_text=_("The FAQ question")
+    
+    width = blocks.ChoiceBlock(
+        choices=[
+            ("auto", _("Auto")),
+            ("1", _("1/12")),
+            ("2", _("2/12")),
+            ("3", _("3/12 (1/4)")),
+            ("4", _("4/12 (1/3)")),
+            ("6", _("6/12 (1/2)")),
+            ("8", _("8/12 (2/3)")),
+            ("9", _("9/12 (3/4)")),
+            ("12", _("12/12 (Full)")),
+        ],
+        default="auto",
+        help_text=_("Column width (12-column grid system)")
     )
     
-    answer = blocks.RichTextBlock(
-        features=["bold", "italic", "link", "ul", "ol"],
-        help_text=_("The answer to the question")
-    )
+    content = blocks.StreamBlock([
+        ("heading", HeadingBlock()),
+        ("paragraph", blocks.RichTextBlock(
+            features=["h3", "h4", "h5", "bold", "italic", "link", "ul", "ol"]
+        )),
+        ("image", ImageBlock()),
+        ("quote", QuoteBlock()),
+        ("cta", CallToActionBlock()),
+        ("card", CardBlock()),
+    ], required=False, label=_("Column Content"))
     
     class Meta:
-        icon = "help"
-        template = "wagtail_feathers/blocks/faq_item_block.html"
-        label = _("FAQ Item")
+        icon = "view-column"
+        template = "wagtail_feathers/blocks/column_block.html"
+        label = _("Column")
         preview_value = {
-            "question": _("How do I get started?"),
-            "answer": _("Getting started is easy! Simply follow our step-by-step guide to begin your journey.")
+            "width": "4",
+            "content": []
         }
-        description = _("A single FAQ question and answer")
+        description = _("A flexible column for grid layouts")
 
 
-class FAQSectionBlock(BaseBlock):
-    """A section of related FAQ items with an optional heading."""
+class GridBlock(BaseBlock):
+    """Container block for multi-column layouts."""
     
-    component_type = "faq_section"
+    component_type = "grid"
     default_variant = "default"
-
-    section_title = blocks.CharBlock(
-        max_length=100,
+    
+    fluid = blocks.BooleanBlock(
         required=False,
-        help_text=_("Optional section heading")
+        default=False,
+        label=_("Full width"),
+        help_text=_("If checked, the grid will span the full width of the page")
     )
     
-    faqs = blocks.StreamBlock([
-        ("faq", FAQItemBlock()),
-    ], min_num=1)
+    columns_layout = blocks.ChoiceBlock(
+        choices=[
+            ("auto", _("Auto (responsive)")),
+            ("equal-2", _("2 Equal Columns")),
+            ("equal-3", _("3 Equal Columns")),
+            ("equal-4", _("4 Equal Columns")),
+            ("sidebar-left", _("Sidebar Left (4-8)")),
+            ("sidebar-right", _("Sidebar Right (8-4)")),
+            ("custom", _("Custom (use column width settings)")),
+        ],
+        default="auto",
+        help_text=_("Predefined column layouts or custom")
+    )
+    
+    vertical_alignment = blocks.ChoiceBlock(
+        choices=[
+            ("start", _("Top")),
+            ("center", _("Center")),
+            ("end", _("Bottom")),
+            ("stretch", _("Stretch")),
+        ],
+        default="start",
+        help_text=_("Vertical alignment of columns")
+    )
+    
+    gap = blocks.ChoiceBlock(
+        choices=[
+            ("0", _("No gap")),
+            ("1", _("Small gap")),
+            ("3", _("Medium gap")),
+            ("5", _("Large gap")),
+        ],
+        default="3",
+        help_text=_("Space between columns")
+    )
+    
+    columns = blocks.ListBlock(
+        ColumnBlock(),
+        max_num=4,
+        label=_("Columns"),
+        help_text=_("Add columns to create your layout (max 4)")
+    )
     
     class Meta:
-        icon = "list-ul"
-        template = "wagtail_feathers/blocks/faq_section_block.html"
-        label = _("FAQ Section")
+        icon = "grip"
+        template = "wagtail_feathers/blocks/grid_block.html"
+        label = _("Grid Layout")
         preview_value = {
-            "section_title": _("Getting Started"),
-            "faqs": []
+            "columns_layout": "equal-2",
+            "columns": []
         }
-        description = _("A group of related FAQ items with optional section heading")
+        description = _("A flexible multi-column grid layout")
+
+
 
 
 class HTMLGridItemBlock(blocks.StructBlock):
@@ -1280,3 +1339,5 @@ class CommonContentBlock(blocks.StreamBlock):
     cta_block = CallToActionBlock(label="Call to Action")
     faq_block = FAQSectionEmbedBlock(label="FAQ Section")
     table_block = TableBlock(label="Table")
+    grid_block = GridBlock(label="Grid Layout")
+    column_block = ColumnBlock(label="Column")
