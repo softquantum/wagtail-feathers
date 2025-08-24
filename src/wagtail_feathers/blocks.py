@@ -1251,7 +1251,7 @@ class CommonContentBlock(blocks.StreamBlock):
         label="Paragraph",
         icon="pilcrow",
         template="wagtail_feathers/blocks/paragraph_block.html",
-        features=["h2", "h3", "h4", "bold", "italic", "link", "ul", "ol", "superscript", "subscript"],
+        features=["h2", "h3", "h4","h5", "bold", "italic", "link", "image", "document-link","ul", "ol", "superscript", "subscript"],
         preview_value=(
             """
             <h2>Our scientific commitment</h2>
@@ -1267,7 +1267,6 @@ class CommonContentBlock(blocks.StreamBlock):
     markdown_block = MarkdownBlock(icon="code", label="Markdown")
     image_block = ImageBlock(label="Image")
     image_grid = ImageGridBlock(label="Image Grid")
-    image_collection_gallery = ImageCollectionGalleryBlock(label="Image Collection")
     block_quote = QuoteBlock(label="Quote")
     embed_block = EmbedBlock(
         label="Embed Block",
@@ -1279,7 +1278,5 @@ class CommonContentBlock(blocks.StreamBlock):
         description=_("An embedded video or other media"),
     )
     cta_block = CallToActionBlock(label="Call to Action")
-    card_block = CardBlock(label="Card")
-    card_section = CardSectionBlock(label="Card Section")
-    faq_section = FAQSectionEmbedBlock(label="FAQ Section")
+    faq_block = FAQSectionEmbedBlock(label="FAQ Section")
     table_block = TableBlock(label="Table")
