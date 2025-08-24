@@ -8,8 +8,11 @@ A comprehensive Wagtail CMS extension providing foundational functionality for b
 [![License](https://img.shields.io/badge/license-BSD--3--Clause-green.svg)](LICENSE)
 
 > [!CAUTION]
-> This package is a beta version which means it is **almost** stable and definitely lacks some documentation and tests
+> This package is a beta version which means it will still have breaking changes and definitely lacks some documentation and tests
 > The package is aimed at new installations
+
+> [!IMPORTANT]
+> Expected Release Candidate (RC) in late september 2025, do not use in production
 
 ## Features
 
