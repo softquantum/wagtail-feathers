@@ -7,8 +7,6 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    replaces = [('wagtail_feathers', '0002_alter_featherbasepage_body'), ('wagtail_feathers', '0003_alter_featherbasepage_body'), ('wagtail_feathers', '0004_alter_featherbasepage_body'), ('wagtail_feathers', '0005_alter_featherbasepage_body'), ('wagtail_feathers', '0006_alter_featherbasepage_body')]
-
     dependencies = [
         ('wagtail_feathers', '0001_initial'),
     ]
