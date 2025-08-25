@@ -83,11 +83,11 @@ TEMPLATES = [
     },
 ]
 
-# Database
+# Database - use demo database which has all tables created
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:",
+        "NAME": ":memory:"
     }
 }
 
@@ -160,6 +160,7 @@ LOGGING = {
     },
 }
 
+
 # Disable migrations during testing (faster)
 class DisableMigrations:
     def __contains__(self, item):
@@ -168,5 +169,7 @@ class DisableMigrations:
     def __getitem__(self, item):
         return None
 
-if "pytest" in os.environ.get("_", ""):
-    MIGRATION_MODULES = DisableMigrations()
+
+# Temporarily disable the DisableMigrations to allow table creation
+# if "pytest" in os.environ.get("_", ""):
+#     MIGRATION_MODULES = DisableMigrations()

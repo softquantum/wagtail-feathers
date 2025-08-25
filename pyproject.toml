@@ -41,6 +41,8 @@ dependencies = [
 localize = [
     "wagtail-localize>=1.9",
 ]
+
+[dependency-groups]
 dev = [
     "pytest>=8.0.0",
     "pytest-django>=4.8.0",

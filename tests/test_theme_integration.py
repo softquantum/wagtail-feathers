@@ -77,8 +77,10 @@ class TestThemeVariantsInBlocks:
             
         block = TestBlock()
 
-        # Check if theme_variant field was added
-        assert "theme_variant" in block.child_blocks
+        # Check if theme settings block was added and contains theme_variant
+        assert "theme" in block.child_blocks
+        theme_block = block.child_blocks["theme"]
+        assert "theme_variant" in theme_block.child_blocks
 
     @pytest.mark.django_db
     @patch("wagtail_feathers.blocks.get_theme_variants")
@@ -98,7 +100,8 @@ class TestThemeVariantsInBlocks:
         block = TestBlock()
 
         # Access the field property to trigger the theme variants call
-        theme_variant_block = block.child_blocks["theme_variant"]
+        theme_block = block.child_blocks["theme"]
+        theme_variant_block = theme_block.child_blocks["theme_variant"]
         field = theme_variant_block.field
 
         # Verify that get_theme_variants was called with the correct component type
@@ -121,7 +124,8 @@ class TestThemeVariantsInBlocks:
             block = ButtonBlock()
 
             # Access the field property to trigger the theme variants call
-            theme_variant_block = block.child_blocks["theme_variant"]
+            theme_block = block.child_blocks["theme"]
+            theme_variant_block = theme_block.child_blocks["theme_variant"]
             field = theme_variant_block.field
 
             # Verify get_theme_variants was called with the correct component type
@@ -140,8 +144,10 @@ class TestThemeVariantsInBlocks:
         block = CustomBlock()
 
         # Verify the theme_variant field exists and has the correct default
-        assert "theme_variant" in block.child_blocks
-        theme_variant_block = block.child_blocks["theme_variant"]
+        assert "theme" in block.child_blocks
+        theme_block = block.child_blocks["theme"]
+        assert "theme_variant" in theme_block.child_blocks
+        theme_variant_block = theme_block.child_blocks["theme_variant"]
         
         # Check that the default variant is set correctly
         assert theme_variant_block._default == "primary"
