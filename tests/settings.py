@@ -62,7 +62,7 @@ MIDDLEWARE = [
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
 ]
 
-ROOT_URLCONF = "wagtail_feathers.tests.urls"
+ROOT_URLCONF = "tests.urls"
 
 TEMPLATES = [
     {
@@ -83,11 +83,11 @@ TEMPLATES = [
     },
 ]
 
-# Database - use demo database which has all tables created
+# Database
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ":memory:"
+        "NAME": ":memory:",
     }
 }
 
@@ -160,16 +160,3 @@ LOGGING = {
     },
 }
 
-
-# Disable migrations during testing (faster)
-class DisableMigrations:
-    def __contains__(self, item):
-        return True
-    
-    def __getitem__(self, item):
-        return None
-
-
-# Temporarily disable the DisableMigrations to allow table creation
-# if "pytest" in os.environ.get("_", ""):
-#     MIGRATION_MODULES = DisableMigrations()

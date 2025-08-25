@@ -6,19 +6,29 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-from wagtail.models import Page, Site
+from wagtail.models import Locale, Page, Site
 
 from wagtail_feathers.models.settings import SiteSettings
 from wagtail_feathers.themes import ThemeRegistry
 
 
 @pytest.fixture
-def simple_multisite_setup():
+def default_locale():
+    """Create default locale for Wagtail."""
+    locale, created = Locale.objects.get_or_create(
+        language_code='en',
+        defaults={'language_code': 'en'}
+    )
+    return locale
+
+
+@pytest.fixture
+def simple_multisite_setup(default_locale):
     """Set up simple multisite environment for testing."""
     # Get or create root page
     root_page = Page.objects.first()
     if not root_page:
-        root_page = Page.add_root(title="Root")
+        root_page = Page.add_root(title="Root", locale=default_locale)
     
     # Clear existing sites
     Site.objects.all().delete()

@@ -30,7 +30,17 @@ def clear_cache():
 
 
 @pytest.fixture
-def root_category(db):
+def default_locale(db):
+    """Create default locale for Wagtail."""
+    from wagtail.models import Locale
+    locale, created = Locale.objects.get_or_create(
+        language_code='en',
+        defaults={'language_code': 'en'}
+    )
+    return locale
+
+@pytest.fixture
+def root_category(default_locale):
     """Get or create the hidden root category."""
     return Category.get_or_create_hidden_root()
 
@@ -58,7 +68,7 @@ def category_hierarchy(root_category):
 
 
 @pytest.fixture
-def classifier_groups(db):
+def classifier_groups(default_locale):
     """Create classifier groups for testing."""
     subject_group = ClassifierGroup.objects.create(type="Subject", name="Technology")
     attribute_group = ClassifierGroup.objects.create(type="Attribute", name="Content Type")
@@ -184,13 +194,13 @@ class TestCategoryCache:
 class TestCategoryModel:
     """Test the Category model."""
     
-    def test_get_or_create_hidden_root(self):
+    def test_get_or_create_hidden_root(self, default_locale):
         root = Category.get_or_create_hidden_root()
         assert root.name == TaxonomyConstants.ROOT_CATEGORY_NAME
         assert root.live is False
         assert root.is_hidden_root()
     
-    def test_get_or_create_hidden_root_idempotent(self):
+    def test_get_or_create_hidden_root_idempotent(self, default_locale):
         root1 = Category.get_or_create_hidden_root()
         root2 = Category.get_or_create_hidden_root()
         assert root1.pk == root2.pk
@@ -206,7 +216,7 @@ class TestCategoryModel:
         assert category.get_parent() == root_category
         assert category.name == "Root Level Category"
     
-    def test_add_child_category(self):
+    def test_add_child_category(self, default_locale):
         parent = Category.add_root_category("Parent Category")
         child = parent.add_child_category("Child Category")
         assert child.get_parent() == parent
@@ -224,7 +234,7 @@ class TestCategoryModel:
         inactive_category = Category.add_root_category("Inactive Category", live=False)
         assert not inactive_category.is_visible()
     
-    def test_get_visible_children(self):
+    def test_get_visible_children(self, default_locale):
         parent = Category.add_root_category("Parent")
         active_child = parent.add_child_category("Active Child", live=True)
         inactive_child = parent.add_child_category("Inactive Child", live=False)
@@ -233,7 +243,7 @@ class TestCategoryModel:
         assert active_child in visible_children
         assert inactive_child not in visible_children
     
-    def test_get_navigation_children(self):
+    def test_get_navigation_children(self, default_locale):
         parent = Category.add_root_category("Parent")
         child1 = parent.add_child_category("Child 1", order_index=2)
         child2 = parent.add_child_category("Child 2", order_index=1)
@@ -271,7 +281,7 @@ class TestCategoryModel:
         assert str(parent) == "Parent Category"
         assert str(child) == "Parent Category :: Child Category"
     
-    def test_str_representation_with_long_breadcrumb(self):
+    def test_str_representation_with_long_breadcrumb(self, default_locale):
         parent = Category.add_root_category("A" * 30)
         child = parent.add_child_category("B" * 30)
         grandchild = child.add_child_category("C" * 30)
@@ -279,14 +289,14 @@ class TestCategoryModel:
         result = str(grandchild)
         assert len(result) <= TaxonomyConstants.MAX_BREADCRUMB_LENGTH + 10
     
-    def test_get_url_path(self):
+    def test_get_url_path(self, default_locale):
         parent = Category.add_root_category("Technology", slug="technology")
         child = parent.add_child_category("AI", slug="ai")
         
         assert parent.get_url_path() == "technology"
         assert child.get_url_path() == "technology/ai"
     
-    def test_move_to_parent(self):
+    def test_move_to_parent(self, default_locale):
         parent1 = Category.add_root_category("Parent 1")
         parent2 = Category.add_root_category("Parent 2")
         child = parent1.add_child_category("Child")
@@ -342,7 +352,7 @@ class TestCategoryModel:
         with pytest.raises(TreeIntegrityError, match="Hidden root category already exists"):
             duplicate_root.save()
     
-    def test_get_visible_root_categories(self):
+    def test_get_visible_root_categories(self, default_locale):
         active_root = Category.add_root_category("Active Root", live=True)
         inactive_root = Category.add_root_category("Inactive Root", live=False)
         
@@ -357,7 +367,7 @@ class TestCategoryModel:
         assert root_category not in tree
     
     @override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}})
-    def test_cache_invalidation_on_save(self, clear_cache):
+    def test_cache_invalidation_on_save(self, clear_cache, default_locale):
         category = Category.add_root_category("Test Category")
         cache_key = CategoryCache.get_descendants_key(category.pk)
         cache.set(cache_key, [1, 2, 3])
@@ -366,7 +376,7 @@ class TestCategoryModel:
         assert cache.get(cache_key) is None
     
     @override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}})
-    def test_descendant_ids_caching(self, clear_cache):
+    def test_descendant_ids_caching(self, clear_cache, default_locale):
         parent = Category.add_root_category("Parent")
         child1 = parent.add_child_category("Child 1")
         child2 = parent.add_child_category("Child 2")
@@ -415,30 +425,30 @@ class TestCategoryQuerySet:
 class TestClassifierGroup:
     """Test the ClassifierGroup model."""
     
-    def test_create_subject_group(self):
+    def test_create_subject_group(self, default_locale):
         group = ClassifierGroup.objects.create(type="Subject", name="Technology")
         assert group.type == "Subject"
         assert group.name == "Technology"
     
-    def test_create_attribute_group(self):
+    def test_create_attribute_group(self, default_locale):
         group = ClassifierGroup.objects.create(type="Attribute", name="Content Type")
         assert group.type == "Attribute"
         assert group.name == "Content Type"
     
-    def test_str_representation(self):
+    def test_str_representation(self, default_locale):
         group = ClassifierGroup.objects.create(type="Subject", name="Technology")
         assert str(group) == "Technology (Subject)"
     
-    def test_unique_constraint(self):
+    def test_unique_constraint(self, default_locale):
         ClassifierGroup.objects.create(type="Subject", name="Technology")
         with pytest.raises(IntegrityError):
             ClassifierGroup.objects.create(type="Subject", name="Technology")
     
-    def test_classifiers_list_empty(self):
+    def test_classifiers_list_empty(self, default_locale):
         group = ClassifierGroup.objects.create(type="Subject", name="Technology")
         assert group.classifiers_list() == ""
     
-    def test_classifiers_list_with_items(self):
+    def test_classifiers_list_with_items(self, default_locale):
         group = ClassifierGroup.objects.create(type="Subject", name="Technology")
         for i in range(3):
             Classifier.objects.create(group=group, name=f"Classifier {i}")
@@ -448,7 +458,7 @@ class TestClassifierGroup:
         assert "Classifier 1" in result
         assert "Classifier 2" in result
     
-    def test_classifiers_list_with_many_items(self):
+    def test_classifiers_list_with_many_items(self, default_locale):
         group = ClassifierGroup.objects.create(type="Subject", name="Technology")
         for i in range(7):
             Classifier.objects.create(group=group, name=f"Classifier {i}")
