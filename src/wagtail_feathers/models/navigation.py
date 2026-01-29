@@ -13,7 +13,7 @@ from wagtail.fields import StreamField
 from wagtail.models import Orderable, TranslatableMixin
 
 try:
-    from wagtail_localize.fields import TranslatableField
+    from wagtail_localize.fields import SynchronizedField, TranslatableField
     WAGTAIL_LOCALIZE_AVAILABLE = True
 except ImportError:
     WAGTAIL_LOCALIZE_AVAILABLE = False
@@ -64,7 +64,7 @@ class Menu(TranslatableMixin, ClusterableModel):
     """Traditional hierarchical menu for simple use cases with optimal performance."""
     name = models.CharField(max_length=100)
     slug = AutoSlugField(
-        populate_from="name", unique=True, editable=True, help_text=_("Auto-generated from name, but can be edited")
+        populate_from="name", editable=True, help_text=_("Auto-generated from name, but can be edited")
     )
     description = models.TextField(blank=True)
 
@@ -85,6 +85,11 @@ class Menu(TranslatableMixin, ClusterableModel):
         InlinePanel("menu_items"),
     ]
 
+    if WAGTAIL_LOCALIZE_AVAILABLE:
+        override_translatable_fields = [
+            SynchronizedField('slug'),
+        ]
+
     def __str__(self):
         return self.name
 
@@ -98,7 +103,10 @@ class Menu(TranslatableMixin, ClusterableModel):
         constraints = [
             models.UniqueConstraint(
                 fields=["translation_key", "locale"], name="unique_menu_translation_key_locale"
-            )
+            ),
+            models.UniqueConstraint(
+                fields=["slug", "locale"], name="unique_menu_slug_locale"
+            ),
         ]
 
 
@@ -154,7 +162,7 @@ class NestedMenu(TranslatableMixin, ClusterableModel):
 
     name = models.CharField(max_length=100)
     slug = AutoSlugField(
-        populate_from="name", unique=True, editable=True, help_text=_("Auto-generated from name, but can be edited")
+        populate_from="name", editable=True, help_text=_("Auto-generated from name, but can be edited")
     )
 
     menu_items = StreamField(MenuStreamBlock(), blank=True)
@@ -165,6 +173,11 @@ class NestedMenu(TranslatableMixin, ClusterableModel):
         FieldPanel("menu_items"),
     ]
 
+    if WAGTAIL_LOCALIZE_AVAILABLE:
+        override_translatable_fields = [
+            SynchronizedField('slug'),
+        ]
+
     def __str__(self):
         return self.name
 
@@ -174,7 +187,10 @@ class NestedMenu(TranslatableMixin, ClusterableModel):
         constraints = [
             models.UniqueConstraint(
                 fields=["translation_key", "locale"], name="unique_nestedmenu_translation_key_locale"
-            )
+            ),
+            models.UniqueConstraint(
+                fields=["slug", "locale"], name="unique_nestedmenu_slug_locale"
+            ),
         ]
 
 
@@ -187,7 +203,6 @@ class FlatMenu(TranslatableMixin, ClusterableModel):
     name = models.CharField(max_length=100, help_text=_("Name for this menu (e.g., 'Main Navigation', 'Header Menu')"))
     slug = AutoSlugField(
             populate_from="name",
-            unique=True,
             editable=True,
             help_text=_("Auto-generated from name, but can be edited")
     )
@@ -203,7 +218,7 @@ class FlatMenu(TranslatableMixin, ClusterableModel):
                     content="""
             <div class="help-block help-info">
             <svg class="icon icon-help icon" aria-hidden="true"><use href="#icon-help"></use></svg>
-            <p>Use this menu if the template tag 'top_menu_items' is not enough, 
+            <p>Use this menu if the template tag 'top_menu_items' is not enough,
             e.g., the links are not only pages and you need to control the order..</p>
             """
             ),
@@ -212,6 +227,11 @@ class FlatMenu(TranslatableMixin, ClusterableModel):
         ], heading="Menu"),
         FieldPanel("menu_items"),
     ]
+
+    if WAGTAIL_LOCALIZE_AVAILABLE:
+        override_translatable_fields = [
+            SynchronizedField('slug'),
+        ]
 
     def __str__(self):
         return self.name
@@ -222,7 +242,10 @@ class FlatMenu(TranslatableMixin, ClusterableModel):
         constraints = [
             models.UniqueConstraint(
                     fields=["translation_key", "locale"], name="unique_flatnavigationmenu_translation_key_locale"
-            )
+            ),
+            models.UniqueConstraint(
+                    fields=["slug", "locale"], name="unique_flatmenu_slug_locale"
+            ),
         ]
 
 
@@ -231,7 +254,7 @@ class FooterNavigation(TranslatableMixin, ClusterableModel):
 
     name = models.CharField(max_length=100)
     slug = AutoSlugField(
-        populate_from="name", unique=True, editable=True, help_text=_("Auto-generated from name, but can be edited")
+        populate_from="name", editable=True, help_text=_("Auto-generated from name, but can be edited")
     )
 
     menu_sections = StreamField(
@@ -255,6 +278,11 @@ class FooterNavigation(TranslatableMixin, ClusterableModel):
         FieldPanel("menu_sections"),
     ]
 
+    if WAGTAIL_LOCALIZE_AVAILABLE:
+        override_translatable_fields = [
+            SynchronizedField('slug'),
+        ]
+
     def __str__(self):
         return self.name
 
@@ -264,7 +292,10 @@ class FooterNavigation(TranslatableMixin, ClusterableModel):
         constraints = [
             models.UniqueConstraint(
                 fields=["translation_key", "locale"], name="unique_footernavigation_translation_key_locale"
-            )
+            ),
+            models.UniqueConstraint(
+                fields=["slug", "locale"], name="unique_footernavigation_slug_locale"
+            ),
         ]
 
 
