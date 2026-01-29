@@ -19,6 +19,12 @@ from wagtail_feathers.forms import TemplateVariantFormPageForm
 
 from .base import FeatherPage
 
+try:
+    from wagtail_localize.fields import SynchronizedField, TranslatableField
+    WAGTAIL_LOCALIZE_AVAILABLE = True
+except ImportError:
+    WAGTAIL_LOCALIZE_AVAILABLE = False
+
 
 class FormBasePage(AbstractEmailForm):
     """Abstract base for pages with form handling capabilities.
@@ -176,6 +182,11 @@ class FormBasePage(AbstractEmailForm):
             pass
         
         return sorted(variants)
+
+    if WAGTAIL_LOCALIZE_AVAILABLE:
+        override_translatable_fields = [
+            SynchronizedField('slug'),
+        ]
 
     class Meta:
         abstract = True
