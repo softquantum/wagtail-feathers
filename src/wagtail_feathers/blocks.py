@@ -1222,30 +1222,31 @@ class HTMLGridBlock(BaseBlock):
 
 
 def get_faq_choices():
-    """Get FAQ choices for ChoiceBlock."""
-    try:
-        from django.apps import apps
-        if not apps.ready:
-            return [('', _('No FAQs available'))]
+    return []
 
-        from wagtail_feathers.models.faq import FAQ
-        faqs = FAQ.objects.all()
-        choices = [(str(faq.id), faq.name) for faq in faqs]
-        return choices if choices else [('', _('No FAQs available'))]
-    except Exception:
-        return [('', _('No FAQs available'))]
+
+def _get_faq_chooser_block_class():
+    from wagtail_feathers.faq_chooser import faq_chooser_viewset
+    return faq_chooser_viewset.get_block_class(
+        name="FAQChooserBlock", module_path="wagtail_feathers.blocks"
+    )
 
 
 class FAQSectionEmbedBlock(BaseBlock):
     """Embed FAQ items from a specific faq anywhere in content."""
-    
+
     component_type = "faq_embed"
     default_variant = "default"
 
-    faq = blocks.ChoiceBlock(
-        choices=get_faq_choices,
-        help_text=_("Select a FAQ to display")
-    )
+    def __init__(self, local_blocks=None, **kwargs):
+        if local_blocks is None:
+            local_blocks = ()
+
+        FAQChooserBlock = _get_faq_chooser_block_class()
+        local_blocks = (("faq", FAQChooserBlock(
+            help_text=_("Select a FAQ to display"),
+        )),) + tuple(local_blocks)
+        super().__init__(local_blocks=local_blocks, **kwargs)
     
     max_items = blocks.IntegerBlock(
         default=10,
@@ -1288,21 +1289,14 @@ class FAQSectionEmbedBlock(BaseBlock):
     def get_context(self, value, parent_context=None):
         """Add FAQ items to template context."""
         context = super().get_context(value, parent_context)
-        
-        try:
-            from wagtail_feathers.models.faq import FAQ, FAQItem
 
-            faq_id = value.get('faq')
+        try:
+            faq = value.get('faq')
             max_items = value.get('max_items', 10)
-            
-            if faq_id:
-                faq_items = FAQItem.objects.filter(
-                    faq_id=faq_id,
-                    live=True
-                ).order_by('sort_order')[:max_items]
-                
-                faq = FAQ.objects.filter(id=faq_id).first()
-                
+
+            if faq:
+                faq_items = faq.faqs.filter(live=True).order_by('sort_order')[:max_items]
+
                 context.update({
                     'faq_items': faq_items,
                     'faq': faq,
@@ -1314,7 +1308,7 @@ class FAQSectionEmbedBlock(BaseBlock):
                 'category': None,
                 'faq_page_url': None,
             })
-        
+
         return context
     
     class Meta:
@@ -1437,3 +1431,11 @@ class CommonContentBlock(blocks.StreamBlock):
     faq_block = FAQSectionEmbedBlock(label="FAQ Section")
     table_block = TableBlock(label="Table")
     grid_block = GridBlock(label="Grid Layout")
+
+
+def __getattr__(name):
+    if name == "FAQChooserBlock":
+        cls = _get_faq_chooser_block_class()
+        globals()["FAQChooserBlock"] = cls
+        return cls
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

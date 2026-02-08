@@ -1,4 +1,7 @@
 """Viewsets for wagtail_feathers."""
+
+from wagtail_feathers.faq_chooser import faq_chooser_viewset
+
 from .author import AuthorTypeViewSet
 from .choosers import classifier_chooser_viewset
 from .components import FAQItemViewSet, FAQViewSet
@@ -38,5 +41,6 @@ __all__ = [
     "PersonViewSetGroup",
     "FeathersSiteComponentsViewSetGroup",
     "SocialMediaSettingsViewSet",
-    "classifier_chooser_viewset"
+    "classifier_chooser_viewset",
+    "faq_chooser_viewset",
 ]

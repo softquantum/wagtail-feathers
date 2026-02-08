@@ -15,6 +15,7 @@ from wagtail.rich_text import LinkHandler
 from wagtail.snippets import widgets as wagtailsnippets_widgets
 from wagtail.snippets.models import register_snippet
 
+from wagtail_feathers.faq_chooser import faq_chooser_viewset
 from wagtail_feathers.models import Category, Person
 from wagtail_feathers.viewsets import PersonViewSetGroup, classifier_chooser_viewset
 from wagtail_feathers.viewsets.viewset_groups import WagtailFeathersViewSetGroup
@@ -225,6 +226,11 @@ def create_or_update_user_person_profile(sender, instance, created, **kwargs):
 @hooks.register("register_admin_viewset")
 def register_viewset():
     return classifier_chooser_viewset
+
+
+@hooks.register("register_admin_viewset")
+def register_faq_chooser_viewset():
+    return faq_chooser_viewset
 
 
 # TODO: admin notification system to make these warnings more visible to administrators.
