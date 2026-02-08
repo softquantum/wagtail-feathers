@@ -9,7 +9,7 @@ class FAQViewSet(SnippetViewSet):
     model = FAQ
     menu_icon = "help-circle"
     menu_label = "FAQs"
-    list_display = ["name", "slug"]
+    # list_display = ["name", "slug"]
     search_fields = ["name", "description"]
 
 
@@ -19,6 +19,6 @@ class FAQItemViewSet(SnippetViewSet):
     model = FAQItem
     menu_icon = "help"
     menu_label = "FAQ Items"
-    list_display = ["question", "category", "live"]
+    # list_display = ["question", "category", "live"]
     list_filter = ["category", "live"]
     search_fields = ["question", "answer"]

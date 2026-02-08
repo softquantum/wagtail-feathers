@@ -15,7 +15,7 @@ from wagtail.models import Orderable, TranslatableMixin
 from wagtail.search import index
 
 try:
-    from wagtail_localize.fields import TranslatableField
+    from wagtail_localize.fields import SynchronizedField
     WAGTAIL_LOCALIZE_AVAILABLE = True
 except ImportError:
     WAGTAIL_LOCALIZE_AVAILABLE = False
@@ -41,11 +41,10 @@ class FAQ(TranslatableMixin, ClusterableModel):
         InlinePanel('faqs', label=_("FAQ Items")),
     ]
     
-    # Translation support
+    # Translation support, only sync the slug, auto discover the rest
     if WAGTAIL_LOCALIZE_AVAILABLE:
-        translatable_fields = [
-            TranslatableField('name'),
-            TranslatableField('description'),
+        override_translatable_fields = [
+            SynchronizedField('slug'),
         ]
     
     class Meta:
@@ -101,12 +100,6 @@ class FAQItem(TranslatableMixin, index.Indexed, Orderable):
         index.SearchField('question'),
         index.SearchField('answer'),
     ]
-    
-    if WAGTAIL_LOCALIZE_AVAILABLE:
-        translatable_fields = [
-            TranslatableField('question'),
-            TranslatableField('answer'),
-        ]
     
     class Meta:
         verbose_name = _("FAQ Item")

@@ -3,6 +3,7 @@ import re
 from urllib.parse import urljoin
 
 from django import forms
+from django.conf import settings
 from django.db import models
 from modelcluster.fields import ParentalManyToManyField
 from django.utils import timezone
@@ -805,3 +806,30 @@ class SeoMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+def _i18n_enabled():
+    return getattr(settings, "WAGTAIL_I18N_ENABLED", False)
+
+
+class LocaleAwareMixin:
+    _base_list_display = None
+    _base_list_filter = None
+
+    @property
+    def list_display(self):
+        if self._base_list_display is None:
+            return super().list_display
+        fields = list(self._base_list_display)
+        if _i18n_enabled():
+            fields.insert(1, "locale")
+        return fields
+
+    @property
+    def list_filter(self):
+        if self._base_list_filter is None:
+            return super().list_filter
+        filters = list(self._base_list_filter)
+        if _i18n_enabled():
+            filters.insert(0, "locale")
+        return filters

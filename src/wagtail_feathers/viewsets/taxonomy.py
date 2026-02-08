@@ -1,5 +1,4 @@
 from django import forms
-from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import path, reverse
@@ -9,6 +8,7 @@ from wagtail.admin.filters import WagtailFilterSet
 from wagtail.admin.forms import WagtailAdminModelForm
 from wagtail.snippets.views.snippets import SnippetViewSet
 
+from wagtail_feathers.mixins import LocaleAwareMixin
 from wagtail_feathers.models import Category, ClassifierGroup
 
 
@@ -76,7 +76,7 @@ class CategoryFilterSet(WagtailFilterSet):
         fields = ["live", "depth"]
 
 
-class CategoryViewSet(SnippetViewSet):
+class CategoryViewSet(LocaleAwareMixin, SnippetViewSet):
     """Admin viewset for managing Category snippets with tree hierarchy support."""
 
     model = Category
@@ -85,9 +85,7 @@ class CategoryViewSet(SnippetViewSet):
     search_fields = ["name"]
     list_per_page = 20
     ordering = ["path"]
-    list_display = ["get_name_display", "depth", "aliases", "icon", "live"]
-    if getattr(settings, "WAGTAIL_I18N_ENABLED", False):
-        list_display.append("locale")
+    _base_list_display = ["get_name_display", "depth", "aliases", "icon", "live"]
 
     def get_queryset(self, request):
         """Return all categories including tree structure but exclude hidden root from listing."""
@@ -169,14 +167,11 @@ class CategoryViewSet(SnippetViewSet):
         return render(request, "wagtail_feathers/admin/category_move.html", context)
 
 
-class ClassifierGroupViewSet(SnippetViewSet):
+class ClassifierGroupViewSet(LocaleAwareMixin, SnippetViewSet):
     """Admin viewset for managing ClassifierGroup snippets in the Wagtail admin interface."""
 
     model = ClassifierGroup
     menu_label = "Classifiers"
     icon = "list-ul"
-    list_filter = ["type"]
-    list_display = ["name", "max_selections", "classifiers_list", "type"]
-
-    if getattr(settings, "WAGTAIL_I18N_ENABLED", False):
-        list_display.append("locale")
+    _base_list_filter = ["type"]
+    _base_list_display = ["name", "max_selections", "classifiers_list", "type"]
