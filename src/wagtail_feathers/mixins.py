@@ -12,6 +12,7 @@ from django.utils.text import Truncator
 from django.utils.translation import gettext_lazy as _
 from django_countries.fields import CountryField
 from wagtail.admin.panels import FieldPanel, FieldRowPanel, InlinePanel, MultiFieldPanel, ObjectList, TabbedInterface
+from wagtail.admin.ui.tables import LocaleColumn
 from wagtail.images import get_image_model_string
 from wagtail.utils.decorators import cached_classmethod
 
@@ -822,14 +823,5 @@ class LocaleAwareMixin:
             return super().list_display
         fields = list(self._base_list_display)
         if _i18n_enabled():
-            fields.insert(1, "locale")
+            fields.insert(1, LocaleColumn())
         return fields
-
-    @property
-    def list_filter(self):
-        if self._base_list_filter is None:
-            return super().list_filter
-        filters = list(self._base_list_filter)
-        if _i18n_enabled():
-            filters.insert(0, "locale")
-        return filters
