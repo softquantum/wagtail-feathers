@@ -15,7 +15,7 @@ from wagtail.rich_text import LinkHandler
 from wagtail.snippets import widgets as wagtailsnippets_widgets
 from wagtail.snippets.models import register_snippet
 
-from wagtail_feathers.faq_chooser import faq_chooser_viewset
+from wagtail_feathers.viewsets.faq_chooser import faq_chooser_viewset
 from wagtail_feathers.models import Category, Person
 from wagtail_feathers.viewsets import PersonViewSetGroup, classifier_chooser_viewset
 from wagtail_feathers.viewsets.viewset_groups import WagtailFeathersViewSetGroup

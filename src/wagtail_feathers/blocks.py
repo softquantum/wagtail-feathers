@@ -1226,7 +1226,7 @@ def get_faq_choices():
 
 
 def _get_faq_chooser_block_class():
-    from wagtail_feathers.faq_chooser import faq_chooser_viewset
+    from wagtail_feathers.viewsets.faq_chooser import faq_chooser_viewset
     return faq_chooser_viewset.get_block_class(
         name="FAQChooserBlock", module_path="wagtail_feathers.blocks"
     )
