@@ -68,8 +68,8 @@ class SiteSettings(BaseSiteSetting):
 
     words_per_minute = models.PositiveIntegerField(
         verbose_name="Words per minute",
-        default=200,
-        help_text="Average reading speed for reading time calculation. Default: 200 WPM (average adult reading speed)",
+        default=0,
+        help_text="Override reading speed (WPM). Leave at 0 to use language-specific defaults (e.g., English: 238, French: 214).",
     )
 
     panels = [

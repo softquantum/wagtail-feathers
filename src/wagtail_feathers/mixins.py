@@ -34,16 +34,22 @@ class TimestampMixin(models.Model):
         abstract = True
 
 
+READING_SPEEDS = {
+    "ar": 181, "zh": 260, "nl": 228, "en": 238, "fi": 195, "fr": 214,
+    "de": 260, "he": 224, "it": 285, "ko": 226, "es": 278, "sv": 218,
+}
+DEFAULT_READING_SPEED = READING_SPEEDS["en"]
+
+
 class ReadingTimeMixin(models.Model):
     """
     Mixin providing reading time calculation for pages with substantial text content.
 
     Features:
     - Automatic word count from StreamField and RichTextField content
-    - Configurable words-per-minute rate
-    - Manual override capability
+    - Language-specific words-per-minute rates (aligned with Wagtail 6.2 content metrics)
+    - Admin override via SiteSettings
     - SEO integration (structured data, Twitter Cards)
-    - Multi-language support
 
     Best used with: Blog posts, articles, documentation, long-form content
     """
@@ -62,26 +68,31 @@ class ReadingTimeMixin(models.Model):
     class Meta:
         abstract = True
 
+    def get_content_language(self):
+        if hasattr(self, 'locale') and self.locale:
+            return self.locale.language_code.split('-')[0]
+        return "en"
+
     def get_words_per_minute(self):
-        """Get words per minute from site settings, with fallback to default."""
+        """Get words per minute: admin override first, then language-specific, then default."""
         try:
             from wagtail_feathers.models.settings import SiteSettings
-            # Try to get site from page model
+
             if hasattr(self, 'get_site'):
                 site = self.get_site()
             else:
-                # Fallback to default site
                 from wagtail.models import Site
                 site = Site.objects.filter(is_default_site=True).first()
 
             if site:
                 site_settings = SiteSettings.for_site(site)
-                return site_settings.words_per_minute
-        except (ImportError, AttributeError, Exception):
+                if site_settings.words_per_minute > 0:
+                    return site_settings.words_per_minute
+        except Exception:
             pass
 
-        # Fallback to default if site settings not available
-        return 200
+        lang = self.get_content_language()
+        return READING_SPEEDS.get(lang, DEFAULT_READING_SPEED)
 
     def save(self, *args, **kwargs):
         """Auto-calculate reading time on save."""
@@ -103,22 +114,18 @@ class ReadingTimeMixin(models.Model):
 
     def calculate_reading_time(self):
         """
-        Calculate reading time based on content using site-wide words per minute setting.
+        Calculate reading time based on content using language-specific words per minute.
 
         Returns:
-            int: Reading time in minutes (minimum 1)
+            int: Reading time in minutes (0 for empty content, minimum 1 for actual content)
         """
         word_count = self.get_word_count()
 
         if word_count == 0:
-            return 1
+            return 0
 
-        # Get words per minute from site settings
         words_per_minute = self.get_words_per_minute()
-
-        # Calculate reading time in minutes, minimum 1 minute
-        reading_time = max(1, round(word_count / words_per_minute))
-        return reading_time
+        return max(1, round(word_count / words_per_minute))
 
     def get_word_count(self):
         """
