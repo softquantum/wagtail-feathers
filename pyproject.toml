@@ -67,7 +67,6 @@ django_find_project = false
 python_files = ['tests_*.py', 'test_*.py', '*_tests.py', '*_test.py']
 filterwarnings = [
      'ignore::pytest.PytestAssertRewriteWarning:_pytest.config',
-     'ignore::django.utils.deprecation.RemovedInDjango60Warning',
      'ignore::DeprecationWarning',
 ]
 pythonpath = ["src", "."]

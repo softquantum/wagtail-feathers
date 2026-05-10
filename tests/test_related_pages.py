@@ -6,14 +6,21 @@ specified order — not the owning page itself.
 """
 
 import pytest
-from wagtail.models import Page
+from wagtail.models import Locale, Page
 
 from wagtail_feathers.models import RelatedPage
 
 
 @pytest.fixture
 def root(db):
-    return Page.objects.get(depth=1)
+    # Wagtail's root page and default Locale are normally created by data
+    # migrations. Under `pytest --no-migrations` (used by tox) neither exists,
+    # so create them here.
+    Locale.objects.get_or_create(language_code="en")
+    existing = Page.objects.filter(depth=1).first()
+    if existing:
+        return existing
+    return Page.add_root(title="Root")
 
 
 @pytest.fixture
