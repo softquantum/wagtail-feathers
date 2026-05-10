@@ -675,8 +675,8 @@ PageAuthor.objects.create(
 
 ## Requirements
 
-- Python 3.11+
-- Django 5.2+ (Django 6.x supported on Python 3.12+)
+- Python 3.12+
+- Django 5.2+ (Django 6.x also supported)
 - Wagtail 7.4+
 
 See `pyproject.toml` for complete dependency list.

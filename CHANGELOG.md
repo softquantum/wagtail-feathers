@@ -4,7 +4,7 @@
 
 ### Breaking
 
-- Bumped minimum Wagtail to **7.4 LTS** and Django to **5.2**. Wagtail 6.x is no longer supported. Django 6.x is supported (Python 3.12+).
+- Bumped minimum Python to **3.12**, Wagtail to **7.4 LTS**, and Django to **5.2** (Django 6.x supported). Python 3.11 and Wagtail 6.x are no longer supported. Test matrix runs on Python 3.12 / 3.13 / 3.14.
 
 ### Improvements
 
