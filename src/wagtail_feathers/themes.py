@@ -21,6 +21,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.files.storage import FileSystemStorage
 from django.template import TemplateDoesNotExist
 from django.template.loaders.base import Loader as BaseLoader
+from django.template.loaders.cached import Loader as _DjangoCachedLoader
 from django.utils.functional import cached_property
 
 if TYPE_CHECKING:
@@ -414,6 +415,19 @@ class ThemeRegistry:
 
         return [theme.templates_dir]
 
+    def get_all_theme_template_dirs(self) -> List[Path]:
+        """Return template directories for *every* discovered theme.
+
+        Used by admin-side helpers (e.g. variant discovery) that have no
+        single-site context — a page may be served by any site, so variants
+        from any theme should be visible in the editor.
+        """
+        return [
+            theme.templates_dir
+            for theme in self.get_all_themes().values()
+            if theme.templates_dir.exists()
+        ]
+
 
 # Global theme registry instance
 theme_registry = ThemeRegistry()
@@ -510,6 +524,23 @@ class Origin:
         self.name = name
         self.template_name = template_name
         self.loader = loader
+
+
+class ThemeAwareCachedLoader(_DjangoCachedLoader):
+    """Site-aware drop-in for ``django.template.loaders.cached.Loader``.
+
+    Wraps child loaders and caches resolved templates keyed by
+    ``(current_site_id, template_name)`` so that two sites with different
+    active themes do not poison each other's cache. Use this in
+    ``TEMPLATES["OPTIONS"]["loaders"]`` instead of ``cached.Loader`` when
+    wrapping ``wagtail_feathers.themes.TemplateLoader``.
+    """
+
+    def cache_key(self, template_name, skip=None):
+        base = super().cache_key(template_name, skip)
+        site = get_current_site()
+        site_id = getattr(site, "id", None)
+        return f"{site_id}:{base}" if site_id is not None else base
 
 
 _ACTIVE_THEME_INFO_CACHE_PREFIX = "wagtail_feathers:active_theme_info"

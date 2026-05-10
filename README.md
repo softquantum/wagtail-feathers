@@ -3,8 +3,8 @@
 A comprehensive Wagtail CMS extension providing foundational functionality for building sophisticated content management systems.
 
 [![Python Version](https://img.shields.io/pypi/pyversions/wagtail-feathers.svg)](https://pypi.org/project/wagtail-feathers/)
-[![Django Version](https://img.shields.io/badge/django-5.2-blue.svg)](https://docs.djangoproject.com/en/5.2/)
-[![Wagtail Version](https://img.shields.io/badge/wagtail-7.x-orange.svg)](https://wagtail.org/)
+[![Django Version](https://img.shields.io/badge/django-5.2%20%7C%206.0-blue.svg)](https://docs.djangoproject.com/en/stable/)
+[![Wagtail Version](https://img.shields.io/badge/wagtail-7.4%20LTS-orange.svg)](https://wagtail.org/)
 [![License](https://img.shields.io/badge/license-BSD--3--Clause-green.svg)](LICENSE)
 
 > [!CAUTION]
@@ -133,6 +133,27 @@ from wagtail_feathers.themes import use_site
 
 with use_site(my_site):
     rendered = render_to_string("my_template.html")
+```
+
+If you cache templates with `django.template.loaders.cached.Loader`, replace it
+with `wagtail_feathers.themes.ThemeAwareCachedLoader` — Django's stock cache
+keys templates by name only, which would let one site's resolved theme template
+be served to another site. The drop-in subclass keys cache entries by
+`(site_id, template_name)`:
+
+```python
+TEMPLATES = [{
+    "BACKEND": "django.template.backends.django.DjangoTemplates",
+    "OPTIONS": {
+        "loaders": [
+            ("wagtail_feathers.themes.ThemeAwareCachedLoader", [
+                "wagtail_feathers.themes.TemplateLoader",
+                "django.template.loaders.filesystem.Loader",
+                "django.template.loaders.app_directories.Loader",
+            ]),
+        ],
+    },
+}]
 ```
 
 
@@ -655,8 +676,8 @@ PageAuthor.objects.create(
 ## Requirements
 
 - Python 3.11+
-- Django 5.0+  
-- Wagtail 5.2+
+- Django 5.2+ (Django 6.x supported on Python 3.12+)
+- Wagtail 7.4+
 
 See `pyproject.toml` for complete dependency list.
 

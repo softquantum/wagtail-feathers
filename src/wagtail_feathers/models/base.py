@@ -204,9 +204,10 @@ class FeatherBasePage(SeoMixin, CustomWagtailPage, metaclass=FeatherBasePageMeta
             template_dir = template_path.parent
             template_name = template_path.stem  # filename without extension
             
-            # Get template directories from active theme
-            theme_template_dirs = theme_registry.get_theme_template_dirs()
-            
+            # Discover variants across every installed theme so the admin
+            # is not constrained to whichever site happens to be the default.
+            theme_template_dirs = theme_registry.get_all_theme_template_dirs()
+
             for theme_template_dir in theme_template_dirs:
                 # Look in the same directory structure as the template
                 search_dir = theme_template_dir / template_dir

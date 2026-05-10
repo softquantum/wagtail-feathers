@@ -391,3 +391,66 @@ def test_save_site_settings_invalidates_cache(two_themes_two_sites):
     # Clean up explicitly — the fixture's invalidation does the same on teardown
     invalidate_active_theme_info(site=sites["blog"])
     invalidate_active_theme_info(site=sites["main"])
+
+
+@pytest.mark.django_db
+def test_theme_aware_cached_loader_keys_by_site(two_themes_two_sites):
+    """ThemeAwareCachedLoader caches each (site, template_name) pair separately."""
+    from django.template import Engine
+
+    from wagtail_feathers.themes import TemplateLoader, ThemeAwareCachedLoader
+
+    sites = two_themes_two_sites["sites"]
+    engine = Engine(dirs=[], app_dirs=False)
+    loader = ThemeAwareCachedLoader(
+        engine,
+        ["wagtail_feathers.themes.TemplateLoader"],
+    )
+
+    with use_site(sites["main"]):
+        key_main = loader.cache_key("base.html")
+    with use_site(sites["blog"]):
+        key_blog = loader.cache_key("base.html")
+    key_no_site = loader.cache_key("base.html")
+
+    assert key_main != key_blog
+    assert str(sites["main"].id) in key_main
+    assert str(sites["blog"].id) in key_blog
+    # Without a site, fall back to the unqualified key (compat with vanilla cached.Loader)
+    assert key_no_site == "base.html"
+
+    # Sanity: the loader actually wraps our TemplateLoader
+    assert any(isinstance(child, TemplateLoader) for child in loader.loaders)
+
+
+@pytest.mark.django_db
+def test_get_all_theme_template_dirs_returns_every_theme(two_themes_two_sites):
+    """get_all_theme_template_dirs returns one entry per discovered theme."""
+    themes_dir = two_themes_two_sites["themes_dir"]
+    dirs = theme_registry.get_all_theme_template_dirs()
+
+    assert (themes_dir / "corporate" / "templates") in dirs
+    assert (themes_dir / "blog" / "templates") in dirs
+    assert len(dirs) == 2
+
+
+@pytest.mark.django_db
+def test_variant_discovery_unions_across_themes(two_themes_two_sites):
+    """Admin variant discovery surfaces variants from every installed theme,
+    not just the default site's."""
+    themes_dir = two_themes_two_sites["themes_dir"]
+
+    # Drop a variant into each theme; they should both surface in discovery.
+    (themes_dir / "corporate" / "templates" / "pages").mkdir(parents=True)
+    (themes_dir / "corporate" / "templates" / "pages" / "article--minimal.html").write_text("x")
+    (themes_dir / "blog" / "templates" / "pages").mkdir(parents=True)
+    (themes_dir / "blog" / "templates" / "pages" / "article--magazine.html").write_text("x")
+
+    class _Cls:
+        template = "pages/article.html"
+
+    from wagtail_feathers.models.base import FeatherBasePage
+
+    variants = FeatherBasePage.get_available_template_variants.__func__(_Cls)
+    assert "minimal" in variants
+    assert "magazine" in variants
