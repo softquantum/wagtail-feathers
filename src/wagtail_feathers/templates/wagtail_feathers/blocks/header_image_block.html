@@ -1,4 +1,4 @@
-{% load wagtailimages_tags %}
+{% load wagtailcore_tags wagtailimages_tags %}
 
 {% if self.image %}
 <div class="{% if not self.fluid %} container max-w-7xl mx-auto px-3{% endif %} relative overflow-hidden">
@@ -11,7 +11,7 @@
     </div>
 
     {% if self.image.caption or self.image.attribution %}
-    <figcaption class="mt-3 text-sm text-gray-600 bg-white/80 backdrop-blur-sm p-2 rounded">
+    <figcaption class="text-xs text-gray-600 bg-white/80 backdrop-blur-sm p-2 rounded">
         {% if self.image.caption %}
             {{ self.image.caption }}
         {% endif %}
@@ -19,7 +19,7 @@
             <span class="mx-1">—</span>
         {% endif %}
         {% if self.image.attribution %}
-            <cite>{{ self.image.attribution }}</cite>
+            <cite>{{ self.image.attribution | richtext }}</cite>
         {% endif %}
     </figcaption>
     {% endif %}

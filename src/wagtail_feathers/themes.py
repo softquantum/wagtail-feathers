@@ -4,14 +4,14 @@ This module provides a comprehensive theming system that auto-discovers themes
 from the BASE_DIR/themes/ directory and manages theme metadata and registration.
 """
 
+import contextvars
 import json
 import logging
 import os
+from contextlib import contextmanager
 from dataclasses import dataclass, field
-from functools import lru_cache
 from pathlib import Path
-from threading import local
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import django
 from django.conf import settings
@@ -23,7 +23,35 @@ from django.template import TemplateDoesNotExist
 from django.template.loaders.base import Loader as BaseLoader
 from django.utils.functional import cached_property
 
+if TYPE_CHECKING:
+    from wagtail.models import Site
+
 logger = logging.getLogger(__name__)
+
+
+_current_site: contextvars.ContextVar[Optional["Site"]] = contextvars.ContextVar(
+    "wagtail_feathers_current_site", default=None
+)
+
+
+def get_current_site() -> Optional["Site"]:
+    """Return the current request's Wagtail Site, or None outside an HTTP request."""
+    return _current_site.get()
+
+
+def set_current_site(site: Optional["Site"]) -> contextvars.Token:
+    """Set the current site for this execution context. Returns a Token for reset."""
+    return _current_site.set(site)
+
+
+@contextmanager
+def use_site(site: Optional["Site"]):
+    """Temporarily override the current site (preview, scripts, tests)."""
+    token = set_current_site(site)
+    try:
+        yield
+    finally:
+        _current_site.reset(token)
 
 
 
@@ -295,8 +323,11 @@ class ThemeRegistry:
         for attr in attrs_to_remove:
             delattr(self, attr)
         
-        # Clear template context cache
-        get_active_theme_info.cache_clear()
+        # Clear site-keyed active theme info cache (all keys we've ever cached)
+        if _seen_site_keys:
+            from django.core.cache import cache
+            cache.delete_many(list(_seen_site_keys))
+            _seen_site_keys.clear()
         
         # Clear Django's template cache if possible
         try:
@@ -402,17 +433,10 @@ class TemplateLoader(BaseLoader):
         self._cached_loaders = None
 
     def get_dirs(self):
-        """Get template directories including theme directories."""
-        dirs = []
-
-        # Add active theme template directories first
-        theme_dirs = theme_registry.get_theme_template_dirs()
-        dirs.extend(str(d) for d in theme_dirs)
-
-        # Add configured template directories
-        dirs.extend(self.dirs)
-
-        return dirs
+        """Get template directories including theme directories for the current site."""
+        site = get_current_site()
+        theme_dirs = theme_registry.get_theme_template_dirs(site=site)
+        return [str(d) for d in theme_dirs] + list(self.dirs)
 
     @staticmethod
     def get_contents(origin):
@@ -488,19 +512,18 @@ class Origin:
         self.loader = loader
 
 
-# Utility functions for theme context
-@lru_cache(maxsize=1)
-def get_active_theme_info() -> Optional[Dict[str, Any]]:
-    """Get active theme information for template context.
+_ACTIVE_THEME_INFO_CACHE_PREFIX = "wagtail_feathers:active_theme_info"
+_ACTIVE_THEME_INFO_CACHE_TIMEOUT = 3600
+_MISSING = object()
+_seen_site_keys: set = set()
 
-    Returns:
-        Dictionary with theme info or None if no active theme
 
-    """
-    theme = theme_registry.get_active_theme()
-    if not theme:
-        return None
+def _theme_info_cache_key(site: Optional["Site"]) -> str:
+    site_key = str(site.id) if site is not None and getattr(site, "id", None) else "default"
+    return f"{_ACTIVE_THEME_INFO_CACHE_PREFIX}:{site_key}"
 
+
+def _theme_info_dict(theme) -> Dict[str, Any]:
     return {
         "name": theme.name,
         "display_name": theme.display_name,
@@ -509,6 +532,33 @@ def get_active_theme_info() -> Optional[Dict[str, Any]]:
         "author": theme.author,
         "static_url": f"/static/themes/{theme.name}/",
     }
+
+
+def get_active_theme_info(site: Optional["Site"] = None) -> Optional[Dict[str, Any]]:
+    """Get active theme information for template context, keyed by site.
+
+    Cached in Django's default cache backend. Invalidated on theme changes via
+    ``ThemeRegistry._clear_theme_caches`` and ``SiteSettings.save``.
+    """
+    from django.core.cache import cache
+
+    cache_key = _theme_info_cache_key(site)
+    info = cache.get(cache_key, _MISSING)
+    if info is _MISSING:
+        theme = theme_registry.get_active_theme(site)
+        info = _theme_info_dict(theme) if theme else None
+        cache.set(cache_key, info, timeout=_ACTIVE_THEME_INFO_CACHE_TIMEOUT)
+        _seen_site_keys.add(cache_key)
+    return info
+
+
+def invalidate_active_theme_info(site: Optional["Site"] = None) -> None:
+    """Invalidate the cached active-theme-info for a single site (or default)."""
+    from django.core.cache import cache
+
+    cache_key = _theme_info_cache_key(site)
+    cache.delete(cache_key)
+    _seen_site_keys.discard(cache_key)
 
 
 def get_theme_variants(component_type: str) -> List[tuple]:
@@ -568,11 +618,12 @@ class ThemeAwareFileSystemFinder(FileSystemFinder):
         # since the active theme can change at runtime
         
     def get_theme_locations(self):
-        """Get static file locations for the active theme."""
+        """Get static file locations for the active theme of the current site."""
         locations = []
-        
+
         try:
-            active_theme = theme_registry.get_active_theme()
+            site = get_current_site()
+            active_theme = theme_registry.get_active_theme(site=site)
             if active_theme and active_theme.static_dir.exists():
                 # Add theme static directory
                 theme_static_path = str(active_theme.static_dir)
@@ -580,7 +631,7 @@ class ThemeAwareFileSystemFinder(FileSystemFinder):
                 locations.append((theme_prefix, theme_static_path))
         except Exception as e:
             logger.debug(f"Could not get theme locations: {e}")
-            
+
         return locations
     
     def find(self, path, all=False, find_all=None):

@@ -1,5 +1,6 @@
 """Tests for multisite theme functionality using pytest."""
 
+import asyncio
 import json
 import tempfile
 from pathlib import Path
@@ -9,7 +10,16 @@ import pytest
 from wagtail.models import Locale, Page, Site
 
 from wagtail_feathers.models.settings import SiteSettings
-from wagtail_feathers.themes import ThemeRegistry
+from wagtail_feathers.themes import (
+    TemplateLoader,
+    ThemeRegistry,
+    _current_site,
+    get_active_theme_info,
+    get_current_site,
+    invalidate_active_theme_info,
+    theme_registry,
+    use_site,
+)
 
 
 @pytest.fixture
@@ -211,11 +221,173 @@ def test_set_active_theme_with_site_parameter(multisite_setup):
             # Set theme for specific site
             success = registry.set_active_theme("blog", site=sites['blog'])
             assert success is True
-            
+
             # Verify it was set for the blog site
             blog_settings = SiteSettings.for_site(sites['blog'])
             assert blog_settings.active_theme == "blog"
-            
+
             # Verify other sites were not affected
             main_settings = SiteSettings.for_site(sites['main'])
             assert main_settings.active_theme == ""
+
+
+@pytest.fixture
+def two_themes_two_sites(multisite_setup):
+    """Set up two real on-disk themes wired to two sites' SiteSettings."""
+    sites = multisite_setup
+    with tempfile.TemporaryDirectory() as temp_dir:
+        themes_dir = Path(temp_dir) / "themes"
+        themes_dir.mkdir()
+
+        for theme_name in ("corporate", "blog"):
+            tdir = themes_dir / theme_name
+            tdir.mkdir()
+            (tdir / "templates").mkdir()
+            (tdir / "templates" / "base.html").write_text(f"<html>{theme_name}</html>")
+            with open(tdir / "theme.json", "w") as f:
+                json.dump({"name": theme_name, "display_name": theme_name.title()}, f)
+
+        with patch.object(theme_registry, "themes_dir", themes_dir):
+            theme_registry.discover_themes(force_refresh=True)
+
+            main_ss = SiteSettings.for_site(sites["main"])
+            main_ss.active_theme = "corporate"
+            main_ss.save()
+
+            blog_ss = SiteSettings.for_site(sites["blog"])
+            blog_ss.active_theme = "blog"
+            blog_ss.save()
+
+            # Clear caches so the new settings are picked up fresh
+            theme_registry._clear_theme_caches()
+            yield {"sites": sites, "themes_dir": themes_dir}
+
+
+@pytest.mark.django_db
+def test_template_loader_resolves_per_site_via_contextvar(two_themes_two_sites):
+    """Loader returns the active theme for the site in the contextvar."""
+    sites = two_themes_two_sites["sites"]
+    themes_dir = two_themes_two_sites["themes_dir"]
+    loader = TemplateLoader(None, dirs=["/default/dir"])
+
+    with use_site(sites["main"]):
+        dirs_main = loader.get_dirs()
+    with use_site(sites["blog"]):
+        dirs_blog = loader.get_dirs()
+
+    assert str(themes_dir / "corporate" / "templates") in dirs_main
+    assert str(themes_dir / "blog" / "templates") not in dirs_main
+    assert str(themes_dir / "blog" / "templates") in dirs_blog
+    assert str(themes_dir / "corporate" / "templates") not in dirs_blog
+
+
+@pytest.mark.django_db
+def test_active_theme_precedence_django_setting_over_database(two_themes_two_sites):
+    """Precedence: Django setting > per-site SiteSettings > no theme."""
+    sites = two_themes_two_sites["sites"]
+
+    # Without override: per-site DB settings win
+    assert theme_registry.get_active_theme(site=sites["main"]).name == "corporate"
+    assert theme_registry.get_active_theme(site=sites["blog"]).name == "blog"
+
+    # With Django override: all sites get the override
+    with patch("wagtail_feathers.themes.settings") as mock_settings:
+        mock_settings.WAGTAIL_FEATHERS_ACTIVE_THEME = "blog"
+        assert theme_registry.get_active_theme(site=sites["main"]).name == "blog"
+        assert theme_registry.get_active_theme(site=sites["blog"]).name == "blog"
+
+
+def test_use_site_context_manager_sets_and_resets():
+    """`use_site` sets the contextvar inside the block and restores prior value on exit."""
+    assert get_current_site() is None
+    sentinel = object()
+    with use_site(sentinel):
+        assert get_current_site() is sentinel
+    assert get_current_site() is None
+
+    # Nested use_site
+    outer = object()
+    inner = object()
+    with use_site(outer):
+        assert get_current_site() is outer
+        with use_site(inner):
+            assert get_current_site() is inner
+        assert get_current_site() is outer
+    assert get_current_site() is None
+
+
+def test_async_middleware_propagates_contextvar():
+    """Async middleware sets the contextvar; it survives await and resets on exit."""
+    from wagtail_feathers.middleware import theme_site_middleware
+
+    sentinel_site = object()
+    captured = {}
+
+    async def fake_view(request):
+        # An await before reading proves the var survives task scheduling.
+        await asyncio.sleep(0)
+        captured["site"] = get_current_site()
+
+        class _Resp:
+            status_code = 200
+        return _Resp()
+
+    middleware = theme_site_middleware(fake_view)
+
+    class _Req:
+        pass
+
+    with patch.object(Site, "find_for_request", return_value=sentinel_site):
+        asyncio.run(middleware(_Req()))
+
+    assert captured["site"] is sentinel_site
+    # contextvar must be reset after the middleware returns
+    assert _current_site.get() is None
+
+
+def test_sync_middleware_propagates_and_resets_contextvar():
+    """The sync middleware path sets and resets the contextvar correctly."""
+    from wagtail_feathers.middleware import theme_site_middleware
+
+    sentinel_site = object()
+    captured = {}
+
+    def fake_view(request):
+        captured["site"] = get_current_site()
+
+        class _Resp:
+            status_code = 200
+        return _Resp()
+
+    middleware = theme_site_middleware(fake_view)
+
+    class _Req:
+        pass
+
+    with patch.object(Site, "find_for_request", return_value=sentinel_site):
+        middleware(_Req())
+
+    assert captured["site"] is sentinel_site
+    assert _current_site.get() is None
+
+
+@pytest.mark.django_db
+def test_save_site_settings_invalidates_cache(two_themes_two_sites):
+    """Saving SiteSettings.active_theme busts the per-site theme info cache."""
+    sites = two_themes_two_sites["sites"]
+
+    # Prime cache for the blog site
+    info_before = get_active_theme_info(site=sites["blog"])
+    assert info_before["name"] == "blog"
+
+    # Change the active theme on that site
+    blog_settings = SiteSettings.for_site(sites["blog"])
+    blog_settings.active_theme = "corporate"
+    blog_settings.save()
+
+    info_after = get_active_theme_info(site=sites["blog"])
+    assert info_after["name"] == "corporate"
+
+    # Clean up explicitly — the fixture's invalidation does the same on teardown
+    invalidate_active_theme_info(site=sites["blog"])
+    invalidate_active_theme_info(site=sites["main"])

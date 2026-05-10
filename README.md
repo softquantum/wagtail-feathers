@@ -110,6 +110,31 @@ def themes_dir(self) -> Path:
 ```
 Add all the themes you want, see the demo/themes folder for an example.  Adapt the json file accordingly.
 
+For per-site theming to take effect at the template loader and static finder
+layer, add `theme_site_middleware` to your `MIDDLEWARE`. It binds the current
+request's Wagtail `Site` to a context variable that the theme system reads when
+resolving templates and static assets. It must run after any middleware that
+identifies the site (e.g. Wagtail's `SiteMiddleware`, if used). It is
+async-aware and works under both WSGI and ASGI.
+
+```python
+MIDDLEWARE = [
+    # ... your existing middleware
+    "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "wagtail_feathers.middleware.theme_site_middleware",
+]
+```
+
+Outside of an HTTP request (management commands, scripts, tests) you can
+temporarily bind a site with the `use_site` context manager:
+
+```python
+from wagtail_feathers.themes import use_site
+
+with use_site(my_site):
+    rendered = render_to_string("my_template.html")
+```
+
 
 **With Simple Translation:**
 ```python

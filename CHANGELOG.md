@@ -1,6 +1,17 @@
 # Changelog
 
-## v1.0.0rc1
+## v1.0.0rc3
+
+### Improvements
+
+- Per-site theming now resolves correctly at the template loader and static finder layer. New `wagtail_feathers.middleware.theme_site_middleware` (sync + async) binds the current request's Wagtail `Site` to a `contextvars.ContextVar` so themes resolve per-request. Public helpers `get_current_site`, `set_current_site`, and `use_site` are available from `wagtail_feathers.themes` for management commands, scripts, and tests. **Action required:** add `wagtail_feathers.middleware.theme_site_middleware` to `MIDDLEWARE`.
+- `get_active_theme_info()` now accepts a `site` argument and is cached in Django's default cache (per-site key) instead of a process-wide `lru_cache`. Cache is invalidated automatically when `SiteSettings.active_theme` changes.
+
+### Bug Fixes
+
+- Fixed silent multi-site theming bug: `TemplateLoader.get_dirs()` and `ThemeAwareFileSystemFinder.get_theme_locations()` always resolved through the default site regardless of which site the request belonged to. They now read the current site from the new context variable populated by `theme_site_middleware`.
+
+## v1.0.0rc2
 
 ### Improvements
 

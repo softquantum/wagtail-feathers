@@ -1,40 +1,21 @@
 from django.utils.translation import get_language, get_language_info
 
-from wagtail_feathers.themes import get_active_theme_info
 from wagtail_feathers.models import Category
+from wagtail_feathers.themes import get_active_theme_info
 
 
 def active_theme_info(request):  # noqa
     """Django context processor to add theme information to all templates.
 
-    Adds 'theme' variable to template context with active theme info.
-    This is automatically site-aware when used within Wagtail.
+    Adds 'theme' variable to template context with active theme info, resolved
+    against the current request's Wagtail Site (cache-keyed per site).
     """
     from wagtail.models import Site
-    from wagtail_feathers.themes import theme_registry
-    
-    try:
-        # Get the current site for this request
-        site = Site.find_for_request(request)
-        
-        # Get the active theme for this specific site
-        active_theme = theme_registry.get_active_theme(site)
-        
-        if not active_theme:
-            return {"theme": None}
 
-        return {
-            "theme": {
-                "name": active_theme.name,
-                "display_name": active_theme.display_name,
-                "description": active_theme.description,
-                "version": active_theme.version,
-                "author": active_theme.author,
-                "static_url": f"/static/themes/{active_theme.name}/",
-            }
-        }
+    try:
+        site = Site.find_for_request(request)
+        return {"theme": get_active_theme_info(site=site)}
     except Exception:
-        # Fallback gracefully if site detection fails
         return {"theme": None}
 
 

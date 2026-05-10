@@ -271,7 +271,7 @@ class FeatherPage(FeatherBasePage):
 
         # NOTE: avoiding values_list() here for compatibility with preview
         # See: https://github.com/wagtail/django-modelcluster/issues/30
-        ordered_page_pks = tuple(item.page_id for item in self.page_related_pages.all())
+        ordered_page_pks = tuple(item.url_id for item in self.page_related_pages.all())
         return order_by_pk_position(
             Page.objects.live().public().specific(),
             pks=ordered_page_pks,

@@ -56,8 +56,11 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "django.middleware.security.SecurityMiddleware",
-    
+
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    # Required for per-site theming. Must run after any middleware that
+    # resolves the request's Wagtail Site.
+    "wagtail_feathers.middleware.theme_site_middleware",
 ]
 
 ROOT_URLCONF = "urls"

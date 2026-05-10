@@ -359,19 +359,24 @@ class TestThemeRegistry:
 
     def test_clear_theme_caches(self, mock_theme_registry):
         """Test theme cache clearing functionality."""
+        from django.core.cache import cache
+
+        from wagtail_feathers.themes import _seen_site_keys
+
         # Set some initial state
         mock_theme_registry._active_theme = "test_theme"
-        
-        # Mock the cached function
-        with patch('wagtail_feathers.themes.get_active_theme_info') as mock_cached_func:
-            mock_cached_func.cache_clear = MagicMock()
-            
-            # Call cache clearing
-            mock_theme_registry._clear_theme_caches()
-            
-            # Verify state was cleared
-            assert mock_theme_registry._active_theme is None
-            mock_cached_func.cache_clear.assert_called_once()
+
+        # Seed the per-site cache and the seen-keys registry
+        cache_key = "wagtail_feathers:active_theme_info:default"
+        cache.set(cache_key, {"name": "stale"}, timeout=60)
+        _seen_site_keys.add(cache_key)
+
+        mock_theme_registry._clear_theme_caches()
+
+        # Verify state was cleared
+        assert mock_theme_registry._active_theme is None
+        assert cache.get(cache_key) is None
+        assert cache_key not in _seen_site_keys
 
     def test_get_active_theme_with_django_settings(self, mock_theme_registry, valid_theme, monkeypatch):
         """Test get_active_theme with Django settings priority."""
@@ -419,7 +424,7 @@ class TestTemplateLoader:
         loader = TemplateLoader(None, dirs=["/default/dir"])
 
         # Mock theme_registry.get_theme_template_dirs to return our test theme
-        def mock_get_theme_template_dirs():
+        def mock_get_theme_template_dirs(theme_name=None, site=None):
             return [valid_theme / "templates"]
 
         monkeypatch.setattr(theme_registry, "get_theme_template_dirs", mock_get_theme_template_dirs)
@@ -459,6 +464,8 @@ class TestThemeUtilityFunctions:
 
     def test_get_active_theme_info(self, mock_theme_registry, valid_theme, monkeypatch):
         """Test get_active_theme_info function."""
+        from wagtail_feathers.themes import invalidate_active_theme_info
+
         # Mock theme_registry.get_active_theme
         theme_info = ThemeInfo(
             name="test_theme",
@@ -469,13 +476,13 @@ class TestThemeUtilityFunctions:
             author="Test Author",
         )
 
-        def mock_get_active_theme():
+        def mock_get_active_theme(site=None):
             return theme_info
 
         monkeypatch.setattr(theme_registry, "get_active_theme", mock_get_active_theme)
 
-        # Clear LRU cache to ensure our mock is used
-        get_active_theme_info.cache_clear()
+        # Clear cache for the default key so our mock is consulted
+        invalidate_active_theme_info(site=None)
 
         # Get active theme info
         info = get_active_theme_info()

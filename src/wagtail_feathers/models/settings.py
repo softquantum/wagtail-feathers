@@ -144,7 +144,14 @@ class SiteSettings(BaseSiteSetting):
 
         if old_active_theme != self.active_theme:
             try:
-                from wagtail_feathers.themes import theme_registry
+                from wagtail_feathers.themes import (
+                    invalidate_active_theme_info,
+                    theme_registry,
+                )
                 theme_registry._clear_theme_caches()
+                # Also invalidate this site's per-site theme info cache and
+                # the default-site key (which may have shadowed this site).
+                invalidate_active_theme_info(site=self.site)
+                invalidate_active_theme_info(site=None)
             except Exception:
                 pass
