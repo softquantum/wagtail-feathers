@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.0rc5
+
+### Improvements
+
+- **`ImageBlock`**: added a `fit` field (`cover` / `contain`, default `cover`). The default keeps the existing editorial behaviour — images are server-side cropped via `fill-…` and rendered into a 16:9 frame with `aspect-video object-cover`. Selecting **Contain — fit without cropping** switches the block to a `max-…` render with `block mx-auto h-auto max-w-full max-h-[640px] w-auto`, preserving the natural aspect ratio. Use this for logos, diagrams, or any image where cropping would lose meaning. The field is a StreamField sub-block addition, so no Django migration is required; existing `image_block` entries deserialize with `fit="cover"` and render identically to before. Projects that override `wagtail_feathers/blocks/image_block.html` should branch on `self.fit` to pick between cover and contain rendering.
+
 ## v1.0.0rc4
 
 ### Improvements

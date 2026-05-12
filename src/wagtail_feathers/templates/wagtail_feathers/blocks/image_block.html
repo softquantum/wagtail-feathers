@@ -3,8 +3,12 @@
 
 {% if self.image %}
 <figure>
-    {% picture self.image format-{avif,webp,jpeg} fill-{400x220,800x450,1200x675} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" loading="lazy" class="aspect-video w-full object-cover" %}
-    
+    {% if self.fit == "contain" %}
+        {% picture self.image format-{avif,webp,jpeg} max-{400x400,800x800,1200x1200} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" loading="lazy" class="block mx-auto h-auto max-w-full max-h-[640px] w-auto" %}
+    {% else %}
+        {% picture self.image format-{avif,webp,jpeg} fill-{400x220,800x450,1200x675} sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw" loading="lazy" class="aspect-video w-full object-cover" %}
+    {% endif %}
+
     {% if self.image.caption or self.image.attribution %}
     <figcaption class="mt-2 text-sm text-gray-600">
         {% if self.image.caption %}

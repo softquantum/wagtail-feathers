@@ -345,6 +345,18 @@ class ImageBlock(BaseBlock):
         required=False,
         help_text=_("If left blank, the image's global alt text will be used."),
     )
+    fit = blocks.ChoiceBlock(
+        choices=[
+            ("cover", _("Cover — crop to a 16:9 frame")),
+            ("contain", _("Contain — fit without cropping")),
+        ],
+        default="cover",
+        required=True,
+        label=_("Fit mode"),
+        help_text=_(
+            "Use 'Contain' for logos, diagrams or other images where cropping would lose meaning."
+        ),
+    )
 
     @cached_property
     def preview_image(self):
