@@ -1,34 +1,24 @@
 {% load wagtailcore_tags %}
 
-{% include "wagtail_feathers/blocks/heading2_block.html" with large_spacing=True value=value.heading sr_only=value.sr_only_label %}
-
-<div class="{% if not value.fluid %}container mx-auto{% endif %}">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-20">
-        {% for card in value.cards %}
-            {% include_block card %}
-        {% endfor %}
-    </div>
-</div>
-
-
-
 <div class="cards-container{% if value.theme.theme_variant %} cards-{{ value.theme.theme_variant }}{% endif %}"
      data-component="cards_container"
-     data-variant="{{ value.theme.theme_variant }}">
+     data-variant="{{ value.theme.theme_variant|default:'default' }}">
 
-    <div class="cards-wrapper">
-        {% if value.heading %}
-            <h2 class="cards-heading">{{ value.heading }}</h2>
-        {% endif %}
+    {% if not value.fluid %}<div class="container mx-auto">{% endif %}
 
-        {% if value.content %}
-            <div class="cards-grid cards-cols-{{ value.columns|default:'3' }}">
-                {% for block in value.content %}
-                    <div class="cards-grid-item">
-                        {% include_block block %}
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
-    </div>
+    {% if value.heading %}
+        {% include "wagtail_feathers/blocks/heading2_block.html" with large_spacing=True value=value.heading sr_only=value.sr_only_label %}
+    {% endif %}
+
+    {% if value.content %}
+        <div class="cards-grid cards-cols-{{ value.columns|default:'3' }}">
+            {% for card in value.content %}
+                <div class="cards-grid-item">
+                    {% include_block card %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if not value.fluid %}</div>{% endif %}
 </div>

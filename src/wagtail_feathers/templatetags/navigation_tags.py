@@ -90,10 +90,19 @@ def mobile_menu_items(context, parent, calling_page=None):
 
 
 @register.inclusion_tag("wagtail_feathers/templatetags/breadcrumbs.html", takes_context=True)
-def breadcrumbs(context):
+def breadcrumbs(context, min_depth=2):
+    """Render breadcrumb trail for the current page.
+
+    Hides the trail when the current page's Wagtail tree depth is at or below
+    ``min_depth``. Wagtail depth convention: root=1, home=2, top-level
+    sections=3, etc.
+
+    Defaults to ``min_depth=2`` (hide on the home page only — preserves
+    historical behavior). Set ``min_depth=3`` to also hide on direct children
+    of home, where the trail would be the redundant ``Home / Section``.
+    """
     self = context.get("self")
-    if self is None or self.depth <= 2:
-        # When on the home page, displaying breadcrumbs is irrelevant.
+    if self is None or self.depth <= min_depth:
         ancestors = ()
     else:
         ancestors = Page.objects.ancestor_of(self, inclusive=True).filter(depth__gt=1)

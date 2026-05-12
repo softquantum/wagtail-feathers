@@ -672,6 +672,14 @@ class CardBlock(BaseBlock):
     component_type = "card"
     default_variant = "default"
 
+    icon = blocks.CharBlock(
+            required=False,
+            max_length=80,
+            help_text=_("Optional full Heroicon name as registered in the icon set "
+                        "(e.g. 'heroicons-shield-check-solid'). Rendered above the heading. "
+                        "Leave blank to use the image instead.")
+    )
+
     image = ImageChooserBlock(
             required=False,
             help_text=_("Card image")
@@ -772,35 +780,46 @@ class CallToActionBlock(BaseBlock):
 
 
 class CardsContainerBlock(BaseContainerBlock):
-    """A container block for displaying multiple cards in a grid layout."""
-    
+    """A container block for displaying multiple cards in a grid layout.
+
+    Struct fields:
+      - ``theme`` (from BaseBlock)
+      - ``fluid``, ``sr_only_label`` (inherited from BaseContainerBlock)
+      - ``heading`` (overridden here to be optional — many containers carry their
+        section heading upstream and don't need the container to re-emit it)
+      - ``columns`` (drives the responsive grid)
+      - ``content`` (StreamBlock of cards — assembled by BaseContainerBlock from
+        ``content_streamblocks`` when ``local_blocks`` is not passed)
+
+    Callers can still pass ``local_blocks`` to substitute a custom card type,
+    e.g. ``CardsContainerBlock(local_blocks=[("featured", FeaturedCardBlock())])``.
+    """
+
     component_type = "cards_container"
     default_variant = "default"
-    
+
+    heading = blocks.CharBlock(
+        form_classname="title",
+        icon="title",
+        required=False,
+        max_length=100,
+        help_text=_("Optional heading for the cards section"),
+    )
+
+    columns = blocks.ChoiceBlock(
+        choices=[
+            ("1", _("1 Column")),
+            ("2", _("2 Columns")),
+            ("3", _("3 Columns")),
+            ("4", _("4 Columns")),
+        ],
+        default="3",
+        help_text=_("Number of columns for the card grid"),
+    )
+
     content_streamblocks = [
         ("card", CardBlock()),
     ]
-
-    def __init__(self, local_blocks=None, **kwargs):
-        if not local_blocks:
-            local_blocks = (
-                ("heading", blocks.CharBlock(
-                    required=False,
-                    max_length=100,
-                    help_text=_("Optional heading for the cards section")
-                )),
-                ("columns", blocks.ChoiceBlock(
-                    choices=[
-                        ("1", _("1 Column")),
-                        ("2", _("2 Columns")),
-                        ("3", _("3 Columns")),
-                        ("4", _("4 Columns")),
-                    ],
-                    default="3",
-                    help_text=_("Number of columns for the card grid")
-                )),
-            )
-        super().__init__(local_blocks, **kwargs)
 
     class Meta:
         icon = "heroicons-squares-2x2-outline"

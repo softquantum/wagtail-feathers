@@ -1,5 +1,17 @@
 # Changelog
 
+## v1.0.0rc4
+
+### Improvements
+
+- **`CardBlock`**: added an optional `icon` field that stores a Heroicon slug (e.g. `"shield-check-solid"`). When set, downstream templates can render it via `{% svg_icon name="heroicons-{{ value.icon }}" %}` above the heading instead of using the `image` field. Existing `CardBlock` instances are unaffected (the field is optional). Projects that override `card_block.html` should branch on `value.icon` to pick between icon-style and image-style cards.
+- **`{% breadcrumbs %}` templatetag** (`navigation_tags`): added a `min_depth` parameter (default `2`, preserves prior behavior of hiding the trail on the home page only). Set `{% breadcrumbs min_depth=3 %}` to also suppress the redundant `Home / Section` trail on direct children of home — useful for themes that consider single-step breadcrumbs visual noise. The condition is `self.depth <= min_depth`, using Wagtail's tree-depth convention (root=1, home=2, top-level sections=3, …).
+
+### Bug Fixes
+
+- **`CardsContainerBlock`**: fixed a structural bug where the block's `content` StreamBlock accepted `heading` and `columns` sub-blocks instead of `CardBlock` instances, making it impossible to actually add cards to a card grid. The buggy subclass `__init__` was passing config fields (`heading`, `columns`) through `local_blocks`, which `BaseContainerBlock` then incorrectly wrapped into the `content` StreamBlock — also masking the class's own `content_streamblocks = [("card", CardBlock())]` declaration. The `__init__` override has been removed; `heading` (now optional, overriding the inherited required=True) and `columns` are declared as struct-level fields, and `BaseContainerBlock` correctly assembles the `content` StreamBlock from `content_streamblocks`. The fix preserves caller-side extensibility (`CardsContainerBlock(local_blocks=[("featured", FeaturedCardBlock())])` still works to substitute a custom card type).
+- **`cards_container_block.html` template**: removed dead first half that referenced the non-existent `value.cards` attribute. The template now renders only `value.content` (the cards StreamBlock) under a `.cards-container` / `.cards-grid` wrapper.
+
 ## v1.0.0rc3
 
 ### Breaking
