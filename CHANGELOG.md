@@ -1,5 +1,20 @@
 # Changelog
 
+## v1.0.0rc6
+
+### Bug Fixes
+
+- **`BaseBlock` theme-panel ordering**: editors saw the Theme settings panel at the *end* of every `BaseBlock` StructBlock (e.g. just before children on `CardsContainerBlock`, at the very bottom on leaf blocks with only class-declared fields). Root cause was upstream in Wagtail's own `BaseStructBlock.__init__` (`wagtail/blocks/struct_block.py:253`): it snapshots `self.meta.form_layout = self.get_form_layout()` *before* the previous `BaseBlock.__init__` did its `OrderedDict` reorder of `self.child_blocks`. The snapshot used the pre-reorder order, the Telepath admin adapter reads `form_layout`, so the runtime reorder was invisible to the form. Replaced the runtime reorder with a `get_form_layout()` override that returns `BlockGroup([theme, …content…, nested BlockGroup(template_variant)])` — a single source of truth using Wagtail's documented `form_layout` API. No data migration is required; existing saved StructValues are unaffected.
+
+### Improvements
+
+- **Block-level `template_variant`**: any `BaseBlock` subclass whose `Meta.template` has on-disk variant siblings now exposes a `template_variant` field, rendered inside a collapsed **Template variant** panel at the bottom of the admin form. Choices are discovered from disk by scanning the active theme(s) for `<base_template>--*.html` siblings of the block's `Meta.template`; if no siblings exist, the field is **not** injected at all (so blocks without variants stay clean — no empty single-choice dropdown). When a variant is selected, `Block.get_template()` returns `[<base>--<variant>.html, <base>.html]` so Django's template loader tries the variant first and silently falls back to the default if the variant file isn't on disk. Mirrors the existing page-level `template_variant` pattern (`models/specialized_pages.py:73,108-125,147`) — same naming convention (`<basename>--<variant>.html`), same fallback semantics. **Decoupled from `theme.theme_variant`**: theme variants remain cosmetic-styling concerns keyed off `theme.json`; template variants are structural/DOM concerns keyed off filenames. Two orthogonal axes, two independent dropdowns. Implementation note: the panel is a nested `BlockGroup` in the layout's `children` (not the top-level `settings=`), because Wagtail's admin JS only renders a visible toggle for the settings group when the parent StructBlock is wrapped in a `<section data-panel>` — which doesn't happen for non-collapsible StructBlocks inside a StreamField.
+- **New `TemplateVariantChooserBlock` class** — public, importable from `wagtail_feathers.blocks`. Auto-instantiated by `BaseBlock` but can also be added manually to any `StructBlock`. Disk discovery is exposed as the public `TemplateVariantChooserBlock.discover_variants(base_template)` static method so callers can probe variants outside the block constructor.
+
+### Downstream migration note
+
+`makemigrations` will detect a `block_lookup` shape change on every model whose StreamFields reference a `BaseBlock` subclass (because `template_variant` is now a new child of `BaseBlock`). One-time noisy migration per downstream project; no DB column changes — it's a StreamField field-order snapshot.
+
 ## v1.0.0rc5
 
 ### Improvements

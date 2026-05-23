@@ -46,6 +46,7 @@ Wagtail Feathers provides a comprehensive set of reusable components and pattern
 - **Template Discovery**: Automatic theme-based template resolution
 - **Asset Management**: Theme-specific CSS/JS handling
 - **Configuration**: Site-wide settings and theme preferences
+- **Block-Level Template Variants**: per-block structural variants via filename convention (`<block>_block--<variant>.html`), discovered automatically from the active theme. Editors pick from a dropdown in the block's Settings panel; falls back to the default template silently if the variant file isn't on disk. Mirrors the page-level `template_variant` pattern.
 
 
 ### 🌍 **Internationalization** (Optional)

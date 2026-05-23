@@ -217,6 +217,67 @@ class ThemeSettingsBlock(blocks.StructBlock):
         label_format = "Theme variant: {theme_variant} | Custom ID: {style_id} | Custom CSS Classes: {classname}"
 
 
+class TemplateVariantChooserBlock(blocks.ChoiceBlock):
+    """ChoiceBlock populated by disk discovery.
+
+    Scans the active theme template dirs for siblings of `base_template` named
+    `<basename>--*.html` and exposes each as a variant choice. Mirrors the page
+    pattern at `wagtail_feathers.models.specialized_pages.FormPage
+    .get_available_template_variants` — same convention, just for blocks.
+
+    The empty value `""` is always included as "Default" (= use the
+    unsuffixed base template).
+    """
+
+    def __init__(self, base_template, default="", **kwargs):
+        self.base_template = base_template
+        choices = self.discover_variants(base_template)
+        kwargs.setdefault("choices", choices)
+        kwargs.setdefault("default", default)
+        kwargs.setdefault("required", False)
+        kwargs.setdefault("label", _("Template variant"))
+        kwargs.setdefault(
+            "help_text",
+            _("Pick a structural variant. Falls back to the default template if the "
+              "variant file isn't on disk."),
+        )
+        super().__init__(**kwargs)
+
+    @staticmethod
+    def discover_variants(base_template):
+        """Walk every installed theme's template dir for `<basename>--*.html`."""
+        from pathlib import Path
+
+        from wagtail_feathers.themes import theme_registry
+
+        if not base_template:
+            return [("", _("Default"))]
+
+        template_path = Path(base_template)
+        template_dir = template_path.parent
+        template_name = template_path.stem  # filename without .html
+        prefix = f"{template_name}--"
+
+        variants = set()
+        try:
+            for theme_template_dir in theme_registry.get_all_theme_template_dirs():
+                search_dir = theme_template_dir / template_dir
+                if not search_dir.exists():
+                    continue
+                for f in search_dir.iterdir():
+                    if f.is_file() and f.stem.startswith(prefix):
+                        variants.add(f.stem[len(prefix):])
+        except Exception:
+            # Discovery failures should never break form rendering — fall back
+            # to default-only.
+            pass
+
+        return [("", _("Default"))] + [
+            (v, v.replace("-", " ").replace("_", " ").title())
+            for v in sorted(variants)
+        ]
+
+
 """ Base Blocks
 All custom blocks should inherit from one of these classes.
 """
@@ -229,11 +290,18 @@ class BaseBlock(blocks.StructBlock):
         component_type (str): The component type identifier (e.g., "hero", "card", etc.)
         default_variant (str): The default theme variant (usually "default")
 
-    `__init__` auto-injects a `theme` field into the block. `get_form_layout` is
-    overridden so the Wagtail admin renders the Theme panel at the top of the
-    StructBlock form. Wagtail's own `StructBlock.__init__` then reorders
-    `child_blocks` to match the returned form layout (see
-    `wagtail/blocks/struct_block.py:253-262`).
+    `__init__` auto-injects two fields:
+      - `theme` (ThemeSettingsBlock) — cosmetic variant + classname + style_id.
+        Rendered at the top of the StructBlock admin form.
+      - `template_variant` (TemplateVariantChooserBlock) — structural variant
+        selected from disk-discovered `<base_template>--*.html` siblings.
+        Only injected when on-disk variants actually exist; rendered inside a
+        collapsed "Template variant" panel at the bottom of the form (mirrors
+        the page pattern at `specialized_pages.py:73,108-125,147`).
+
+    `get_template` overrides Wagtail's default to swap in
+    `<base_template>--<variant>.html` when a variant is selected; falls back
+    to the unsuffixed template if the variant file isn't on disk.
     """
 
     max_num = 1
@@ -252,14 +320,55 @@ class BaseBlock(blocks.StructBlock):
 
             local_blocks = (("theme", theme_settings_block),) + local_blocks
 
+        # Inject template_variant only when on-disk variants exist beyond the
+        # baseline ("Default") — a single-choice dropdown is just clutter.
+        meta_template = getattr(self._meta_class, "template", None)
+        if meta_template and len(TemplateVariantChooserBlock.discover_variants(meta_template)) > 1:
+            local_blocks = local_blocks + (
+                ("template_variant", TemplateVariantChooserBlock(base_template=meta_template)),
+            )
+
         super().__init__(local_blocks, **kwargs)
 
     def get_form_layout(self):
-        """Place the auto-injected `theme` block first in the admin form."""
-        if self.component_type and "theme" in self.child_blocks:
-            ordered = ["theme"] + [name for name in self.child_blocks if name != "theme"]
-            return blocks.BlockGroup(ordered)
-        return super().get_form_layout()
+        """Render `theme` at the top, content fields in the middle, and
+        `template_variant` (when present) in a collapsed nested panel at the
+        bottom. The nested-BlockGroup-in-children form is what Wagtail's admin
+        JS actually renders as a togglable panel; top-level `settings=` has no
+        visible toggle when the StructBlock is non-collapsible."""
+        children = list(self.child_blocks.keys())
+        theme_name = "theme" if self.component_type and "theme" in children else None
+        tv_name = "template_variant" if "template_variant" in children else None
+        body = [n for n in children if n not in (theme_name, tv_name)]
+        main = ([theme_name] if theme_name else []) + body
+        if tv_name:
+            main = main + [
+                blocks.BlockGroup(
+                    children=[tv_name],
+                    heading=_("Template variant"),
+                    icon="cogs",
+                    classname="collapsed",
+                )
+            ]
+        if not theme_name and not tv_name:
+            return super().get_form_layout()
+        return blocks.BlockGroup(main)
+
+    def get_template(self, value=None, context=None):
+        """Swap in `<base>--<variant>.html` when a variant is selected.
+
+        Returns a list `[variant_template, base_template]` so Django's
+        template loader tries the variant first and falls back to the base
+        template if the variant file isn't on disk.
+        """
+        base = super().get_template(value, context)
+        if value and base:
+            variant = (value.get("template_variant") or "").strip()
+            if variant:
+                stem, dot, ext = base.rpartition(".")
+                if dot:
+                    return [f"{stem}--{variant}.{ext}", base]
+        return base
 
     class Meta:
         abstract = True
