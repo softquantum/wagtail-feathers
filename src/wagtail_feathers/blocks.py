@@ -225,15 +225,15 @@ All custom blocks should inherit from one of these classes.
 class BaseBlock(blocks.StructBlock):
     """Base block class with theme awareness.
 
-    All custom blocks should inherit from this to get automatic theme variant support.
-
-    This is an abstract base class - child classes MUST define:
+    Subclasses MUST define:
         component_type (str): The component type identifier (e.g., "hero", "card", etc.)
         default_variant (str): The default theme variant (usually "default")
 
-    Note:
-        Child classes must override component_type to match their theme.json variants.
-
+    `__init__` auto-injects a `theme` field into the block. `get_form_layout` is
+    overridden so the Wagtail admin renders the Theme panel at the top of the
+    StructBlock form. Wagtail's own `StructBlock.__init__` then reorders
+    `child_blocks` to match the returned form layout (see
+    `wagtail/blocks/struct_block.py:253-262`).
     """
 
     max_num = 1
@@ -241,10 +241,6 @@ class BaseBlock(blocks.StructBlock):
     default_variant = None
 
     def __init__(self, local_blocks=None, **kwargs):
-        """Add theme variants for this component type.
-
-        Reorder child_blocks to ensure theme_settings appears first
-        """
         if not local_blocks:
             local_blocks = ()
 
@@ -258,16 +254,12 @@ class BaseBlock(blocks.StructBlock):
 
         super().__init__(local_blocks, **kwargs)
 
+    def get_form_layout(self):
+        """Place the auto-injected `theme` block first in the admin form."""
         if self.component_type and "theme" in self.child_blocks:
-            from collections import OrderedDict
-            reordered = OrderedDict()
-            reordered["theme"] = self.child_blocks["theme"]
-
-            for name, block in self.child_blocks.items():
-                if name != "theme":
-                    reordered[name] = block
-            
-            self.child_blocks = reordered
+            ordered = ["theme"] + [name for name in self.child_blocks if name != "theme"]
+            return blocks.BlockGroup(ordered)
+        return super().get_form_layout()
 
     class Meta:
         abstract = True
