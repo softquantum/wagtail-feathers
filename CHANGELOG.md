@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.0.0
+## v1.0.1
 
 First stable release. Cumulative changes across the 1.0 beta/rc series are recorded in the entries below.
 
