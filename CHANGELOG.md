@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.0.0
+
+First stable release. Cumulative changes across the 1.0 beta/rc series are recorded in the entries below.
+
+### Changes
+
+- **`cards_container_block.html`**: the container heading now renders as a plain `<h2>` (gaining a `sr-only` class when `sr_only_label` is set) instead of delegating to the shared `heading2_block.html` partial — decoupling the cards-container heading from the heading2 block's theme-variant and large-spacing styling. Downstream projects that relied on that styling for this heading should override `cards_container_block.html`.
+
 ## v1.0.0rc6
 
 ### Bug Fixes
