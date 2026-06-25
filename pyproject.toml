@@ -1,5 +1,5 @@
 [build-system]
-requires = ["flit_core >=3.2,<4"]
+requires = ["flit_core >=3.12,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
@@ -11,7 +11,7 @@ keywords = ["wagtail", "django", "cms", "content", "management", "taxonomy", "na
 readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Environment :: Web Environment",
     "Framework :: Django",
     "Framework :: Django :: 5.2",
@@ -32,7 +32,7 @@ dynamic = ["version"]
 requires-python = ">=3.12"
 dependencies = [
     "Django>=5.2,<7",
-    "Wagtail>=7.4,<8",
+    "Wagtail>=7.2,<8",
     "wagtail-markdown>=0.13.0",
     "django-countries[pyuca]>=7.6.1",
     "django-extensions>=3.2.3",
