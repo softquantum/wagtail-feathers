@@ -47,7 +47,6 @@ uv.lock
 node_modules/
 
 # AI assistant
-CLAUDE.md
 .claude/
 .junie/
 
