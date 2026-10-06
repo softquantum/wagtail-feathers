@@ -670,8 +670,10 @@ PageAuthor.objects.create(
 ## Requirements
 
 - Python 3.12+
-- Django 5.2+ (Django 6.x also supported)
-- Wagtail 7.4+
+- Django 5.2, 6.0 or 6.1
+- Wagtail 7.3+ or 8.x
+
+Wagtail 8 custom base page models (`WAGTAIL_PAGE_MODEL`) are not supported: wagtail-feathers requires Wagtail's default `Page` model and raises `ImproperlyConfigured` at startup otherwise.
 
 See `pyproject.toml` for complete dependency list.
 
@@ -802,6 +804,6 @@ Contributions are welcome! Please:
 [BSD-3-Clause](LICENSE)
 
 ## Credits & Attributions
-- ✅ Wagtail Feathers is Developed by [Maxime Decooman](https://github.com/softquantum).
+- ✅ Wagtail Feathers is Developed by [Maxime Decooman](https://github.com/softquantum) in an augmented setup with CLaude Code.
 - ✅ Built on the excellent [Wagtail CMS](https://wagtail.org/) (License [BSD-3-Clause](https://github.com/wagtail/wagtail/blob/main/LICENSE))
 - ✅ The icons prefixed "heroicons-" are sourced from version 2.2.0 of [Heroicons](https://github.com/tailwindlabs/heroicons), the beautiful hand-crafted SVG icons library, by the makers of Tailwind CSS (License [MIT](https://github.com/tailwindlabs/heroicons/blob/master/LICENSE)).

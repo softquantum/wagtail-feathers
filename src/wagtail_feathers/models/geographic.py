@@ -21,6 +21,7 @@ class CountryGroup(models.Model):
     )
     countries = CountryField(
         multiple=True,
+        max_length=1000,
         blank=True,
         help_text=_("Select countries that belong to this group")
     )

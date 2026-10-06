@@ -28,7 +28,7 @@ class ErrorPage(CustomWagtailPage):
             unique=True,
     )
 
-    show_in_menus = False
+    show_in_menus_default = False
 
     image = models.ForeignKey(
             get_image_model_string(),

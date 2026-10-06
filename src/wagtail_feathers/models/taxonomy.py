@@ -11,7 +11,7 @@ from django.utils.translation import gettext_lazy as _
 from django_extensions.db.fields import AutoSlugField
 from modelcluster.fields import ParentalKey
 from modelcluster.models import ClusterableModel
-from treebeard.mp_tree import MP_Node
+from treebeard.mp_tree import MP_Node, MP_NodeManager, MP_NodeQuerySet
 from wagtail.admin.panels import FieldPanel, HelpPanel, InlinePanel, MultiFieldPanel
 from wagtail.models import Orderable, TranslatableMixin
 from wagtail.search import index
@@ -120,7 +120,7 @@ class BaseMPNode(index.Indexed, MP_Node):
     @cached_property
     def ancestors_list(self):
         """Cached list of ancestors for breadcrumb building."""
-        return list(self.get_ancestors().filter(live=True).select_related())
+        return list(self.get_ancestors().filter(live=True))
 
     @cached_property
     def descendant_ids(self):
@@ -184,7 +184,7 @@ class BaseMPNode(index.Indexed, MP_Node):
 """
 
 
-class CategoryQuerySet(models.QuerySet):
+class CategoryQuerySet(MP_NodeQuerySet):
     """Custom QuerySet for Category with performance optimizations."""
 
     def with_counts(self):
@@ -208,6 +208,13 @@ class CategoryQuerySet(models.QuerySet):
         return self.active().filter(numchild__gt=0)
 
 
+class CategoryManager(MP_NodeManager.from_queryset(CategoryQuerySet)):
+    """Tree-aware manager exposing the CategoryQuerySet methods."""
+
+    def get_queryset(self):
+        return self._queryset_class(self.model, using=self._db).order_by("path")
+
+
 class Category(TranslatableMixin, BaseMPNode):
     """A category for grouping related items using a hierarchical tree structure."""
 
@@ -224,7 +231,7 @@ class Category(TranslatableMixin, BaseMPNode):
 
     cache_timeout = TaxonomyConstants.CACHE_TIMEOUT
 
-    objects = CategoryQuerySet.as_manager()
+    objects = CategoryManager()
 
     panels = [
         FieldPanel("name", widget=forms.TextInput()),

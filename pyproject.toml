@@ -16,8 +16,10 @@ classifiers = [
     "Framework :: Django",
     "Framework :: Django :: 5.2",
     "Framework :: Django :: 6.0",
+    "Framework :: Django :: 6.1",
     "Framework :: Wagtail",
     "Framework :: Wagtail :: 7",
+    "Framework :: Wagtail :: 8",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: BSD License",
     "Operating System :: OS Independent",
@@ -32,7 +34,7 @@ dynamic = ["version"]
 requires-python = ">=3.12"
 dependencies = [
     "Django>=5.2,<7",
-    "Wagtail>=7.2,<8",
+    "Wagtail>=7.3,<9",
     "wagtail-markdown>=0.13.0",
     "django-countries[pyuca]>=7.6.1",
     "django-extensions>=3.2.3",
@@ -70,6 +72,9 @@ filterwarnings = [
      'ignore::DeprecationWarning',
 ]
 pythonpath = ["src", "."]
+markers = [
+    "themes: tests covering the theme system",
+]
 addopts = "--cov=wagtail_feathers --cov-report=xml --cov-report=term-missing --reuse-db --no-cov-on-fail"
 
 [tool.flit.sdist]

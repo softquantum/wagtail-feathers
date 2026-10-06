@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     
     # Wagtail apps
     "wagtail.contrib.forms",
+    "wagtail.contrib.settings",
     "wagtail.contrib.redirects",
     "wagtail.embeds",
     "wagtail.sites",
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
     
     # Our package
     "wagtail_feathers",
+    "tests.testapp",
 ]
 
 MIDDLEWARE = [
@@ -77,7 +79,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                "wagtail_feathers.context_processors.feathers_context",
+                "wagtail_feathers.context_processors.active_theme_info",
             ],
         },
     },

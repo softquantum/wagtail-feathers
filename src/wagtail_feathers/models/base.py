@@ -47,11 +47,10 @@ class FeatherBasePageMeta(PageBase):
     dynamic discovery and configuration throughout the application.
     """
 
-    def __new__(mcs, name, bases, dct):
-        cls = super().__new__(mcs, name, bases, dct)
-        if not cls._meta.abstract and getattr(cls, "is_creatable", True):  # noqa
+    def __init__(cls, name, bases, dct):
+        super().__init__(name, bases, dct)
+        if not cls._meta.abstract and cls.is_creatable:  # noqa
             FEATHER_PAGE_MODELS.append(cls)
-        return cls
 
 
 class FeatherBasePageTag(TaggedItemBase):

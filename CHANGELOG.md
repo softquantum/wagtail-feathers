@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.1.0
+
+### Improvements
+
+- **Wagtail 8.0 support.** The package now supports Wagtail 7.3 – 8.x (`Wagtail>=7.3,<9`) on Django 5.2, 6.0 and 6.1. Wagtail 7.2 is dropped: the block form layout (`BlockGroup`) needs 7.3, and 7.2 serialises StreamField block definitions differently, which made `makemigrations` report a spurious migration. The test matrix gained Wagtail 8.0 environments and admin smoke tests (snippet listing, classifier chooser, page add/edit views).
+- **Custom base page models are rejected explicitly.** Wagtail 8 lets a project replace `Page` through `WAGTAIL_PAGE_MODEL`. wagtail-feathers ships concrete page models and relations bound to `wagtailcore.Page`, so this is not supported: the package now raises `ImproperlyConfigured` with a clear message at startup instead of failing later with generic swapped-model errors. Projects using the default `Page` model are unaffected.
+
+### Bug Fixes
+
+- **Category snippet listing on Wagtail 8**: the "Add Child" and "Move" buttons used `wagtail.snippets.widgets.SnippetListingButton`, which was removed in Wagtail 8.0. They now use `wagtail.admin.widgets.button.Button` on all supported versions.
+- **Classifier chooser**: the group filter endpoint was hard-coded to `/admin/classifier_chooser/filter_groups/` and broke when the Wagtail admin was mounted elsewhere; the URL is now reversed. The chooser template's tab markup was re-synced with Wagtail's `w-tabs` controller.
+- **`get_page_models()` / `FEATHER_PAGE_MODELS`** was always empty unless a page model set `is_creatable = True` explicitly, because the metaclass read `is_creatable` before Wagtail had set it. Creatable concrete page models are now registered as documented.
+- **Recurring `CountryGroup.countries` migration**: the field's `max_length` was derived from the number of countries in the installed django-countries release, so `makemigrations` produced a new migration whenever that list changed. `max_length` is now fixed at 1000 (migration `0011`).
+- **`Category` manager**: `Category.objects` now subclasses treebeard's `MP_NodeManager`, so queryset deletes are tree-aware and the `treebeard.E001` warning (an error in treebeard 6) is gone. The custom queryset methods are unchanged.
+- **Snippet list filters**: the `_base_list_filter` declared on the navigation, social and classifier-group viewsets was never applied, so those listings had no filters. `LocaleAwareMixin` now exposes it as `list_filter` (Wagtail adds the locale filter itself for translatable models when i18n is enabled).
+- **`ErrorPage`** uses `show_in_menus_default = False` instead of shadowing the `show_in_menus` field with a class attribute.
+- Removed the unused `wagtail_feathers.fields` module, which imported a widget that no longer exists.
+- **Django 7 deprecation**: removed an argument-less `select_related()` call in the taxonomy ancestors lookup.
+
 ## v1.0.1
 
 First stable release. Cumulative changes across the 1.0 beta/rc series are recorded in the entries below.

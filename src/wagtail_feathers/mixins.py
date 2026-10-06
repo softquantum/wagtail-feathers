@@ -832,3 +832,9 @@ class LocaleAwareMixin:
         if _i18n_enabled():
             fields.insert(1, LocaleColumn())
         return fields
+
+    @property
+    def list_filter(self):
+        if self._base_list_filter is None:
+            return super().list_filter
+        return list(self._base_list_filter)

@@ -420,6 +420,19 @@ class TestCategoryQuerySet:
         assert category_hierarchy['parent'] in sitemap_categories
         assert category_hierarchy['grandchild'] not in sitemap_categories
 
+    def test_manager_is_tree_aware(self, category_hierarchy):
+        from treebeard.mp_tree import MP_NodeManager
+
+        assert isinstance(Category.objects, MP_NodeManager)
+        assert isinstance(Category.objects.all(), CategoryQuerySet)
+
+        parent = category_hierarchy['parent']
+        numchild = Category.objects.get(pk=parent.pk).numchild
+
+        Category.objects.filter(pk=category_hierarchy['inactive_child'].pk).delete()
+
+        assert Category.objects.get(pk=parent.pk).numchild == numchild - 1
+
 
 @pytest.mark.django_db
 class TestClassifierGroup:

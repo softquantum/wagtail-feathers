@@ -1,7 +1,11 @@
-from django.core.management.base import BaseCommand
 from django.contrib.auth import get_user_model
-from wagtail.models import Site, Page
-from showcase.models import HomePage, BlogIndexPage, ArticlePage
+from django.core.management.base import BaseCommand
+from django.utils import timezone
+from wagtail.models import Locale, Page, Site
+from wagtail.rich_text import RichText
+
+from showcase.models import ArticleIndexPage, ArticlePage, HomePage, WebPage
+from wagtail_feathers.models import Category, Classifier, ClassifierGroup, PageCategory, PageClassifier
 
 User = get_user_model()
 
@@ -27,31 +31,68 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR('No root page found'))
             return
             
-        # Delete existing demo pages
-        HomePage.objects.all().delete()
-        
+        # Delete existing demo pages and Wagtail's default welcome page
+        for home_page in HomePage.objects.all():
+            home_page.delete()
+        for page in Page.objects.filter(depth=2).exact_type(Page):
+            page.delete()
+        root_page.refresh_from_db()
+
         # Create home page
         home_page = HomePage(
             title='Wagtail Feathers Demo',
             slug='home',
-            intro='<p>Welcome to the Wagtail Feathers demo site! This showcases the features and capabilities of the wagtail-feathers package.</p>'
+            body=[
+                ('paragraph_block', RichText(
+                    '<p>Welcome to the Wagtail Feathers demo site! This showcases the features '
+                    'and capabilities of the wagtail-feathers package.</p>'
+                )),
+            ],
         )
         root_page.add_child(instance=home_page)
-        
+
         # Update site to point to home page
-        site = Site.objects.get(is_default_site=True)
+        site = Site.objects.filter(is_default_site=True).first() or Site(is_default_site=True, hostname='localhost')
         site.root_page = home_page
         site.site_name = 'Wagtail Feathers Demo'
         site.save()
-        
-        # Create blog index
-        blog_index = BlogIndexPage(
+
+        # Create a generic web page
+        about_page = WebPage(
+            title='About',
+            slug='about',
+            body=[
+                ('paragraph_block', RichText('<p>A generic web page built on WebBasePage.</p>')),
+            ],
+        )
+        home_page.add_child(instance=about_page)
+
+        # Create taxonomy
+        locale = Locale.get_default()
+        Category.get_or_create_hidden_root()
+        category = Category.objects.filter(slug='technology').first()
+        if not category:
+            category = Category.add_root_category('Technology', slug='technology')
+            category.add_child_category('Wagtail')
+
+        classifiers = []
+        groups = [
+            ('Subject', 'Topics', ['Theming', 'SEO', 'Getting started']),
+            ('Attribute', 'Level', ['Beginner', 'Advanced']),
+        ]
+        for group_type, group_name, names in groups:
+            group, _ = ClassifierGroup.objects.get_or_create(type=group_type, name=group_name, locale=locale)
+            for name in names:
+                classifier, _ = Classifier.objects.get_or_create(group=group, name=name, locale=locale)
+                classifiers.append(classifier)
+
+        # Create article index
+        blog_index = ArticleIndexPage(
             title='Blog',
             slug='blog',
-            intro='<p>Demo articles showcasing wagtail-feathers features like SEO optimization and reading time calculation.</p>'
         )
         home_page.add_child(instance=blog_index)
-        
+
         # Create sample articles
         articles = [
             {
@@ -115,8 +156,11 @@ class Command(BaseCommand):
             article = ArticlePage(
                 title=article_data['title'],
                 slug=article_data['slug'],
-                body=article_data['body']
+                publication_date=timezone.now().date(),
+                body=[('paragraph_block', RichText(article_data['body']))],
             )
+            article.categories = [PageCategory(category=category)]
+            article.classifiers = [PageClassifier(classifier=classifiers[0])]
             blog_index.add_child(instance=article)
         
         self.stdout.write(self.style.SUCCESS('Demo data created successfully!'))

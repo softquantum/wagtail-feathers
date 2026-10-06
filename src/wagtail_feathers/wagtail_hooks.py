@@ -11,8 +11,8 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from wagtail import hooks
+from wagtail.admin.widgets.button import Button
 from wagtail.rich_text import LinkHandler
-from wagtail.snippets import widgets as wagtailsnippets_widgets
 from wagtail.snippets.models import register_snippet
 
 from wagtail_feathers.viewsets.faq_chooser import faq_chooser_viewset
@@ -250,14 +250,14 @@ def category_listing_buttons(snippet, user, next_url=None):
     if snippet.is_hidden_root():
         return
     
-    yield wagtailsnippets_widgets.SnippetListingButton(
+    yield Button(
         _('Add Child'),
         reverse('wagtailsnippets_wagtail_feathers_category:add_child', args=[snippet.pk]),
         priority=10,
         icon_name='plus'
     )
     
-    yield wagtailsnippets_widgets.SnippetListingButton(
+    yield Button(
         _('Move'),
         reverse('wagtailsnippets_wagtail_feathers_category:move', args=[snippet.pk]),
         priority=20,

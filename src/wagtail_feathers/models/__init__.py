@@ -1,5 +1,9 @@
 """Wagtail_feathers models."""
 
+from .utils import FEATHER_PAGE_MODELS, check_default_page_model, get_page_models
+
+check_default_page_model()
+
 from .author import AuthorType, PageAuthor
 from .base import (
     CustomWagtailPage,
@@ -27,7 +31,6 @@ from .taxonomy import (
     PageCategory,
     PageClassifier,
 )
-from .utils import FEATHER_PAGE_MODELS, get_page_models
 
 __all__ = [
     "AuthorType",
