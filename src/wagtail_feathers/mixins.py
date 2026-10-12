@@ -183,6 +183,8 @@ class ReadingTimeMixin(models.Model):
                 total_words += self._count_text_words(str(block.value))
             elif block.block_type == 'markdown_block':
                 total_words += self._count_text_words(str(block.value))
+            elif block.block_type == 'code_block':
+                total_words += self._count_text_words(block.value.get('caption') or '')
             elif block.block_type == 'heading_block':
                 # Extract text from heading block
                 if hasattr(block.value, 'get'):

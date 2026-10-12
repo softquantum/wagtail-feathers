@@ -1,0 +1,9 @@
+<figure {% if value.theme.style_id %}id="{{ value.theme.style_id }}"{% endif %}
+        class="code-block{% if value.theme.classname %} {{ value.theme.classname }}{% endif %}"
+        data-component="code"
+        data-variant="{{ value.theme.theme_variant|default:'default' }}">
+    <pre><code class="language-{{ value.language }}">{{ value.code }}</code></pre>
+    {% if value.caption %}
+        <figcaption class="code-caption">{{ value.caption }}</figcaption>
+    {% endif %}
+</figure>

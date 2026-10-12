@@ -46,6 +46,7 @@ Wagtail Feathers provides a comprehensive set of reusable components and pattern
 - **Locale-Aware Ready**: Models ready for i18n when you need it
 - **Simple Translation**: Use Wagtail's built-in translation features
 - **Advanced Workflows**: Optional wagtail-localize integration (recommended)
+- **Code stays code**: the `CodeBlock` in `CommonContentBlock` is synchronised under wagtail-localize. Its code is copied verbatim from the source page, never machine-translated, and can only be changed in a translation through the override widget in the translation editor. Only the caption is translatable.
 
 ### 👥 **Authorship & People**
 - **Author Management**: Flexible author attribution system with AuthorType and PageAuthor models

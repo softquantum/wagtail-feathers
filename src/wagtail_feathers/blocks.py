@@ -598,6 +598,62 @@ class QuoteBlock(BaseBlock):
         description = _("A quote with an optional attribution")
 
 
+class CodeBlock(BaseBlock):
+    """A source-code block whose code is synchronised, not translated, by wagtail-localize."""
+
+    component_type = "code"
+    default_variant = "default"
+
+    language = blocks.ChoiceBlock(
+        choices=[
+            ("plaintext", "Plain text"),
+            ("python", "Python"),
+            ("bash", "Bash / Shell"),
+            ("javascript", "JavaScript"),
+            ("typescript", "TypeScript"),
+            ("html", "HTML"),
+            ("css", "CSS"),
+            ("json", "JSON"),
+            ("yaml", "YAML"),
+            ("toml", "TOML"),
+            ("sql", "SQL"),
+            ("django", "Django / Jinja template"),
+            ("markdown", "Markdown"),
+        ],
+        default="plaintext",
+        required=True,
+        label=_("Language"),
+    )
+    code = blocks.TextBlock(required=True, rows=12, label=_("Code"))
+    caption = blocks.CharBlock(required=False, label=_("Caption"))
+
+    def get_translatable_segments(self, value):
+        from wagtail_localize.segments import OverridableSegmentValue, StringSegmentValue
+
+        segments = [OverridableSegmentValue("code", value["code"])]
+        if value.get("caption"):
+            segments.append(StringSegmentValue("caption", value["caption"]))
+        return segments
+
+    def restore_translated_segments(self, value, segments):
+        from wagtail_localize.segments import OverridableSegmentValue, StringSegmentValue
+
+        new_value = dict(value)
+        for segment in segments:
+            if segment.path == "code" and isinstance(segment, OverridableSegmentValue):
+                new_value["code"] = segment.data
+            elif segment.path == "caption" and isinstance(segment, StringSegmentValue):
+                new_value["caption"] = segment.render_text()
+        return blocks.StructValue(self, new_value)
+
+    class Meta:
+        icon = "code"
+        label = _("Code")
+        template = "wagtail_feathers/blocks/code_block.html"
+        preview_value = {"language": "python", "code": 'print("Hello, world!")', "caption": "hello.py"}
+        description = _("A block of source code, kept identical across translations")
+
+
 class InternalLinkBlock(blocks.StructBlock):
     """A block that allows editors to add a link of type internal."""
 
@@ -1546,7 +1602,8 @@ class CommonContentBlock(blocks.StreamBlock):
         ),
         description="A rich text paragraph",
     )
-    markdown_block = MarkdownBlock(icon="code", label="Markdown")
+    markdown_block = MarkdownBlock(icon="doc-full", label="Markdown")
+    code_block = CodeBlock(label="Code")
     image_block = ImageBlock(label="Image")
     image_grid = ImageGridBlock(label="Image Grid")
     block_quote = QuoteBlock(label="Quote")
