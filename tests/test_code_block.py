@@ -1,7 +1,8 @@
 """Tests for CodeBlock rendering, registration and reading-time handling."""
 
+import pytest
+
 from wagtail_feathers.blocks import CodeBlock, CommonContentBlock
-from wagtail_feathers.mixins import ReadingTimeMixin
 from wagtail_feathers.models.base import FeatherBasePage
 
 SAMPLE_CODE = 'def hello(name):\n    return "<b>" + name + " & co</b>"\n'
@@ -79,28 +80,45 @@ class TestCodeBlockRegistration:
         assert stream.child_blocks["markdown_block"].meta.icon != "code"
 
 
-class TestReadingTimeIgnoresCode:
-    """ReadingTimeMixin does not count code as prose."""
+def make_body(*items):
+    """Build a FeatherBasePage body StreamValue from raw stream data."""
+    return FeatherBasePage._meta.get_field("body").to_python(list(items))
+
+
+@pytest.mark.django_db
+class TestReadingTime:
+    """ReadingTimeMixin counts prose, headings and captions but not code."""
 
     def test_code_not_counted_caption_counted(self):
         """Only the caption of a code block contributes to the word count."""
+        from tests.testapp.models import ArticlePage
 
-        class Counter:
-            _count_streamfield_words = ReadingTimeMixin._count_streamfield_words
-            _count_text_words = ReadingTimeMixin._count_text_words
-
-        field = FeatherBasePage._meta.get_field("body")
-        body = field.to_python(
-            [
-                {"type": "paragraph_block", "value": "<p>one two three four</p>"},
-                {
-                    "type": "code_block",
-                    "value": {
-                        "language": "python",
-                        "code": "import os\nimport sys\nprint(os.path.join(sys.argv[0], 'many words here in code'))",
-                        "caption": "two words",
-                    },
+        body = make_body(
+            {"type": "paragraph_block", "value": "<p>one two three four</p>"},
+            {
+                "type": "code_block",
+                "value": {
+                    "language": "python",
+                    "code": "import os\nimport sys\nprint(os.path.join(sys.argv[0], 'many words here in code'))",
+                    "caption": "two words",
                 },
-            ]
+            },
         )
-        assert Counter()._count_streamfield_words(body) == 6
+        page = ArticlePage(title="Reading", body=body)
+        assert page._count_streamfield_words(page.body) == 6
+
+    def test_heading_text_counted(self):
+        """Heading block text is included in the word count."""
+        from tests.testapp.models import ArticlePage
+
+        body = make_body({"type": "heading_block", "value": {"heading_text": "alpha beta gamma", "size": "h2"}})
+        page = ArticlePage(title="Reading", body=body)
+        assert page._count_streamfield_words(page.body) == 3
+
+    def test_get_word_count_includes_title(self):
+        """get_word_count adds the title to the body count."""
+        from tests.testapp.models import ArticlePage
+
+        body = make_body({"type": "paragraph_block", "value": "<p>one two</p>"})
+        page = ArticlePage(title="Three four five", body=body)
+        assert page.get_word_count() == 5

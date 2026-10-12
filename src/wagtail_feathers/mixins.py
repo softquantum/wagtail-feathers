@@ -188,7 +188,7 @@ class ReadingTimeMixin(models.Model):
             elif block.block_type == 'heading_block':
                 # Extract text from heading block
                 if hasattr(block.value, 'get'):
-                    text = block.value.get('text', '')
+                    text = block.value.get('heading_text', '')
                     total_words += self._count_text_words(text)
             elif hasattr(block.value, '__str__'):
                 # Fallback for other text-containing blocks

@@ -7,6 +7,10 @@
 - **`CodeBlock`.** `CommonContentBlock` gains a `code_block` (language, code, optional caption), placed right after the Markdown block, rendered as `<figure><pre><code class="language-…">` with an optional `<figcaption>`. No highlighter is bundled; themes can hook Prism or highlight.js on the `language-*` class. With wagtail-localize installed, the `code` child is extracted as a synchronised, overridable segment: it is copied verbatim from the source page, never sent to machine translation, and can only be changed in a translation through the override widget in the translation editor. The caption is a normal translatable string and the language choice is copied as-is. The Markdown block keeps its existing (translatable) behaviour; its icon changes from `code` to `doc-full` so the two are distinguishable in the block chooser. `ReadingTimeMixin` no longer counts code as words (the caption still counts).
 - **Migration required.** `CommonContentBlock` changed, so `FeatherBasePage.body` gets migration `0012`. Consuming projects must run `makemigrations` and `migrate` after upgrading for any StreamField of their own that uses `CommonContentBlock`.
 
+### Bug Fixes
+
+- **Reading time counted headings as zero words**: `ReadingTimeMixin` looked up a `text` key on heading blocks, but `HeadingBlock`'s field is `heading_text`. Headings now contribute to the word count.
+
 ## v1.1.0
 
 ### Improvements

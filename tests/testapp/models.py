@@ -2,10 +2,11 @@ from django.db import models
 from modelcluster.fields import ParentalKey
 from wagtail.contrib.forms.models import AbstractFormField
 
+from wagtail_feathers.mixins import ReadingTimeMixin
 from wagtail_feathers.models import FormBasePage, ItemPage, WebBasePage
 
 
-class ArticlePage(ItemPage):
+class ArticlePage(ReadingTimeMixin, ItemPage):
     template = "pages/article_page.html"
 
 
