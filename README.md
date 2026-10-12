@@ -32,7 +32,7 @@ Wagtail Feathers provides a comprehensive set of reusable components and pattern
 - **Structured Data**: Automatic JSON-LD generation for articles, organizations, and more
 - **Smart Fallbacks**: Intelligent content detection for missing SEO fields
 - **Search Engine Control**: No-index/no-follow directives and robots meta tags
-- **Reading Time**: Automatic reading time calculation with SEO integration
+- **Reading Time**: Opt-in `ReadingTimeMixin` with automatic word counting and SEO integration
 
 ### 🎨 **Theme System**
 - **Multi-Site Theming**: Different themes per site
@@ -303,14 +303,15 @@ page.save()
 
 ### Reading Time Features
 
-All `ItemPage` models automatically include reading time calculation:
+Reading time is opt-in: add `ReadingTimeMixin` to the page models that need it. It adds a `reading_time_minutes` field (so run `makemigrations` afterwards) and calculates the value from the title, introduction and body when it is left blank:
 
 ```python
+from wagtail_feathers.mixins import ReadingTimeMixin
 from wagtail_feathers.models import ItemPage
 
-class BlogPost(ItemPage):
-    # Reading time is automatically calculated from:
-    # - title, introduction, body content
+class BlogPost(ReadingTimeMixin, ItemPage):
+    # Reading time is calculated from:
+    # - title, introduction, body content (code blocks are skipped, their captions count)
     # - Configurable words-per-minute (default: 200 WPM)
     pass
 
@@ -321,7 +322,7 @@ class BlogPost(ItemPage):
 # {% reading_time_badge page %}  # Badge with clock icon
 
 # Custom reading time logic:
-class TechnicalArticle(ItemPage):
+class TechnicalArticle(ReadingTimeMixin, ItemPage):
     summary = RichTextField(blank=True)
     
     def get_additional_word_sources(self):
@@ -583,12 +584,12 @@ class MultilingualSEOPage(FeatherBasePage):
 The SeoMixin provides several extension points for easy customization:
 
 ```python
-class BlogArticlePage(ItemPage):
+class BlogArticlePage(ReadingTimeMixin, ItemPage):
     """Blog article with enhanced SEO using extension points."""
     
     author_twitter = models.CharField(max_length=50, blank=True)
     focus_keyword = models.CharField(max_length=100, blank=True)
-    # Note: reading_time is automatically provided by ItemPage
+    # Note: reading_time_minutes comes from ReadingTimeMixin, which must be added explicitly
     
     def get_custom_meta_tags(self):
         """Add custom meta tags."""
